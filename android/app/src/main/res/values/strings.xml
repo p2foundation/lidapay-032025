@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">lidapay</string>
+    <string name="title_activity_main">lidapay</string>
+    <string name="package_name">com.advansistechnologies.lidapay</string>
+    <string name="custom_url_scheme">com.advansistechnologies.lidapay</string>
+</resources>

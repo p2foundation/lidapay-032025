@@ -1,0 +1,364 @@
+:host {
+    --page-padding: 16px;
+    --card-border-radius: 16px;
+    --input-border-radius: 12px;
+}
+
+.header_bg {
+    background: transparent;
+
+    ion-toolbar {
+        --background: transparent;
+
+        .page_title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+    }
+}
+
+.content-wrapper {
+    padding: var(--page-padding);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease-out;
+
+    &.animate-in {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Info Card
+.info-card {
+    margin: 0 0 20px;
+    border-radius: var(--card-border-radius);
+    background: var(--ion-color-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+
+        .header-icon {
+            font-size: 24px;
+            color: var(--ion-color-primary);
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ion-color-dark);
+        }
+    }
+
+    p {
+        margin: 0;
+        color: var(--ion-color-medium);
+        font-size: 14px;
+        line-height: 1.4;
+    }
+}
+
+// Form Styling
+.form-container {
+    ion-item {
+        --background: transparent;
+        --padding-start: 0;
+        --padding-end: 0;
+        --inner-padding-end: 0;
+        margin-bottom: 16px;
+
+        &.item-has-focus {
+            --highlight-background: var(--ion-color-primary);
+        }
+    }
+
+    ion-label {
+        color: var(--ion-color-dark);
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .network-select,
+    .custom-input {
+        background: var(--ion-color-light);
+        border-radius: var(--input-border-radius);
+        padding: 12px;
+        margin-top: 8px;
+        --padding-start: 12px;
+    }
+
+    ion-note {
+        font-size: 12px;
+        padding: 4px 0;
+    }
+}
+
+// Quick Amounts Section
+.quick-amounts {
+    margin: 24px 0;
+
+    h3 {
+        margin: 0 0 16px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+    }
+
+    .amount-chip {
+        background: var(--ion-color-light);
+        border-radius: var(--card-border-radius);
+        padding: 12px;
+        text-align: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+
+        span {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ion-color-dark);
+        }
+
+        &:active {
+            transform: scale(0.95);
+            background: rgba(var(--ion-color-primary-rgb), 0.1);
+
+            span {
+                color: var(--ion-color-primary);
+            }
+        }
+    }
+}
+
+// Submit Button
+.submit-button-container {
+    margin: 24px 0;
+
+    .submit-button {
+        --border-radius: var(--input-border-radius);
+        --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.2);
+        min-height: 52px;
+        font-weight: 600;
+
+        ion-icon {
+            margin-right: 8px;
+        }
+
+        &:active {
+            transform: scale(0.98);
+        }
+    }
+}
+
+// Features Section
+.features-section {
+    margin-top: 32px;
+
+    .feature-card {
+        background: var(--ion-color-light);
+        border-radius: var(--card-border-radius);
+        padding: 16px;
+        text-align: center;
+        height: 100%;
+        transition: transform 0.2s ease;
+
+        &:active {
+            transform: scale(0.98);
+        }
+
+        ion-icon {
+            font-size: 24px;
+            color: var(--ion-color-primary);
+            margin-bottom: 8px;
+        }
+
+        h4 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ion-color-dark);
+        }
+
+        p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--ion-color-medium);
+        }
+    }
+}
+
+// Dark mode adjustments
+@media (prefers-color-scheme: dark) {
+
+    .info-card,
+    .feature-card,
+    .amount-chip {
+        background: rgba(var(--ion-color-light-rgb), 0.05);
+    }
+
+    .network-select,
+    .custom-input {
+        background: rgba(var(--ion-color-light-rgb), 0.1);
+    }
+
+    h3,
+    .info-card .card-header h2 {
+        color: var(--ion-color-light);
+    }
+
+    .amount-chip {
+        span {
+            color: var(--ion-color-light);
+        }
+
+        &:active {
+            background: rgba(var(--ion-color-primary-rgb), 0.2);
+        }
+    }
+}
+
+// Touch feedback animations
+@keyframes touchRipple {
+    0% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.touch-ripple {
+    position: absolute;
+    background: var(--ion-color-primary);
+    border-radius: 50%;
+    opacity: 0;
+    animation: touchRipple 0.4s ease-out;
+}
+
+// radio selection group
+ion-radio {
+    --border-radius: 4px;
+    --inner-border-radius: 4px;
+
+    --color: #ddd;
+    --color-checked: #6815ec;
+
+    margin-left: 15px;
+}
+
+ion-radio.ios::part(container) {
+    width: 20px;
+    height: 20px;
+
+    border: 2px solid #ddd;
+    border-radius: 4px;
+}
+
+.radio-checked.ios::part(container) {
+    border-color: #6815ec;
+}
+
+.airtimeForm {
+    padding-top: 10px;
+}
+
+.airtimeForm {
+
+    .button.btn {
+        letter-spacing: 0 !important;
+        text-transform: unset;
+        font-size: 1.1rem;
+    }
+
+}
+
+// Skeleton Styles
+.skeleton-wrapper {
+    padding: var(--page-padding);
+
+    .skeleton-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+
+        .skeleton-text-group {
+            flex: 1;
+        }
+    }
+
+    .form-skeleton {
+        margin: 24px 0;
+
+        ion-item {
+            --padding-start: 0;
+            --padding-end: 0;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-input-group {
+            width: 100%;
+        }
+    }
+
+    .quick-amounts-skeleton {
+        margin: 32px 0;
+    }
+
+    .skeleton-feature-card {
+        background: rgba(var(--ion-color-light-rgb), 0.05);
+        border-radius: var(--card-border-radius);
+        padding: 16px;
+        height: 100%;
+    }
+
+    ion-skeleton-text {
+        border-radius: 4px;
+
+        &.skeleton-circle {
+            border-radius: 50%;
+        }
+    }
+}
+
+// Loading Animation
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+ion-skeleton-text {
+    --background-rgb: var(--ion-color-light-rgb);
+    background: linear-gradient(90deg,
+            rgba(var(--background-rgb), 0.1) 25%,
+            rgba(var(--background-rgb), 0.2) 37%,
+            rgba(var(--background-rgb), 0.1) 63%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+// Dark mode adjustments for skeleton
+@media (prefers-color-scheme: dark) {
+    .skeleton-wrapper {
+        ion-skeleton-text {
+            --background-rgb: 255, 255, 255;
+            opacity: 0.05;
+        }
+
+        .skeleton-feature-card {
+            background: rgba(var(--ion-color-light-rgb), 0.08);
+        }
+    }
+}

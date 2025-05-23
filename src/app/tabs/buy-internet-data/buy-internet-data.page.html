@@ -1,0 +1,162 @@
+<ion-header class="header_bg bg-transparent">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="d-flex">
+        <span class="page_title animate__animated animate__fadeIn">
+          {{'buy_internet_data' | translate}}
+        </span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color" [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">buyInternetData</ion-title>
+    </ion-toolbar>
+  </ion-header>
+    <!-- Skeleton Loading -->
+    <div class="skeleton-wrapper" *ngIf="isLoading">
+      <ion-list lines="none">
+        <!-- Info Card Skeleton -->
+        <ion-card>
+          <ion-card-content>
+            <div class="skeleton-header">
+              <ion-skeleton-text [animated]="true" style="width: 48px; height: 48px; border-radius: 50%;"></ion-skeleton-text>
+              <div class="skeleton-text-group">
+                <ion-skeleton-text [animated]="true" style="width: 60%; height: 20px;"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width: 80%; height: 16px; margin-top: 8px;"></ion-skeleton-text>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+  
+        <!-- Network Selection Skeleton -->
+        <div class="form-skeleton ion-padding">
+          <div class="skeleton-input-container">
+            <ion-skeleton-text [animated]="true" style="width: 30%; height: 16px; margin-bottom: 8px;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 100%; height: 48px; border-radius: 8px;"></ion-skeleton-text>
+          </div>
+          
+          <!-- Submit Button Skeleton -->
+          <ion-skeleton-text [animated]="true" style="width: 100%; height: 48px; border-radius: 24px; margin-top: 32px;"></ion-skeleton-text>
+        </div>
+  
+        <!-- Features Skeleton -->
+        <div class="features-skeleton ion-padding">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6" *ngFor="let i of [1,2]">
+                <div class="feature-skeleton-card">
+                  <ion-skeleton-text [animated]="true" style="width: 40px; height: 40px; border-radius: 50%; margin: 0 auto;"></ion-skeleton-text>
+                  <ion-skeleton-text [animated]="true" style="width: 50%; height: 16px; margin: 12px auto 4px;"></ion-skeleton-text>
+                  <ion-skeleton-text [animated]="true" style="width: 70%; height: 12px; margin: 4px auto;"></ion-skeleton-text>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+  
+        <!-- Network Providers Skeleton -->
+        <div class="providers-skeleton ion-padding">
+          <ion-skeleton-text [animated]="true" style="width: 40%; height: 20px; margin-bottom: 16px;"></ion-skeleton-text>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="4" *ngFor="let i of [1,2,3,4,5,6]">
+                <div class="provider-skeleton-card">
+                  <ion-skeleton-text [animated]="true" style="width: 60px; height: 60px; border-radius: 12px; margin: 0 auto;"></ion-skeleton-text>
+                  <ion-skeleton-text [animated]="true" style="width: 80%; height: 14px; margin: 8px auto 0;"></ion-skeleton-text>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </ion-list>
+    </div>
+    <div class="content-wrapper animate__animated animate__fadeIn">
+      <!-- Info Card -->
+      <ion-card class="info-card animate__animated animate__fadeInDown animate__delay-1s">
+        <ion-card-content>
+          <div class="card-header">
+            <ion-icon name="wifi-outline" class="header-icon"></ion-icon>
+            <h2>Internet Data Bundles</h2>
+          </div>
+          <p>Choose your preferred network provider to view available data bundles.</p>
+        </ion-card-content>
+      </ion-card>
+      <!-- Network Selection Form -->
+      <form [formGroup]="dataCodeForm" (ngSubmit)="getDataBundle(dataCodeForm.value)" class="form-container">
+        <ion-item class="network-select-item animate__animated animate__fadeInUp animate__delay-2s">
+          <ion-label position="stacked">Network Provider</ion-label>
+          <ion-select formControlName="network" interface="action-sheet"
+            [interfaceOptions]="{ header: 'Select Network Provider' }" placeholder="Choose your network"
+            class="network-select">
+            <!-- <ion-select-option value="">Select network operator</ion-select-option> -->
+            <ion-select-option value="4">
+              <div class="operator-option">
+                <ion-icon name="cellular-outline"></ion-icon>
+                <span>MTN Ghana</span>
+              </div>
+            </ion-select-option>
+            <ion-select-option value="6">Telecel Ghana</ion-select-option>
+            <ion-select-option value="1">AirtelTigo Ghana</ion-select-option>
+            <ion-select-option value="3">Glo Ghana</ion-select-option>
+            <ion-select-option value="8">Busy Internet</ion-select-option>
+            <ion-select-option value="9">Surfline Ghana</ion-select-option>
+          </ion-select>
+          <ion-note slot="error" *ngIf="dataCodeForm.get('network')?.touched && dataCodeForm.get('network')?.invalid">
+            Please select a network provider
+          </ion-note>
+        </ion-item>
+        <!-- Submit Button -->
+        <div class="submit-button-container animate__animated animate__fadeInUp animate__delay-3s">
+          <ion-button expand="block" type="submit" [disabled]="!dataCodeForm.valid" class="submit-button">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            View Data Bundles
+          </ion-button>
+        </div>
+      </form>
+      <!-- Features Section -->
+      <div class="features-section">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" class="animate__animated animate__fadeInUp animate__delay-4s">
+              <div class="feature-card">
+                <ion-icon name="flash-outline"></ion-icon>
+                <h4>4G/5G</h4>
+                <p>High Speed</p>
+              </div>
+            </ion-col>
+            <ion-col size="6" class="animate__animated animate__fadeInUp animate__delay-4s">
+              <div class="feature-card">
+                <ion-icon name="infinite-outline"></ion-icon>
+                <h4>Flexible</h4>
+                <p>Multiple options</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+      <!-- Network Providers Grid -->
+      <div class="providers-section animate__animated animate__fadeInUp animate__delay-5s">
+        <h3>Available Networks</h3>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="4" *ngFor="let provider of networkProviders">
+              <div class="provider-card">
+                <div class="logo-container">
+                  <img [src]="'assets/imgs/operators/' + provider.toLowerCase() + '.png'" 
+                    [alt]="provider + ' logo'" title="Network provider logo" class="provider-logo" loading="lazy">
+                </div>
+                <span class="provider-name">{{provider}}</span>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </div>
+</ion-content>

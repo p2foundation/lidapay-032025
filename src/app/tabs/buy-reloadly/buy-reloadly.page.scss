@@ -1,0 +1,404 @@
+:host {
+    --page-padding: 16px;
+    --card-border-radius: 16px;
+    --input-border-radius: 12px;
+  }
+  
+  .header_bg {
+    background: transparent;
+    
+    ion-toolbar {
+      --background: transparent;
+      
+      .page_title {
+        font-size: 24px;
+        font-weight: 700;
+      }
+    }
+  }
+  
+  .content-wrapper {
+    padding: var(--page-padding);
+  }
+  
+  // Info Card
+  .info-card {
+    margin: 0 0 20px;
+    border-radius: var(--card-border-radius);
+    background: var(--ion-color-light);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+  
+      .header-icon {
+        font-size: 24px;
+        color: var(--ion-color-primary);
+      }
+  
+      h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+    }
+  
+    p {
+      margin: 0;
+      color: var(--ion-color-medium);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+  }
+  
+  // Form Styling
+  .form-container {
+    ion-item {
+      --background: transparent;
+      --padding-start: 0;
+      --padding-end: 0;
+      --inner-padding-end: 0;
+      margin-bottom: 16px;
+  
+      &.item-has-focus {
+        --highlight-background: var(--ion-color-primary);
+      }
+    }
+  
+    ion-label {
+      color: var(--ion-color-dark);
+      font-weight: 500;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+  
+    .country-select {
+      background: var(--ion-color-light);
+      border-radius: var(--input-border-radius);
+      padding: 12px;
+      margin-top: 8px;
+  
+      .country-flag {
+        width: 24px;
+        height: 16px;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+    }
+  
+    .custom-input {
+      background: var(--ion-color-light);
+      border-radius: var(--input-border-radius);
+      padding: 12px;
+      margin-top: 8px;
+      --padding-start: 12px;
+    }
+  
+    ion-note {
+      font-size: 12px;
+      padding: 4px 0;
+    }
+  }
+  
+  // Submit Button
+  .submit-button-container {
+    margin: 24px 0;
+  
+    .submit-button {
+      --border-radius: var(--input-border-radius);
+      --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.2);
+      min-height: 52px;
+      font-weight: 600;
+  
+      ion-icon {
+        margin-right: 8px;
+      }
+  
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+  
+  // Features Section
+  .features-section {
+    margin-top: 32px;
+  
+    .feature-card {
+      background: var(--ion-color-light);
+      border-radius: var(--card-border-radius);
+      padding: 16px;
+      text-align: center;
+      height: 100%;
+      transition: transform 0.2s ease;
+  
+      &:active {
+        transform: scale(0.98);
+      }
+  
+      ion-icon {
+        font-size: 24px;
+        color: var(--ion-color-primary);
+        margin-bottom: 8px;
+      }
+  
+      h4 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+  
+      p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+  
+  // Dark mode adjustments
+  @media (prefers-color-scheme: dark) {
+    .info-card,
+    .feature-card {
+      background: rgba(var(--ion-color-light-rgb), 0.05);
+    }
+  
+    .custom-input,
+    .country-select {
+      background: rgba(var(--ion-color-light-rgb), 0.1);
+    }
+  
+    .info-card .card-header h2 {
+      color: var(--ion-color-light);
+    }
+  
+    .feature-card {
+      h4 {
+        color: var(--ion-color-light);
+      }
+      p {
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+  
+  // Animations
+  @keyframes slideIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+  }
+  
+  // radio selection group
+  ion-radio {
+    --border-radius: 4px;
+    --inner-border-radius: 4px;
+  
+    --color: #ddd;
+    --color-checked: #6815ec;
+  
+    margin-left: 15px;
+  }
+  
+  ion-radio.ios::part(container) {
+    width: 20px;
+    height: 20px;
+  
+    border: 2px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .radio-checked.ios::part(container) {
+    border-color: #6815ec;
+  }
+  
+  .globalAirForm {
+    padding-top: 10px;
+  
+    .button.btn {
+      letter-spacing: 0 !important;
+      text-transform: unset;
+      font-size: 1.1rem;
+    }
+  
+  }
+  
+  ion-header {
+      ion-toolbar {
+          ion-title { 
+  
+              .end {
+                  font-size: 1.1rem;
+                  font-weight: 500;
+                  color: var(--primary);
+              }
+          }
+      }
+  }
+  
+  // Custom modal styles
+  ::ng-deep .waiting-modal {
+    --height: 200px;
+    --width: 90%;
+    --max-width: 400px;
+    --border-radius: 16px;
+    --background: var(--ion-background-color);
+    
+    .modal-wrapper {
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    }
+  }
+  
+  // Skeleton Loading Styles
+  .skeleton-wrapper {
+    padding: var(--page-padding);
+    animation: fadeIn 0.3s ease-in;
+  
+    .skeleton-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+  
+      ion-skeleton-text {
+        &[style*="border-radius: 50%"] {
+          aspect-ratio: 1;
+        }
+      }
+  
+      .skeleton-text-group {
+        flex: 1;
+  
+        ion-skeleton-text {
+          &:first-child {
+            margin-bottom: 8px;
+          }
+        }
+      }
+    }
+  
+    .form-skeleton {
+      margin: 24px 0;
+  
+      ion-item {
+        --padding-start: 0;
+        --padding-end: 0;
+        margin-bottom: 20px;
+        background: transparent;
+  
+        .skeleton-input-group {
+          width: 100%;
+  
+          ion-skeleton-text {
+            &:first-child {
+              margin-bottom: 8px;
+            }
+  
+            &[style*="border-radius: 12px"] {
+              height: 48px !important;
+            }
+          }
+        }
+      }
+    }
+  
+    .features-skeleton {
+      margin-top: 32px;
+  
+      .skeleton-feature-card {
+        background: rgba(var(--ion-color-light-rgb), 0.05);
+        border-radius: var(--card-border-radius);
+        padding: 16px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+  
+        ion-skeleton-text {
+          &[style*="border-radius: 50%"] {
+            aspect-ratio: 1;
+          }
+  
+          &[style*="margin: 8px auto"] {
+            max-width: 100px;
+          }
+  
+          &[style*="margin: 0 auto"] {
+            max-width: 80px;
+          }
+        }
+      }
+    }
+  }
+  
+  // Loading Animation
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  ion-skeleton-text {
+    --background-rgb: var(--ion-color-light-rgb);
+    background: linear-gradient(
+      90deg,
+      rgba(var(--background-rgb), 0.1) 25%,
+      rgba(var(--background-rgb), 0.2) 37%,
+      rgba(var(--background-rgb), 0.1) 63%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  // Content Animation
+  .content-wrapper {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease-out;
+  
+    &.animate-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  // Dark mode adjustments for skeleton
+  @media (prefers-color-scheme: dark) {
+    .skeleton-wrapper {
+      ion-skeleton-text {
+        --background-rgb: 255, 255, 255;
+        opacity: 0.05;
+      }
+  
+      .skeleton-feature-card {
+        background: rgba(var(--ion-color-light-rgb), 0.08);
+      }
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }

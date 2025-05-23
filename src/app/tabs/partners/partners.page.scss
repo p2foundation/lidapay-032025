@@ -1,0 +1,388 @@
+:host {
+    --page-padding: 16px;
+    --card-border-radius: 16px;
+  }
+  
+  // Header Styles
+  .header_bg {
+    background: var(--ion-color-primary);
+    
+    ion-toolbar {
+      --background: transparent;
+      --border-width: 0;
+      padding: 8px 0;
+  
+      .header-content {
+        padding: 0 16px;
+      }
+  
+      .title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+  
+        .page_title {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+        }
+  
+        .points-badge {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          background: rgba(255, 255, 255, 0.1);
+          padding: 4px 12px;
+          border-radius: 20px;
+  
+          ion-icon {
+            color: var(--ion-color-warning);
+            font-size: 16px;
+          }
+  
+          span {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+          }
+        }
+      }
+  
+      .custom-segment {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 4px;
+        
+        ion-segment-button {
+          --background: transparent;
+          --background-checked: rgba(255, 255, 255, 0.2);
+          --color: rgba(255, 255, 255, 0.6);
+          --color-checked: white;
+          --indicator-color: transparent;
+          border-radius: 6px;
+          min-height: 40px;
+          text-transform: none;
+  
+          .segment-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+          }
+  
+          ion-icon {
+            font-size: 20px;
+            margin: 0;
+          }
+  
+          ion-label {
+            font-size: 12px;
+            margin: 0;
+          }
+  
+          &.segment-button-checked {
+            --background: rgba(255, 255, 255, 0.2);
+          }
+        }
+      }
+    }
+  }
+  
+  // Adjust the icon container for better alignment
+  .icon_container {
+    margin-left: auto;
+  }
+  
+  // Content Styles
+  .content-wrapper {
+    padding: var(--page-padding);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease-out;
+  
+    &.animate-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  // Section Styles
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 24px 0 16px;
+  }
+  
+  // Featured Partners
+  .featured-card {
+    background: var(--ion-color-light);
+    border-radius: var(--card-border-radius);
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  
+    &:active {
+      transform: scale(0.98);
+    }
+  
+    .card-image {
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+  
+      .points-overlay {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 4px 8px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+  
+        ion-icon {
+          color: var(--ion-color-primary);
+          font-size: 14px;
+        }
+  
+        span {
+          color: white;
+          font-size: 12px;
+          font-weight: 500;
+        }
+      }
+    }
+  
+    h3 {
+      margin: 12px 12px 4px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  
+    p {
+      margin: 0 12px 12px;
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  // Categories
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  
+    .category-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+  
+      &:active {
+        transform: scale(0.95);
+      }
+  
+      ion-icon {
+        font-size: 24px;
+        color: white;
+      }
+  
+      &.fuel {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+      }
+  
+      &.shopping {
+        background: linear-gradient(135deg, #4FACFE, #00F2FE);
+      }
+  
+      &.gaming {
+        background: linear-gradient(135deg, #FA709A, #FEE140);
+      }
+  
+      &.food {
+        background: linear-gradient(135deg, #43E97B, #38F9D7);
+      }
+    }
+  
+    span {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+      text-align: center;
+    }
+  }
+  
+  // Partner List
+  .partner-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: var(--ion-color-light);
+    border-radius: var(--card-border-radius);
+    margin: 8px 0;
+    transition: transform 0.2s ease;
+  
+    &:active {
+      transform: scale(0.98);
+    }
+  
+    .partner-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+  
+      .pulse-ring {
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
+        border-radius: inherit;
+        border: 2px solid var(--ion-color-primary);
+        animation: pulse 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+      }
+    }
+  
+    .partner-info {
+      flex: 1;
+  
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+  
+      p {
+        margin: 4px 0;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+      }
+  
+      .partner-points {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+  
+        ion-icon {
+          color: var(--ion-color-primary);
+          font-size: 14px;
+        }
+  
+        span {
+          font-size: 12px;
+          color: var(--ion-color-primary);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+  
+  // Animations
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.4;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+  }
+  
+  // Dark mode adjustments
+  @media (prefers-color-scheme: dark) {
+    .featured-card,
+    .partner-item {
+      background: rgba(var(--ion-color-light-rgb), 0.05);
+    }
+  
+    .section-title,
+    .featured-card h3,
+    .partner-item .partner-info h3 {
+      color: var(--ion-color-light);
+    }
+  }
+  
+  // Adjust the skeleton loading styles
+  .skeleton-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    margin: 0 auto;
+  }
+  
+  .skeleton-title {
+    width: 70%;
+    height: 16px;
+    margin: 12px auto 0;
+  }
+  
+  .skeleton-description {
+    width: 40%;
+    height: 12px;
+    margin: 8px auto 0;
+  }
+  
+  // Ensure the service cards have enough padding and margin
+  .service-card {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  // Add any missing skeleton styles
+  .skeleton-wrapper {
+    .skeleton-header {
+      width: 40%;
+      height: 24px;
+      margin: 16px;
+    }
+  
+    .skeleton-card {
+      width: 100%;
+      height: 120px;
+      border-radius: var(--card-border-radius);
+    }
+  
+    .skeleton-text {
+      width: 60%;
+      height: 16px;
+      margin: 8px auto;
+    }
+  
+    .skeleton-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin: 0 auto;
+    }
+  }
+  
+  // Dark mode adjustments
+  @media (prefers-color-scheme: dark) {
+    .header_bg {
+      ion-toolbar {
+        --background: var(--ion-color-primary-shade);
+      }
+    }
+  
+    .custom-segment {
+      background: rgba(0, 0, 0, 0.2) !important;
+    }
+  }

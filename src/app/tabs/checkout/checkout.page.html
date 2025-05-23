@@ -1,0 +1,59 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <!-- add back button -->
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{'Processing Transaction' | translate}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="transaction-status" *ngIf="data">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ 'Transaction Details' | translate }}</ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <div class="status-container">
+          <div class="status-badge" [ngClass]="{
+            'success': data.status === 'COMPLETED',
+            'pending': data.status === 'PENDING',
+            'failed': data.status === 'FAILED'
+          }">
+            {{ data.status | translate }}
+          </div>
+          
+          <div class="transaction-details">
+            <div class="detail-item">
+              <span class="label">{{ 'Transaction Type' | translate }}</span>
+              <span class="value">{{ data.transType | translate }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="label">{{ 'Amount' | translate }}</span>
+              <span class="value">{{ data.amount | currency:data.currency }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="label">{{ 'Transaction ID' | translate }}</span>
+              <span class="value">{{ data.transactionId }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <span class="label">{{ 'Order ID' | translate }}</span>
+              <span class="value">{{ data.orderId }}</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Processing State -->
+    <div class="processing-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>{{ processingMessage | translate }}</p>
+    </div>
+  </div>
+</ion-content>

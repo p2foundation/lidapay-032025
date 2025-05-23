@@ -1,0 +1,11 @@
+@mixin dark-mode {
+  :host-context(.dark) {
+    @content;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    :host-context(.dark) {
+      @content;
+    }
+  }
+} 

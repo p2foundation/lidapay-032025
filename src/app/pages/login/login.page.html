@@ -1,0 +1,109 @@
+<ion-content class="bg_color" [fullscreen]="true">
+  <!-- Animated Background Pattern -->
+  <div class="background-pattern"></div>
+
+  <!-- Logo Section -->
+  <div class="logo-container animate__animated animate__fadeIn">
+    <img src="assets/imgs/lidapay-logo-white-red.png" alt="login-logo">
+    <h1 class="welcome-text animate__animated animate__fadeInUp">
+      {{ 'login.welcome_back' | translate }}
+    </h1>
+    <p class="subtitle animate__animated animate__fadeInUp animate__delay-1s">
+      {{ 'login.subtitle' | translate }}
+    </p>
+  </div>
+
+  <!-- Login Form -->
+  <div class="form-container animate__animated animate__fadeInUp animate__delay-1s">
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin(loginForm.value)">
+      <!-- Phone Input -->
+      <div class="input-group">
+        <div class="input-wrapper" [class.focused]="isFocused === 'mobile'">
+          <ion-icon name="call-outline"></ion-icon>
+          <ion-input
+            formControlName="mobile"
+            type="text"
+            [placeholder]="'login.phone_number' | translate"
+            (ionFocus)="isFocused = 'mobile'"
+            (ionBlur)="isFocused = ''"
+          ></ion-input>
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('mobile')?.touched && loginForm.get('mobile')?.invalid">
+          {{ getErrorMessage('mobile') }}
+        </div>
+      </div>
+
+      <!-- Password Input -->
+      <div class="input-group">
+        <div class="input-wrapper" [class.focused]="isFocused === 'password'">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <ion-input
+            formControlName="password"
+            [type]="showPassword ? 'text' : 'password'"
+            [placeholder]="'login.password' | translate"
+            (ionFocus)="isFocused = 'password'"
+            (ionBlur)="isFocused = ''"
+          ></ion-input>
+          <ion-icon 
+            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+            class="toggle-password"
+            (click)="showPassword = !showPassword">
+          </ion-icon>
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+          {{ getErrorMessage('password') }}
+        </div>
+      </div>
+
+      <!-- Forgot Password -->
+      <div class="forgot-password">
+        <ion-text color="medium" (click)="forgotPassword()">
+          {{ 'login.forgotPassword' | translate }}
+        </ion-text>
+      </div>
+
+      <!-- Login Button -->
+      <ion-button
+        type="submit"
+        expand="block"
+        size="large"
+        class="login-button animate__animated animate__fadeInUp animate__delay-2s"
+        [disabled]="!loginForm.valid"
+        [class.button-shake]="loginForm.invalid && loginForm.touched"
+      >
+        <span *ngIf="!isLoading">{{ 'login.sign_in' | translate }}</span>
+        <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
+      </ion-button>
+    </form>
+  </div>
+
+  <!-- Social Login Options -->
+  <div class="social-login animate__animated animate__fadeInUp animate__delay-2s">
+    <div class="divider">
+      <span>{{ 'login.or_continue_with' | translate }}</span>
+    </div>
+    <div class="social-buttons">
+      <ion-button fill="clear" class="social-button google">
+        <ion-icon name="logo-google"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" class="social-button apple">
+        <ion-icon name="logo-apple"></ion-icon>
+      </ion-button>
+      <ion-button fill="clear" class="social-button facebook">
+        <ion-icon name="logo-facebook"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-container animate__animated animate__fadeInUp animate__delay-3s">
+    <div class="signup-prompt">
+      <span>{{ 'login.dont_have_account' | translate }}</span>
+      <ion-button fill="clear" (click)="register_now()">
+        {{ 'login.sign_up' | translate }}
+      </ion-button>
+    </div>
+  </div>
+  <!-- End Footer -->
+
+</ion-content>

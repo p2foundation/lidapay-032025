@@ -1,0 +1,208 @@
+<!-- <ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'sign_up' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content class="bg_color" [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{'sign_up' | translate}}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <div class="background-pattern"></div>
+
+  <!-- Logo Section -->
+  <div class="logo-container animate__animated animate__fadeIn">
+    <img src="assets/imgs/lidapay-logo-white-red.png" alt="signup-logo" />
+    <h1 class="welcome-text animate__animated animate__fadeInUp">
+      {{ 'signup.title' | translate }}
+    </h1>
+    <p class="subtitle animate__animated animate__fadeInUp animate__delay-1s">
+      {{ 'signup.subtitle' | translate }}
+    </p>
+  </div>
+
+  <div
+    class="form-container animate__animated animate__fadeInUp animate__delay-1s"
+  >
+    <form
+      [formGroup]="signUpForm"
+      (ngSubmit)="signupFormSubmit(signUpForm.value)"
+    >
+      <!-- Role Selection -->
+      <div class="input-group">
+        <div class="input-wrapper">
+          <ion-icon name="people-outline"></ion-icon>
+          <ion-select
+            formControlName="role"
+            interface="action-sheet"
+            [placeholder]="'Select Role' | translate"
+          >
+            <ion-select-option value="USER">
+              <div class="role-option">
+                <ion-icon name="person-outline"></ion-icon>
+                <div class="role-details">
+                  <h4>{{ 'User' | translate }}</h4> <br>
+                  <p>{{ 'Personal account for individuals' | translate }}</p>
+                </div>
+              </div>
+            </ion-select-option>
+            <ion-select-option value="MERCHANT">
+              <div class="role-option">
+                <ion-icon name="storefront-outline"></ion-icon>
+                <div class="role-details">
+                  <h4>{{ 'Merchant' | translate }}</h4> <br>
+                  <p>{{ 'Business account for sellers' | translate }}</p>
+                </div>
+              </div>
+            </ion-select-option>
+            <ion-select-option value="AGENT">
+              <div class="role-option">
+                <ion-icon name="briefcase-outline"></ion-icon>
+                <div class="role-details">
+                  <h4>{{ 'Agent' | translate }}</h4> - <br>
+                  <p>{{ 'Account for Agents' | translate }}</p>
+                </div>
+              </div>
+            </ion-select-option>
+          </ion-select>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="signUpForm.get('role')?.touched && signUpForm.get('role')?.invalid"
+        >
+          {{ getErrorMessage('role') }}
+        </div>
+      </div>
+
+      <!-- First Name -->
+      <div
+        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
+      >
+        <div class="input-wrapper">
+          <ion-icon name="person-outline"></ion-icon>
+          <ion-input
+            formControlName="firstName"
+            type="text"
+            [placeholder]="'First Name' | translate"
+          ></ion-input>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="signUpForm.get('firstName')?.touched && signUpForm.get('firstName')?.invalid"
+        >
+          {{ getErrorMessage('firstName') }}
+        </div>
+      </div>
+
+      <!-- Last Name -->
+      <div
+        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
+      >
+        <div class="input-wrapper">
+          <ion-icon name="person-outline"></ion-icon>
+          <ion-input
+            formControlName="lastName"
+            type="text"
+            [placeholder]="'Last Name' | translate"
+          ></ion-input>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="signUpForm.get('lastName')?.touched && signUpForm.get('lastName')?.invalid"
+        >
+          {{ getErrorMessage('lastName') }}
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div
+        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
+      >
+        <div class="input-wrapper">
+          <ion-icon name="mail-outline"></ion-icon>
+          <ion-input
+            formControlName="email"
+            type="email"
+            [placeholder]="'Email' | translate"
+          ></ion-input>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid"
+        >
+          {{ getErrorMessage('email') }}
+        </div>
+      </div>
+
+      <!-- Mobile -->
+      <div
+        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
+      >
+        <div class="input-wrapper">
+          <ion-icon name="call-outline"></ion-icon>
+          <ion-input
+            formControlName="mobile"
+            type="text"
+            [placeholder]="'Enter your mobile number' | translate"
+          ></ion-input>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="signUpForm.get('mobile')?.touched && signUpForm.get('mobile')?.invalid"
+        >
+          {{ getErrorMessage('mobile') }}
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div
+        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
+      >
+        <div class="input-wrapper">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <ion-input
+            formControlName="password"
+            [type]="showPassword ? 'text' : 'password'"
+            [placeholder]="'Enter a password' | translate"
+          ></ion-input>
+          <ion-icon
+            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+            (click)="showPassword = !showPassword"
+          ></ion-icon>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid"
+        >
+          {{ getErrorMessage('password') }}
+        </div>
+      </div>
+
+      <ion-button
+        type="submit"
+        expand="block"
+        size="large"
+        [disabled]="!signUpForm.valid || signUpForm.pristine || isLoading"
+        class="animate__animated animate__fadeInUp animate__delay-2s"
+      >
+        <span *ngIf="!isLoading">{{ 'Create Account' | translate }}</span>
+        <span *ngIf="isLoading">{{ 'Processing...' | translate }}</span>
+      </ion-button>
+    </form>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-container animate__animated animate__fadeInUp animate__delay-3s">
+    <div class="signup-prompt">
+      <span>{{ 'Already have an account?' | translate }}</span>
+      <ion-button fill="clear" (click)="register_now()">
+        {{ 'sign_in' | translate }}
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,187 @@
+:host {
+  --page-padding: 16px;
+  --card-border-radius: 16px;
+}
+
+// Implementing the background pattern similar to login
+.background-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background: linear-gradient(45deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+  opacity: 0.1;
+  animation: gradientBG 15s ease infinite;
+}
+
+// Header Styles
+.header_bg {
+  ion-toolbar {
+    --background: transparent;
+
+    .page_title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+  }
+}
+
+// Content Wrapper
+.content-wrapper {
+  padding: var(--page-padding);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease-out;
+
+  &.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Logo Container
+.logo-container {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin: 20px 0;
+
+  img {
+    width: 150px; // Adjust logo size as needed
+    height: auto;
+  }
+
+  .welcome-text {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 10px 0;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Form Container
+.form-container {
+  position: relative;
+  z-index: 1;
+  margin: 20px 0;
+  padding: 0 var(--page-padding);
+
+  .input-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background-color: #ffffff;
+      border-radius: var(--card-border-radius);
+      padding: 8px 12px;
+
+      ion-icon {
+        margin-right: 8px;
+        color: var(--ion-color-medium);
+      }
+
+      ion-input {
+        flex: 1;
+        padding-left: 8px; // Space for icon
+        font-size: 16px;
+      }
+    }
+
+    .error-message {
+      color: var(--ion-color-danger);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ion-color-medium);
+  }
+}
+
+// Submit Button
+.signup-button {
+  --border-radius: var(--card-border-radius);
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.2);
+  min-height: 52px;
+  font-weight: 600;
+  margin-top: 20px;
+
+  ion-spinner {
+    margin-left: 8px;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Footer Styles
+.signup-prompt {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin: 16px 0;
+
+  span {
+    color: var(--ion-color-medium);
+  }
+
+  ion-button {
+    color: var(--ion-color-primary);
+    font-weight: 500;
+    text-decoration: none;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Adding gradientBG animation similar to login page
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+// Dark mode adjustments
+@media (prefers-color-scheme: dark) {
+  .input-wrapper {
+    ion-icon {
+      color: var(--ion-color-light);
+    }
+
+    .error-message {
+      color: var(--ion-color-danger);
+    }
+  }
+
+  .welcome-text {
+    color: var(--ion-color-light);
+  }
+
+  .subtitle {
+    color: var(--ion-color-light);
+  }
+}

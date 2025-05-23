@@ -1,0 +1,147 @@
+:host {
+    --page-padding: 16px;
+  }
+  
+  // Hero Section
+  .hero-section {
+    position: relative;
+    height: 200px;
+    
+    .partner-image {
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      
+      .overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.7));
+        display: flex;
+        align-items: flex-end;
+        padding: 16px;
+        
+        .partner-logo {
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          background-size: cover;
+          background-position: center;
+          border: 2px solid white;
+        }
+      }
+    }
+    
+    .points-info {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      ion-icon {
+        color: var(--ion-color-warning);
+      }
+      
+      span {
+        color: white;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  // Quick Actions
+  .quick-actions {
+    padding: 16px;
+    
+    ion-button {
+      margin: 0;
+    }
+  }
+  
+  // List Styles
+  ion-list {
+    padding: 0 16px;
+    
+    ion-item {
+      --padding-start: 0;
+      --inner-padding-end: 0;
+      --background: transparent;
+      margin-bottom: 16px;
+      
+      ion-label {
+        h2 {
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--ion-color-dark);
+          margin-bottom: 8px;
+        }
+        
+        p {
+          color: var(--ion-color-medium);
+          font-size: 14px;
+          line-height: 1.4;
+        }
+        
+        ul {
+          margin: 0;
+          padding-left: 20px;
+          
+          li {
+            color: var(--ion-color-medium);
+            font-size: 14px;
+            margin-bottom: 4px;
+          }
+        }
+      }
+      
+      ion-icon {
+        color: var(--ion-color-primary);
+        font-size: 24px;
+        margin-right: 16px;
+      }
+    }
+  }
+  
+  // Skeleton Styles
+  .skeleton-wrapper {
+    .hero-skeleton {
+      height: 200px;
+      margin: 0;
+    }
+    
+    .content-skeleton {
+      padding: 16px;
+      
+      .title-skeleton {
+        height: 24px;
+        width: 60%;
+        margin-bottom: 16px;
+      }
+      
+      .text-skeleton {
+        height: 16px;
+        margin-bottom: 8px;
+        
+        &:last-child {
+          width: 80%;
+        }
+      }
+    }
+  }
+  
+  // Dark Mode Adjustments
+  @media (prefers-color-scheme: dark) {
+    ion-list ion-item ion-label {
+      h2 {
+        color: var(--ion-color-light);
+      }
+    }
+  }

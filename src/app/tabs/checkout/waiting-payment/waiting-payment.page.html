@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Processing Payment</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="waiting-container">
+    <ion-card *ngIf="loading">
+      <ion-card-header>
+        <ion-card-title>Processing Your Payment</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="spinner-container">
+          <ion-spinner name="circles"></ion-spinner>
+        </div>
+        <p class="message">Please wait while we process your payment...</p>
+        <p class="note">Do not close this page or go back until the process is complete.</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="error">
+      <ion-card-header>
+        <ion-card-title>Error</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p class="error-message">{{ error }}</p>
+        <ion-button expand="block" (click)="router.navigate(['/tabs/home'])">
+          Return to Home
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content> 

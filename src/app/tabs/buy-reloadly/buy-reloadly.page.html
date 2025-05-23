@@ -1,0 +1,335 @@
+<ion-header class="header_bg bg-transparent">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="d-flex">
+        <span class="page_title animate__animated animate__fadeIn">
+          {{'buy_reloadly' | translate}}
+        </span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color" [fullscreen]="true">
+  <!-- <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{'buy_reloadly' | translate}}</ion-title>
+    </ion-toolbar>
+  </ion-header> -->
+
+  <!-- Skeleton Loading -->
+  <div class="skeleton-wrapper" *ngIf="isLoading">
+    <ion-list lines="none">
+      <!-- Info Card Skeleton -->
+      <ion-card>
+        <ion-card-content>
+          <div class="skeleton-header">
+            <ion-skeleton-text
+              [animated]="true"
+              style="width: 48px; height: 48px; border-radius: 50%"
+            ></ion-skeleton-text>
+            <div class="skeleton-text-group">
+              <ion-skeleton-text
+                [animated]="true"
+                style="width: 70%; height: 24px"
+              ></ion-skeleton-text>
+              <ion-skeleton-text
+                [animated]="true"
+                style="width: 90%; height: 16px; margin-top: 8px"
+              ></ion-skeleton-text>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Form Fields Skeleton -->
+      <div class="form-skeleton">
+        <!-- Country Selection Skeleton -->
+        <ion-item lines="none">
+          <div class="skeleton-input-group">
+            <ion-skeleton-text
+              [animated]="true"
+              style="width: 40%; height: 16px"
+            ></ion-skeleton-text>
+            <ion-skeleton-text
+              [animated]="true"
+              style="
+                width: 100%;
+                height: 48px;
+                border-radius: 12px;
+                margin-top: 8px;
+              "
+            ></ion-skeleton-text>
+          </div>
+        </ion-item>
+
+        <!-- Phone Number Skeleton -->
+        <ion-item lines="none">
+          <div class="skeleton-input-group">
+            <ion-skeleton-text
+              [animated]="true"
+              style="width: 30%; height: 16px"
+            ></ion-skeleton-text>
+            <ion-skeleton-text
+              [animated]="true"
+              style="
+                width: 100%;
+                height: 48px;
+                border-radius: 12px;
+                margin-top: 8px;
+              "
+            ></ion-skeleton-text>
+          </div>
+        </ion-item>
+
+        <!-- Amount Skeleton -->
+        <ion-item lines="none">
+          <div class="skeleton-input-group">
+            <ion-skeleton-text
+              [animated]="true"
+              style="width: 35%; height: 16px"
+            ></ion-skeleton-text>
+            <ion-skeleton-text
+              [animated]="true"
+              style="
+                width: 100%;
+                height: 48px;
+                border-radius: 12px;
+                margin-top: 8px;
+              "
+            ></ion-skeleton-text>
+          </div>
+        </ion-item>
+      </div>
+
+      <!-- Features Skeleton -->
+      <div class="features-skeleton">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let i of [1,2]">
+              <div class="skeleton-feature-card">
+                <ion-skeleton-text
+                  [animated]="true"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    margin: 0 auto;
+                  "
+                ></ion-skeleton-text>
+                <ion-skeleton-text
+                  [animated]="true"
+                  style="width: 60%; height: 16px; margin: 8px auto 4px"
+                ></ion-skeleton-text>
+                <ion-skeleton-text
+                  [animated]="true"
+                  style="width: 40%; height: 12px; margin: 0 auto"
+                ></ion-skeleton-text>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </ion-list>
+  </div>
+
+  <!-- Actual Content -->
+  <div class="content-wrapper" [class.animate-in]="!isLoading">
+    <!-- Info Card -->
+    <ion-card
+      class="info-card animate__animated animate__fadeInDown animate__delay-1s"
+    >
+      <ion-card-content>
+        <div class="card-header">
+          <ion-icon name="globe-outline" class="header-icon"></ion-icon>
+          <h2>Global Airtime Topup</h2>
+        </div>
+        <p>
+          Send airtime to any mobile number worldwide instantly and securely.
+        </p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Form Section -->
+    <form
+      [formGroup]="globalAirForm"
+      (ngSubmit)="topupFormSubmit(globalAirForm.value)"
+      class="form-container"
+    >
+      <!-- Country Selection -->
+      <ion-item class="animate__animated animate__fadeInUp animate__delay-2s">
+        <ion-label position="stacked">Select Country</ion-label>
+        <ion-select
+          formControlName="recipientCountryCode"
+          interface="action-sheet"
+          [interfaceOptions]="{ header: 'Select Country' }"
+          placeholder="Choose country"
+          class="country-select"
+          (ionChange)="onCountryChange($event)"
+        >
+          <ion-select-option
+            *ngFor="let country of countries"
+            [value]="country"
+          >
+            <div class="country-option">
+              <img
+                [src]="country.flagUrl"
+                alt="country.name + ' flag'"
+                [title]="country.name + ' flag'"
+                role="img"
+                [attr.aria-label]="country.name + ' flag'"
+                class="country-flag"
+              />
+              <span>{{ country.name }}</span>
+            </div>
+          </ion-select-option>
+        </ion-select>
+        <ion-note
+          slot="error"
+          *ngIf="globalAirForm.get('recipientCountryCode')?.touched && globalAirForm.get('recipientCountryCode')?.invalid"
+        >
+          {{'Please select a country' | translate}}
+        </ion-note>
+      </ion-item>
+
+      <!-- Phone Number -->
+      <ion-item class="animate__animated animate__fadeInUp animate__delay-3s">
+        <ion-label position="stacked">Recipient Number</ion-label>
+        <ion-input
+          formControlName="recipientNumber"
+          type="tel"
+          placeholder="Enter mobile number"
+          class="custom-input"
+          (ionChange)="onPhoneNumberChange($event)"
+        >
+        </ion-input>
+        <ion-note
+          slot="error"
+          *ngIf="globalAirForm.get('recipientNumber')?.touched && globalAirForm.get('recipientNumber')?.invalid"
+        >
+          <span *ngIf="globalAirForm.get('recipientNumber')?.errors?.['required']">
+            {{'Phone number is required' | translate}}
+          </span>
+          <span *ngIf="globalAirForm.get('recipientNumber')?.errors?.['minlength']">
+            {{'Phone number must be at least 8 digits' | translate}}
+          </span>
+          <span *ngIf="globalAirForm.get('recipientNumber')?.errors?.['maxlength']">
+            {{'Phone number must not exceed 15 digits' | translate}}
+          </span>
+        </ion-note>
+      </ion-item>
+
+      <!-- Amount -->
+      <ion-item class="animate__animated animate__fadeInUp animate__delay-4s">
+        <ion-label position="stacked">Amount</ion-label>
+        <ion-input
+          formControlName="amount"
+          type="number"
+          placeholder="Enter amount"
+          class="custom-input"
+          (ionChange)="onAmountChange($event)"
+        >
+        </ion-input>
+        <ion-note
+          slot="error"
+          *ngIf="globalAirForm.get('amount')?.touched && globalAirForm.get('amount')?.invalid"
+        >
+          <span *ngIf="globalAirForm.get('amount')?.errors?.['required']">
+            {{'Amount is required' | translate}}
+          </span>
+          <span *ngIf="globalAirForm.get('amount')?.errors?.['min']">
+            {{'Amount must be at least 1' | translate}}
+          </span>
+        </ion-note>
+      </ion-item>
+
+      <!-- Debug Info (only shown in development) -->
+      <div *ngIf="false" class="debug-info">
+        <pre>Form Valid: {{globalAirForm.valid}}</pre>
+        <pre>Form Touched: {{globalAirForm.touched}}</pre>
+        <pre>Form Dirty: {{globalAirForm.dirty}}</pre>
+        <pre>Form Errors: {{globalAirForm.errors | json}}</pre>
+        <pre>Country Code: {{globalAirForm.get('recipientCountryCode')?.value | json}}</pre>
+        <pre>Phone Number: {{globalAirForm.get('recipientNumber')?.value}}</pre>
+        <pre>Amount: {{globalAirForm.get('amount')?.value}}</pre>
+      </div>
+
+      <!-- Submit Button -->
+      <div
+        class="submit-button-container animate__animated animate__fadeInUp animate__delay-5s"
+      >
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="!globalAirForm.valid || isProcessing"
+          class="submit-button"
+        >
+          <ion-icon name="send-outline" slot="start"></ion-icon>
+          {{ isProcessing ? 'Processing...' : 'Submit Payment' | translate }}
+        </ion-button>
+      </div>
+      
+    </form>
+
+    <!-- Features Section -->
+    <div class="features-section">
+      <ion-grid>
+        <ion-row>
+          <ion-col
+            size="6"
+            class="animate__animated animate__fadeInUp animate__delay-6s"
+          >
+            <div class="feature-card">
+              <ion-icon name="flash-outline"></ion-icon>
+              <h4>Instant</h4>
+              <p>Quick delivery</p>
+            </div>
+          </ion-col>
+          <ion-col
+            size="6"
+            class="animate__animated animate__fadeInUp animate__delay-6s"
+          >
+            <div class="feature-card">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              <h4>Secure</h4>
+              <p>Safe transactions</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+</ion-content>
+
+<style>
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .loading-overlay p {
+    color: white;
+    margin-top: 10px;
+  }
+
+  .form-disabled {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+</style>

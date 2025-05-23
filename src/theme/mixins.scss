@@ -1,0 +1,22 @@
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) {
+    :host-context(.dark-theme) & {
+      @content;
+    }
+  }
+  
+  :host-context(.dark-theme) & {
+    @content;
+  }
+}
+
+// Usage example:
+.my-component {
+  background: var(--ion-background-color);
+  
+  @include dark-mode {
+    // Dark mode specific styles
+    --background: rgba(var(--ion-color-light-rgb), 0.05);
+    --background-hover: rgba(var(--ion-color-light-rgb), 0.1);
+  }
+} 

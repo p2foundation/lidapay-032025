@@ -1,0 +1,82 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{'Receipt' | translate}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="shareReceipt()" fill="clear">
+        <ion-icon name="share-social-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="downloadReceipt()" fill="clear">
+        <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="printReceipt()" fill="clear">
+        <ion-icon name="print-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div id="receipt-card" class="receipt-container">
+    <div class="receipt-header">
+      <img src="assets/imgs/lidapay-logo-white-red.png" alt="LidaPay Logo" class="receipt-logo" />
+      <h2>{{ 'Transaction Receipt' | translate }}</h2>
+      <p class="receipt-date">{{currentDate}}</p>
+    </div>
+
+    <div class="receipt-body">
+      <div class="status-badge" [ngClass]="{'success': data.status === 'SUCCESS'}">
+        {{data.status | translate}}
+      </div>
+
+      <div class="receipt-item">
+        <span class="label">{{ 'Transaction ID' | translate }}</span>
+        <span class="value">{{data.trxn || data.transactionId}}</span>
+      </div>
+
+      <div class="receipt-item">
+        <span class="label">{{ 'Amount' | translate }}</span>
+        <span class="value">{{data.amount || data.requestedAmount | currency}}</span>
+      </div>
+
+      <div class="receipt-item">
+        <span class="label">{{ 'Network' | translate }}</span>
+        <span class="value">{{data.network || data.operatorName}}</span>
+      </div>
+
+      <div class="receipt-item">
+        <span class="label">{{ 'Recipient' | translate }}</span>
+        <span class="value">{{data.network || data.recipientPhone}}</span>
+      </div>
+
+      <div class="receipt-item" *ngIf="data.recipientEmail">
+        <span class="label">{{ 'Email' | translate }}</span>
+        <span class="value">{{data.recipientEmail}}</span>
+      </div>
+
+      <div class="receipt-item" *ngIf="data.message || data.customIdentifier">
+        <span class="label">{{ 'Message' | translate }}</span>
+        <span class="value">{{data.message || data.customIdentifier}}</span>
+      </div>
+    </div>
+
+    <div class="receipt-footer">
+      <p>{{ 'Thank you for your transaction!' | translate }}</p>
+      <small>{{ 'This is a computer generated receipt' | translate }}</small>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <ion-button expand="block" (click)="goToTransaction()" class="ion-margin-bottom">
+      <ion-icon name="document-text-outline" slot="start"></ion-icon>
+      {{ 'View Transaction' | translate }}
+    </ion-button>
+
+    <ion-button expand="block" fill="outline" (click)="tabs()">
+      <ion-icon name="home-outline" slot="start"></ion-icon>
+      {{ 'Back to Home' | translate }}
+    </ion-button>
+  </div>
+</ion-content>

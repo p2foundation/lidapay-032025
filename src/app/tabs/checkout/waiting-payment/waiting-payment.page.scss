@@ -1,0 +1,46 @@
+.waiting-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+ion-card {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+ion-spinner {
+  width: 48px;
+  height: 48px;
+}
+
+.message {
+  text-align: center;
+  font-size: 16px;
+  color: var(--ion-color-medium);
+  margin: 10px 0;
+}
+
+.note {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  font-style: italic;
+  margin: 10px 0;
+}
+
+.error-message {
+  text-align: center;
+  color: var(--ion-color-danger);
+  margin: 20px 0;
+} 

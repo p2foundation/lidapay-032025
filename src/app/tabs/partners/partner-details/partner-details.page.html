@@ -1,0 +1,111 @@
+<ion-header class="header_bg" [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/partners"></ion-back-button>
+    </ion-buttons>
+    <div class="header-content">
+      <span class="page_title animate__animated animate__fadeIn">
+        {{ partner?.name }}
+      </span>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color" [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ partner?.name }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+   <!-- Loading Skeleton -->
+   <div class="skeleton-wrapper" *ngIf="isLoading">
+    <ion-skeleton-text animated class="hero-skeleton"></ion-skeleton-text>
+    <div class="content-skeleton">
+      <ion-skeleton-text animated class="title-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="text-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="text-skeleton"></ion-skeleton-text>
+    </div>
+  </div>
+
+  <!-- Partner Details -->
+  <div class="content-wrapper" *ngIf="!isLoading && partner">
+    <!-- Hero Section -->
+    <div class="hero-section animate__animated animate__fadeIn">
+      <div class="partner-image" [style.background-image]="'url(' + partner.image + ')'">
+        <div class="overlay">
+          <div class="partner-logo" [style.background-image]="'url(' + partner.logo + ')'"></div>
+        </div>
+      </div>
+      <div class="points-info">
+        <ion-icon name="diamond-outline"></ion-icon>
+        <span>{{ partner.pointsRate }} pts per GHS</span>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions animate__animated animate__fadeInUp">
+      <ion-button expand="block" color="primary" (click)="earnPoints()">
+        <ion-icon name="diamond-outline" slot="start"></ion-icon>
+        {{ 'Earn Points' | translate }}
+      </ion-button>
+    </div>
+
+    <!-- Details Sections -->
+    <ion-list lines="none">
+      <!-- About -->
+      <ion-item class="animate__animated animate__fadeInUp">
+        <ion-label>
+          <h2>{{ 'About' | translate }}</h2>
+          <p>{{ partner.description }}</p>
+        </ion-label>
+      </ion-item>
+
+      <!-- Contact -->
+      <ion-item class="animate__animated animate__fadeInUp" (click)="openMap()">
+        <ion-icon name="location-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>{{ partner.address }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="animate__animated animate__fadeInUp" (click)="callPartner()">
+        <ion-icon name="call-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>{{ partner.phone }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="animate__animated animate__fadeInUp" (click)="emailPartner()">
+        <ion-icon name="mail-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>{{ partner.email }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-item class="animate__animated animate__fadeInUp" (click)="visitWebsite()">
+        <ion-icon name="globe-outline" slot="start"></ion-icon>
+        <ion-label>
+          <p>{{ partner.website }}</p>
+        </ion-label>
+      </ion-item>
+
+      <!-- Opening Hours -->
+      <ion-item class="animate__animated animate__fadeInUp">
+        <ion-label>
+          <h2>{{ 'Opening Hours' | translate }}</h2>
+          <p *ngFor="let hours of partner.openingHours">{{ hours }}</p>
+        </ion-label>
+      </ion-item>
+
+      <!-- Terms -->
+      <ion-item class="animate__animated animate__fadeInUp">
+        <ion-label>
+          <h2>{{ 'Terms & Conditions' | translate }}</h2>
+          <ul>
+            <li *ngFor="let term of partner.terms">{{ term }}</li>
+          </ul>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>

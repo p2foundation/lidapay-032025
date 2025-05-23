@@ -1,0 +1,246 @@
+@use "../../../theme/_mixins" as mixins;
+
+:host {
+  --page-padding: 16px;
+  --card-border-radius: 16px;
+}
+
+// Header Styles
+.header_bg {
+  background: var(--ion-color-primary);
+  
+  ion-toolbar {
+    --background: transparent;
+    --border-width: 0;
+    padding: 8px 0;
+
+    .header-content {
+      padding: 0 16px;
+      
+      .page_title {
+        font-size: 24px;
+        font-weight: 700;
+        color: white;
+      }
+    }
+  }
+}
+
+// Content Styles
+.content-wrapper {
+  padding: var(--page-padding);
+}
+
+// Transaction Item Styles
+.transaction-item {
+  --background: var(--ion-card-background);
+  --color: var(--ion-text-color);
+  --border-radius: var(--card-border-radius);
+  margin: 8px 0;
+
+  .transaction-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 12px 0;
+
+    .transaction-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+
+      ion-icon {
+        font-size: 24px;
+        color: var(--ion-color-primary);
+      }
+
+      &.airtimetopup {
+        background: rgba(var(--ion-color-success-rgb), 0.1);
+        ion-icon { color: var(--ion-color-success); }
+      }
+
+      &.globalairtopup {
+        background: rgba(var(--ion-color-tertiary-rgb), 0.1);
+        ion-icon { color: var(--ion-color-tertiary); }
+      }
+    }
+
+    .transaction-details {
+      flex: 1;
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+
+      .recipient {
+        margin: 4px 0;
+        font-size: 14px;
+        color: var(--ion-color-medium);
+      }
+
+      .transaction-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 4px;
+
+        .amount {
+          font-weight: 600;
+          color: var(--ion-color-primary);
+        }
+
+        .date {
+          font-size: 12px;
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+
+    .transaction-status {
+      ion-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        text-transform: capitalize;
+      }
+    }
+  }
+
+  @include mixins.dark-mode {
+    --background: rgba(var(--ion-color-light-rgb), 0.05);
+    
+    .transaction-details {
+      h3 {
+        color: var(--ion-text-color);
+      }
+      
+      p {
+        color: rgba(var(--ion-text-color-rgb), 0.6);
+      }
+    }
+  }
+}
+
+// Pagination Styles
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 16px;
+
+  .page-info {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+
+  ion-button {
+    --padding-start: 8px;
+    --padding-end: 8px;
+  }
+}
+
+// Empty State Styles
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+
+  ion-icon {
+    font-size: 48px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+
+  p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Dark mode adjustments
+@media (prefers-color-scheme: dark) {
+  .transaction-item {
+    --background: rgba(var(--ion-color-light-rgb), 0.05);
+  }
+
+  .transaction-details h3 {
+    color: var(--ion-color-light);
+  }
+}
+
+// Skeleton Styles
+.skeleton-wrapper {
+  ion-skeleton-text {
+    @include mixins.dark-mode {
+      --background: rgba(var(--ion-color-light-rgb), 0.1);
+    }
+  }
+}
+
+// Filter Section Styles
+.filter-section {
+  padding: 12px var(--page-padding);
+  background: rgba(var(--ion-color-light-rgb), 0.1);
+
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    ion-chip {
+      min-width: auto;
+      --background: rgba(var(--ion-color-light-rgb), 0.1);
+      --color: var(--ion-color-light);
+      transition: all 0.3s ease;
+
+      &.selected {
+        --background: var(--ion-color-primary);
+        --color: var(--ion-color-primary-contrast);
+        transform: scale(1.05);
+      }
+
+      ion-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    border-top: 1px solid rgba(var(--ion-color-light-rgb), 0.1);
+    padding-top: 8px;
+
+    ion-button {
+      --color: var(--ion-color-light);
+      font-size: 14px;
+
+      ion-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+}

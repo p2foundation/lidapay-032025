@@ -1,0 +1,165 @@
+<ion-header class="header_bg" [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <div class="header-content">
+      <!-- Title and Points -->
+      <div class="title-container animate__animated animate__fadeIn">
+        <span class="page_title">{{ 'Partners' | translate }}</span>
+        <div class="points-badge">
+          <ion-icon name="diamond-outline"></ion-icon>
+          <span>{{ userPoints }} {{ 'points' | translate }}</span>
+        </div>
+      </div>
+      <!-- Segment -->
+      <ion-segment [(ngModel)]="selectedSegment" 
+                  (ionChange)="segmentChanged($event)" 
+                  class="custom-segment">
+        <ion-segment-button value="featured">
+          <div class="segment-content">
+            <ion-icon name="star-outline"></ion-icon>
+            <ion-label>{{ 'Featured' | translate }}</ion-label>
+          </div>
+        </ion-segment-button>
+        <ion-segment-button value="rewards">
+          <div class="segment-content">
+            <ion-icon name="gift-outline"></ion-icon>
+            <ion-label>{{ 'Rewards' | translate }}</ion-label>
+          </div>
+        </ion-segment-button>
+        <ion-segment-button value="history">
+          <div class="segment-content">
+            <ion-icon name="time-outline"></ion-icon>
+            <ion-label>{{ 'History' | translate }}</ion-label>
+          </div>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color" [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">partners</ion-title>
+    </ion-toolbar>
+  </ion-header>
+   <!-- Skeleton Loading -->
+   <div class="skeleton-wrapper" *ngIf="isLoading">
+    <!-- Featured Partners Skeleton -->
+    <div class="featured-skeleton">
+      <ion-skeleton-text [animated]="true" class="skeleton-header"></ion-skeleton-text>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" *ngFor="let i of [1,2]">
+            <div class="featured-card-skeleton">
+              <ion-skeleton-text [animated]="true" class="skeleton-card"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" class="skeleton-text"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" class="skeleton-text"></ion-skeleton-text>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Categories Skeleton -->
+    <div class="categories-skeleton">
+      <ion-skeleton-text [animated]="true" class="skeleton-header"></ion-skeleton-text>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="3" *ngFor="let i of [1,2,3,4]">
+            <div class="category-skeleton">
+              <ion-skeleton-text [animated]="true" class="skeleton-circle"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" class="skeleton-text"></ion-skeleton-text>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Partner List Skeleton -->
+    <div class="partners-skeleton">
+      <ion-skeleton-text [animated]="true" class="skeleton-header"></ion-skeleton-text>
+      <ion-list>
+        <ion-item *ngFor="let i of [1,2,3]" lines="none">
+          <div class="partner-item-skeleton">
+            <ion-skeleton-text [animated]="true" class="skeleton-circle"></ion-skeleton-text>
+            <div class="partner-details">
+              <ion-skeleton-text [animated]="true" class="skeleton-text"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" class="skeleton-text"></ion-skeleton-text>
+            </div>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+  </div>
+
+  <!-- Actual Content -->
+  <div class="content-wrapper" [class.animate-in]="!isLoading">
+    <!-- Featured Partners -->
+    <section class="featured-section" *ngIf="selectedSegment === 'featured'">
+      <h2 class="section-title animate__animated animate__fadeInUp">{{ 'Featured Partners' | translate }}</h2>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" *ngFor="let partner of featuredPartners; let i = index">
+            <div class="featured-card animate__animated animate__fadeInUp" [style.animation-delay]="i * 0.1 + 's'">
+              <div class="card-image" [style.background-image]="'url(' + partner.image + ')'">
+                <div class="points-overlay">
+                  <ion-icon name="diamond-outline"></ion-icon>
+                  <span>{{ partner.points }} {{ 'pts' | translate }}</span>
+                </div>
+              </div>
+              <h3>{{ partner.name }}</h3>
+              <p>{{ partner.description }}</p>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </section>
+
+    <!-- Partner Categories -->
+    <section class="categories-section">
+      <h2 class="section-title animate__animated animate__fadeInUp">{{ 'Categories' | translate }}</h2>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="3" *ngFor="let category of categories; let i = index">
+            <div class="category-card animate__animated animate__fadeInUp" [style.animation-delay]="i * 0.1 + 's'">
+              <div class="category-icon" [ngClass]="category.color">
+                <ion-icon [name]="category.icon"></ion-icon>
+              </div>
+              <span>{{ category.name }}</span>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </section>
+
+    <!-- Partner List -->
+    <section class="partners-list">
+      <h2 class="section-title animate__animated animate__fadeInUp">{{ 'All Partners' | translate }}</h2>
+      <ion-list lines="none">
+        <ion-item *ngFor="let partner of partners; let i = index" 
+                  class="animate__animated animate__fadeInUp"
+                  [style.animation-delay]="i * 0.1 + 's'">
+          <div class="partner-item">
+            <div class="partner-logo" [style.background-image]="'url(' + partner.logo + ')'">
+              <div class="pulse-ring"></div>
+            </div>
+            <div class="partner-info">
+              <h3>{{ partner.name }}</h3>
+              <p>{{ partner.type }}</p>
+              <div class="partner-points">
+                <ion-icon name="diamond-outline"></ion-icon>
+                <span>{{ partner.pointsRate }} {{ 'pts per GHS' | translate }}</span>
+              </div>
+            </div>
+            <ion-button fill="clear" (click)="viewPartner(partner)">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-item>
+      </ion-list>
+    </section>
+  </div>
+</ion-content>

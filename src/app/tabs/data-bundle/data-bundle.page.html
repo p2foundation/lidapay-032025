@@ -1,0 +1,95 @@
+<ion-header class="header_bg bg-transparent" [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="d-flex">
+        <span class="page_title animate__animated animate__fadeIn">
+          {{'Data Bundle' | translate}}
+        </span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color"  [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">dataBundle</ion-title>
+    </ion-toolbar>
+  </ion-header>
+    <!-- Skeleton Loading -->
+    <div class="skeleton-wrapper" *ngIf="isLoading">
+      <ion-list lines="none">
+        <!-- Info Card Skeleton -->
+        <ion-card>
+          <ion-card-content>
+            <div class="skeleton-header">
+              <ion-skeleton-text [animated]="true" style="width: 48px; height: 48px; border-radius: 50%;"></ion-skeleton-text>
+              <div class="skeleton-text-group">
+                <ion-skeleton-text [animated]="true" style="width: 60%; height: 20px;"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width: 80%; height: 16px; margin-top: 8px;"></ion-skeleton-text>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+  
+        <!-- Bundle Cards Skeleton -->
+        <div class="bundles-skeleton ion-padding">
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6" *ngFor="let i of [1,2,3,4,5,6]">
+                <div class="bundle-skeleton-card">
+                  <ion-skeleton-text [animated]="true" style="width: 48px; height: 48px; border-radius: 12px; margin: 16px auto;"></ion-skeleton-text>
+                  <ion-skeleton-text [animated]="true" style="width: 70%; height: 20px; margin: 8px auto;"></ion-skeleton-text>
+                  <ion-skeleton-text [animated]="true" style="width: 90%; height: 16px; margin: 8px auto;"></ion-skeleton-text>
+                  <ion-skeleton-text [animated]="true" style="width: 50%; height: 24px; margin: 12px auto;"></ion-skeleton-text>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      </ion-list>
+    </div>
+  
+    <!-- Actual Content -->
+    <div class="content-wrapper" [class.animate-in]="!isLoading">
+      <!-- Info Card -->
+      <ion-card class="info-card animate__animated animate__fadeInDown animate__delay-1s">
+        <ion-card-content>
+          <div class="card-header">
+            <ion-icon name="cellular-outline" class="header-icon"></ion-icon>
+            <h2>Data Bundles</h2>
+          </div>
+          <p>Choose from our range of data bundles for your mobile device.</p>
+        </ion-card-content>
+      </ion-card>
+  
+      <!-- Data Bundles Grid -->
+      <div class="bundles-grid">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6" *ngFor="let bundle of dataBundle; let i = index" 
+                     class="animate__animated animate__fadeInUp"
+                     [style.animation-delay]="(i * 0.1 + 0.2) + 's'">
+              <div class="bundle-card" 
+                   (click)="selectBundle(bundle)"
+                   [class.selected]="selectedBundle?.code === bundle.code">
+                <div class="bundle-icon">
+                  <ion-icon [name]="getBundleIcon(bundle.volume)"></ion-icon>
+                  <div class="pulse-ring"></div>
+                </div>
+                <h3>{{ bundle.volume }}</h3>
+                <p>{{ bundle.validity }}</p>
+                <div class="bundle-price">
+                  GHS {{ bundle.price }}
+                </div>
+                <div class="bundle-tag" *ngIf="bundle.isPopular">Popular</div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+    </div>
+</ion-content>

@@ -1,0 +1,87 @@
+// Comfortaa fonts
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('../assets/fonts/Comfortaa-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('../assets/fonts/Comfortaa-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('../assets/fonts/Comfortaa-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('../assets/fonts/Comfortaa-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('../assets/fonts/Comfortaa-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+// Maven Pro fonts
+@font-face {
+  font-family: 'Maven Pro';
+  src: url('../assets/fonts/MavenPro-Regular.ttf');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Maven Pro';
+  src: url('../assets/fonts/MavenPro-Medium.ttf');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Maven Pro';
+  src: url('../assets/fonts/MavenPro-SemiBold.ttf');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Maven Pro';
+  src: url('../assets/fonts/MavenPro-Bold.ttf');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Maven Pro';
+  src: url('../assets/fonts/MavenPro-ExtraBold.ttf');
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Maven Pro';
+  src: url('../assets/fonts/MavenPro-Black.ttf');
+  font-weight: 900;
+  font-style: normal;
+}
+
+*,
+body,
+html,
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+li {
+	--ion-font-family: 'Maven Pro';
+	font-family: 'Comfortaa';
+	//letter-spacing: .05rem;
+}

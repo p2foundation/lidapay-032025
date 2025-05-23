@@ -1,0 +1,131 @@
+<ion-header class="header_bg" [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <div class="header-content">
+      <span class="page_title animate__animated animate__fadeIn">
+        {{ 'Transaction History' | translate }}
+      </span>
+    </div>
+  </ion-toolbar>
+
+  <!-- Add Filter Section -->
+  <div class="filter-section animate__animated animate__fadeInDown">
+    <div class="filter-chips">
+      <ion-chip 
+        [class.selected]="selectedFilter === 'all'"
+        (click)="filterTransactions('all')"
+      >
+        <ion-icon name="apps-outline"></ion-icon>
+        <ion-label>All</ion-label>
+      </ion-chip>
+      <ion-chip 
+        [class.selected]="selectedFilter === 'airtimetopup'"
+        (click)="filterTransactions('airtimetopup')"
+      >
+        <ion-icon name="phone-portrait-outline"></ion-icon>
+        <ion-label>Airtime</ion-label>
+      </ion-chip>
+      <ion-chip 
+        [class.selected]="selectedFilter === 'databundle'"
+        (click)="filterTransactions('databundle')"
+      >
+        <ion-icon name="wifi-outline"></ion-icon>
+        <ion-label>Data</ion-label>
+      </ion-chip>
+      <ion-chip 
+        [class.selected]="selectedFilter === 'globalairtopup'"
+        (click)="filterTransactions('globalairtopup')"
+      >
+        <ion-icon name="globe-outline"></ion-icon>
+        <ion-label>International</ion-label>
+      </ion-chip>
+    </div>
+
+    <div class="filter-actions">
+      <ion-button fill="clear" (click)="openFilterModal()">
+        <ion-icon slot="start" name="options-outline"></ion-icon>
+        Filter
+      </ion-button>
+      <ion-button fill="clear" (click)="openSortOptions($event)">
+        <ion-icon slot="start" name="funnel-outline"></ion-icon>
+        Sort
+      </ion-button>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{'history' | translate}}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="content-wrapper">
+    <!-- Skeleton Loading -->
+    <div class="skeleton-wrapper" *ngIf="isLoading">
+      <ion-list lines="none">
+        <ion-item *ngFor="let i of [1, 2, 3]">
+          <div class="skeleton-transaction">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-content">
+              <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+              <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+              <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+            </div>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <!-- Transaction List -->
+    <div class="transactions-list" *ngIf="!isLoading">
+      <ion-list lines="none">
+        <ion-item-sliding *ngFor="let transaction of filteredTransactions; let i = index">
+          <ion-item class="transaction-item animate__animated animate__fadeInUp"
+                   [style.animation-delay]="i * 0.1 + 's'"
+                   (click)="viewTransaction(transaction)">
+            <div class="transaction-content">
+              <div class="transaction-icon" [ngClass]="transaction.transType.toLowerCase()">
+                <ion-icon [name]="getTransactionIcon(transaction.transType)"></ion-icon>
+              </div>
+              <div class="transaction-details">
+                <h3>{{ getTransactionTitle(transaction) }}</h3>
+                <p class="recipient">{{ transaction.recipientNumber }}</p>
+                <div class="transaction-meta">
+                  <span class="amount">GHS {{ transaction.monetary.amount }}</span>
+                  <span class="date">{{ transaction.timestamp | date:'MMM d, h:mm a' }}</span>
+                </div>
+              </div>
+              <div class="transaction-status">
+                <ion-badge [color]="getStatusColor(transaction.status.transaction)">
+                  {{ transaction.status.transaction | titlecase }}
+                </ion-badge>
+              </div>
+            </div>
+          </ion-item>
+        </ion-item-sliding>
+      </ion-list>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalPages > 1">
+        <ion-button fill="clear" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </ion-button>
+        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+        <ion-button fill="clear" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading && filteredTransactions.length === 0">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <h3>No {{selectedFilter !== 'all' ? selectedFilter : ''}} Transactions</h3>
+      <p>{{getEmptyStateMessage()}}</p>
+    </div>
+  </div>
+</ion-content>
