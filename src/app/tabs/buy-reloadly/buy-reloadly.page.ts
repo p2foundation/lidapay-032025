@@ -1,4 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { ModalController } from '@ionic/angular';
+import { CountrySearchModalComponent } from './country-search-modal/country-search-modal.component';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -13,8 +15,6 @@ import {
   IonTitle,
   IonToolbar,
   IonInput,
-  IonSelect,
-  IonSelectOption,
   IonButton,
   IonItem,
   IonLabel,
@@ -47,12 +47,16 @@ import {
   sendOutline,
   flashOutline,
   shieldCheckmarkOutline,
+  closeOutline,
+  closeCircleOutline,
+  chevronDownOutline,
 } from 'ionicons/icons';
 @Component({
   selector: 'app-buy-reloadly',
   templateUrl: './buy-reloadly.page.html',
   styleUrls: ['./buy-reloadly.page.scss'],
   standalone: true,
+  providers: [ModalController],
   imports: [
     IonContent,
     IonHeader,
@@ -70,8 +74,6 @@ import {
     IonTitle,
     IonToolbar,
     IonInput,
-    IonSelect,
-    IonSelectOption,
     IonButton,
     IonItem,
     IonLabel,
@@ -92,6 +94,9 @@ import {
 export class BuyReloadlyPage implements OnInit {
   globalAirForm!: FormGroup;
   countries: any[] = [];
+  filteredCountries: any[] = [];
+  searchTerm: string = '';
+  selectedCountry: any = null;
   userProfile: Profile = {} as Profile;
   isProcessing = false;
   isLoading: boolean = true;
@@ -117,24 +122,35 @@ export class BuyReloadlyPage implements OnInit {
     private utilService: UtilsService,
     private advansisPayService: AdvansisPayService,
     private modalService: ModalService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private modalCtrl: ModalController
   ) {
     addIcons({
       globeOutline,
+      chevronDownOutline,
       sendOutline,
       flashOutline,
       shieldCheckmarkOutline,
+      closeOutline,
+      closeCircleOutline,
     });
     this.translate.setDefaultLang('en');
     this.translate.use('en');
   }
   async ngOnInit() {
     this.isLoading = true; // Start with loading state
-    
+
     // Initialize form with more reasonable validation
     this.globalAirForm = this.formBuilder.group({
       recipientCountryCode: ['', Validators.required],
-      recipientNumber: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(15)]],
+      recipientNumber: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.maxLength(15),
+        ],
+      ],
       amount: ['', [Validators.required, Validators.min(1)]],
     });
 
@@ -144,18 +160,18 @@ export class BuyReloadlyPage implements OnInit {
 
       // Add small delay for smooth animation
       await new Promise((resolve) => setTimeout(resolve, 800));
-      
+
       // Log form state for debugging
       console.log('Form state after initialization:', {
         valid: this.globalAirForm.valid,
         touched: this.globalAirForm.touched,
         dirty: this.globalAirForm.dirty,
         errors: this.globalAirForm.errors,
-        controls: Object.keys(this.globalAirForm.controls).map(key => ({
+        controls: Object.keys(this.globalAirForm.controls).map((key) => ({
           name: key,
           valid: this.globalAirForm.get(key)?.valid,
-          errors: this.globalAirForm.get(key)?.errors
-        }))
+          errors: this.globalAirForm.get(key)?.errors,
+        })),
       });
     } catch (error) {
       console.error('Failed to load initial data:', error);
@@ -190,21 +206,29 @@ export class BuyReloadlyPage implements OnInit {
       );
       if (response) {
         this.countries = response;
-        console.debug('Countries loaded:', this.countries.length);
-      } else {
-        throw new Error('Failed to load countries');
+        this.filteredCountries = [...this.countries];
+
+        // If there's a country code in the form, set the selectedCountry
+        const countryCode = this.globalAirForm.get(
+          'recipientCountryCode'
+        )?.value;
+        if (countryCode) {
+          this.selectedCountry = this.countries.find(
+            (c) => c.isoName === countryCode
+          );
+        }
       }
     } catch (error) {
-      console.error('Countries error:', error);
+      console.error('Error loading countries:', error);
       this.notificationService.showError(
-        'Failed to load countries. Please try again.'
+        'Failed to load countries. Please try again later.'
       );
       throw error;
     }
   }
   // Submit global airtime form
   private async presentWaitingModal() {
-    const modal = await this.modalService.createModal({
+    const modal = await this.modalCtrl.create({
       component: WaitingModalComponent,
       cssClass: 'waiting-modal',
       backdropDismiss: false,
@@ -215,12 +239,17 @@ export class BuyReloadlyPage implements OnInit {
       },
     });
 
+    // Present the modal and wait for it to be dismissed
+    await modal.present();
+
     // Method to update status message
     const updateStatus = (message: string) => {
-      modal.componentProps = {
-        ...modal.componentProps,
-        statusMessage: message,
-      };
+      if (modal) {
+        modal.componentProps = {
+          ...modal.componentProps,
+          statusMessage: message,
+        };
+      }
     };
 
     return { modal, updateStatus };
@@ -231,6 +260,7 @@ export class BuyReloadlyPage implements OnInit {
       this.notificationService.showWarn('Please fill all required fields');
       return;
     }
+    console.log('[Global airtime form submitted]:', form);
 
     const { modal, updateStatus } = await this.presentWaitingModal();
 
@@ -266,6 +296,8 @@ export class BuyReloadlyPage implements OnInit {
         username: this.userProfile.username || '',
         amount: Number(form.amount),
         orderDesc: `International airtime recharge for ${form.recipientNumber}`,
+        orderImgUrl:
+          'https://advansistechnologies.com/assets/img/home-six/featured/icon1.png',
       };
       // Store transaction
       updateStatus('Saving transaction details...');
@@ -284,6 +316,7 @@ export class BuyReloadlyPage implements OnInit {
       const response = await firstValueFrom(
         this.advansisPayService.expressPayOnline(expressPayParams)
       );
+      console.log('[topupFormSubmit] => response', response);
       if (response && response.status === 201 && response.data?.checkoutUrl) {
         updateStatus('Redirecting to payment gateway...');
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Brief pause
@@ -304,38 +337,47 @@ export class BuyReloadlyPage implements OnInit {
     }
   }
   // Detect operator
-  private async detectOperator(params: any) {
-    console.log('Detecting operator with params:', params);
+  private async detectOperator(params: {
+    phone: string;
+    countryIsoCode?: string;
+  }) {
+    console.log('Detecting Operator with params:', params);
     try {
-      // Keep the parameters as they are
-      const detectParams = {
-        phone: params.phone,
-        countryIsoCode: params.countryIsoCode,
-      };
+      // Ensure we have a country code
+      const countryCode =
+        params.countryIsoCode || this.selectedCountry?.isoName;
+      if (!countryCode) {
+        throw new Error('Country code is required for operator detection');
+      }
 
-      const result = await firstValueFrom(
-        this.reloadlyService.autoDetectOperator(detectParams)
+      console.log('Calling autoDetectOperator with:', {
+        phone: params.phone,
+        countryIsoCode: countryCode,
+      });
+
+      const response = await firstValueFrom(
+        this.reloadlyService.autoDetectOperator({
+          phone: params.phone,
+          countryIsoCode: params.countryIsoCode,
+        })
       );
 
-      if (!result || !result.operatorId) {
-        console.error('Invalid operator detection response:', result);
+      console.log('[autoDetectOperator] => response:', response);
+
+      if (!response || !response.operatorId) {
+        console.error('Invalid operator detection response:', response);
         throw new Error('Could not detect network operator');
       }
 
-      console.log('Operator detected:', result);
-      return result;
-    } catch (error: unknown) {
+      return response;
+    } catch (error: any) {
       console.error('Operator detection error:', error);
-      if (
-        error &&
-        typeof error === 'object' &&
-        'status' in error &&
-        error.status === 404
-      ) {
+      if (error?.status === 404) {
         throw new Error('Network operator not supported for this number');
       }
       throw new Error(
-        'Could not detect network operator for the provided number.'
+        error.message ||
+          'Could not detect network operator for the provided number.'
       );
     }
   }
@@ -345,52 +387,72 @@ export class BuyReloadlyPage implements OnInit {
   }
   // Reloadly airtime form submit
   async reloadlyAirFormSubmit(form: any) {
-    console.log('Reloadly airtime form submitted:', form);
+    console.log('1. Reloadly airtime form submitted:', form);
     // Validate form
     if (!this.globalAirForm.valid) {
+      console.log('2. Form validation failed');
       this.notificationService.showWarn('Please fill all required fields');
       return;
     }
 
+    console.log('3. Form is valid, setting isProcessing to true');
     this.isProcessing = true;
-    const waitingModal = await this.presentWaitingModal();
+
+    console.log('4. Showing waiting modal...');
+    const { modal, updateStatus } = await this.presentWaitingModal();
+    console.log('5. Waiting modal shown');
 
     try {
+      updateStatus('Checking user profile...');
+      console.log('6. Checking user profile...');
+
       // Check if we have user profile data
       if (!this.userProfile?._id) {
+        console.log('7. No user profile found, fetching...');
         await this.getUserProfile();
+        console.log('8. User profile fetched:', !!this.userProfile?._id);
+      } else {
+        console.log('7. Using existing user profile');
       }
 
       // Try to auto-detect operator
+      console.log('9. Preparing to detect operator...');
       const autoDetectParams = {
         phone: form.recipientNumber,
-        countryIsoCode: form.recipientCountryCode.isoName,
+        countryIsoCode: form.recipientCountryCode,
       };
+      console.log('10. Auto detect params:', autoDetectParams);
 
+      updateStatus('Detecting network operator...');
+      console.log('11. Calling detectOperator...');
       const operatorResult = await this.detectOperator(autoDetectParams);
+      console.log('12. Operator detection result:', operatorResult);
 
       // Prepare the topup parameters
+      console.log('13. Preparing topup parameters...');
       this.topupParams.recipientNumber = form.recipientNumber;
       this.topupParams.description = `International airtime recharge for ${form.recipientNumber}`;
       this.topupParams.amount = Number(form.amount);
       this.topupParams.operatorId = operatorResult.operatorId;
-      this.topupParams.recipientCountryCode = form.recipientCountryCode.isoName;
+      this.topupParams.recipientCountryCode = form.recipientCountryCode;
       this.topupParams.payTransRef = await this.utilService.generateReference();
+      console.log('14. Topup parameters prepared:', this.topupParams);
 
       // Prepare payment parameters
+      console.log('15. Preparing expressPay parameters...');
       const expressPayParams = {
         userId: this.userProfile._id,
         firstName: this.userProfile.firstName || '',
         lastName: this.userProfile.lastName || '',
         email: this.userProfile.email || '',
         phoneNumber: form.recipientNumber,
-        username: this.userProfile.username || '',
+        username: String(this.userProfile?.username || ''),
         amount: Number(form.amount),
         orderDesc: this.topupParams.description,
-        transType: 'GLOBALAIRTOPUP',
-        redirectUrl: 'lidapay://redirect-url',
-        payTransRef: this.topupParams.payTransRef,
+        orderImgUrl:
+          'https://advansistechnologies.com/assets/img/home-six/featured/icon1.png',
       };
+      console.log('16. ExpressPay parameters prepared:', expressPayParams);
 
       // Validate required fields
       if (
@@ -404,6 +466,7 @@ export class BuyReloadlyPage implements OnInit {
       }
 
       // Store transaction details
+      console.log('Pending transaction stored:');
       await this.storage.setStorage(
         'pendingTransaction',
         JSON.stringify({
@@ -414,9 +477,11 @@ export class BuyReloadlyPage implements OnInit {
       );
 
       // Initiate payment
+      console.log('ExpressPay parameters:', expressPayParams);
       const response = await firstValueFrom(
         this.advansisPayService.expressPayOnline(expressPayParams)
       );
+      console.log('[Payment response]:', response);
 
       if (response && response.status === 201 && response.data) {
         window.open(response.data.checkoutUrl, '_system');
@@ -430,7 +495,11 @@ export class BuyReloadlyPage implements OnInit {
       this.notificationService.showError(errorMessage);
     } finally {
       this.isProcessing = false;
-      waitingModal.modal.dismiss();
+      if (modal) {
+        await modal
+          .dismiss()
+          .catch((e: Error) => console.log('Error dismissing modal:', e));
+      }
     }
   }
 
@@ -445,11 +514,35 @@ export class BuyReloadlyPage implements OnInit {
       console.error('Error loading profile:', error);
     }
   }
+  // Open country selection modal
+  async openCountrySearch() {
+    const modal = await this.modalCtrl.create({
+      component: CountrySearchModalComponent,
+      componentProps: {
+        countries: this.countries,
+      },
+      cssClass: 'country-search-modal',
+      breakpoints: [0, 0.8, 1],
+      initialBreakpoint: 0.8,
+      handle: true,
+    });
 
-  // Event handlers for form field changes
-  onCountryChange(event: any) {
-    console.log('Country changed:', event.detail.value);
-    this.globalAirForm.get('recipientCountryCode')?.markAsTouched();
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    if (role === 'select' && data) {
+      // Update the form with the selected country's ISO code
+      this.globalAirForm.patchValue({
+        recipientCountryCode: data.isoName,
+      });
+      console.log('[selectedCountry]:', data);
+      // Store the selected country for display
+      this.selectedCountry = data;
+
+      // Mark the field as touched to show validation if needed
+      this.globalAirForm.get('recipientCountryCode')?.markAsTouched();
+    }
   }
 
   onPhoneNumberChange(event: any) {
@@ -460,5 +553,18 @@ export class BuyReloadlyPage implements OnInit {
   onAmountChange(event: any) {
     console.log('Amount changed:', event.detail.value);
     this.globalAirForm.get('amount')?.markAsTouched();
+  }
+  // Filter countries based on search term
+  filterCountries(event: any) {
+    const searchTerm = event.target.value.toLowerCase();
+    if (!searchTerm) {
+      this.filteredCountries = [...this.countries];
+      return;
+    }
+    this.filteredCountries = this.countries.filter(
+      (country) =>
+        country.name.toLowerCase().includes(searchTerm) ||
+        (country.isoName && country.isoName.toLowerCase().includes(searchTerm))
+    );
   }
 }

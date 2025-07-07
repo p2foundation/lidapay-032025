@@ -2,14 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
 import { catchError, tap } from 'rxjs/operators';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { StateService } from '../state.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdvansisPayService {
-  private awServer: string = environment.baseURL;
+  // private awServer: string = environment.baseURL;
+  private awServer: string = environment.localURL;
+
 
   constructor(
     private readonly http: HttpClient,
@@ -17,18 +19,12 @@ export class AdvansisPayService {
   ) {}
   // Initiate Payment
   expressPayOnline(epData: any): Observable<any> {
-    console.log(`expresspay online data >>> ${JSON.stringify(epData)}`);
-    const paymentData = {
-      ...epData,
-      successUrl: 'lidapay://redirect-url',
-      failureUrl: 'lidapay://redirect-url',
-      cancelUrl: 'lidapay://redirect-url',
-    };
+    console.log(`[EXPRESSPAY ONLINE params] >>> ${JSON.stringify(epData)}`);
 
     return this.http
       .post<any>(
         `${this.awServer}/api/v1/advansispay/initiate-payment`,
-        paymentData
+        epData
       )
       .pipe(
         tap((response) =>

@@ -26,10 +26,12 @@ import {
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { AdvansisPayService } from './services/payments/advansis-pay.service';
+import { StorageService } from './services/storage.service';
 
 interface TransactionResponse {
   status: 'COMPLETED' | 'PENDING' | 'FAILED';
-  resultText: string;
+  result: any;
+  resultText?: string;
   orderId: string;
   amount: number;
   currency: string;
@@ -47,7 +49,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private navCtrl: NavController,
     private advansisPayService: AdvansisPayService,
     private router: Router,
-    private global: GlobalService
+    private global: GlobalService,
+    private storage: StorageService
   ) {
     this.initializeApp();
     // Register the icons
@@ -79,7 +82,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Setup deep linking
     this.setupDeepLinking();
-    console.log('[Deep linking setup complete]');
+    console.log('[Deep linking service initiated]');
   }
 
   private async setupKeyboardListeners() {
@@ -119,7 +122,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   setupDeepLinking() {
-    console.log('[Setting up deep linking]');
+    console.log('[DeepLinking call]');
     
     // Test deep link handling in development
     if (!Capacitor.isNativePlatform()) {
@@ -145,7 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
       console.log('[Payment Flow] Path:', path);
       console.log('[Payment Flow] Query params:', Object.fromEntries(urlObj.searchParams));
 
-      if (path === '/redirect-url') {
+      if (path == '/redirect-url') {
         const orderId = urlObj.searchParams.get('order-id');
         const token = urlObj.searchParams.get('token');
 
@@ -172,18 +175,28 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  private processPaymentResponse(orderId: string, token: string) {
+  private async processPaymentResponse(token: string, orderId?: string ) {
     console.log('[Payment Flow] Querying transaction status');
     this.advansisPayService.queryStatus(token).subscribe({
-      next: (transactionDetails: TransactionResponse) => {
+      next: async (transactionDetails: TransactionResponse) => {
         console.log('[Payment Flow] Transaction status received:', transactionDetails.status);
         console.log('[Payment Flow] Transaction details:', transactionDetails);
+
+        // Retrieve the pending transaction data
+        const pendingTransaction = await this.storage.getStorage('pendingTransaction');
+        const topupParams = pendingTransaction ? JSON.parse(pendingTransaction) : {};
 
         const navigationExtras = {
           queryParams: {
             orderId: orderId,
             token: token,
-            special: JSON.stringify(transactionDetails),
+            special: JSON.stringify({
+              ...transactionDetails,
+              ...topupParams, // Include all topupParams in the special object
+              transType: topupParams.transType || 'AIRTIMETOPUP', // Ensure transType is set
+              recipientNumber: topupParams.recipientNumber || topupParams.phoneNumber,
+              network: topupParams.network
+            }),
           },
         };
 
@@ -193,14 +206,13 @@ export class AppComponent implements OnInit, OnDestroy {
             this.navCtrl.navigateRoot(['./checkout'], navigationExtras);
             break;
           case 'PENDING':
-            console.log('[Payment Flow] Payment still pending');
-            this.global.showToast(
-              'Payment is still being processed',
-              'warning',
-              'bottom',
-              3000
-            );
-            this.navCtrl.navigateRoot(['./tabs/home']);
+            console.log('[Payment Flow] Payment still pending, navigating to waiting-payment page');
+            this.navCtrl.navigateRoot(['./tabs/checkout/waiting-payment'], {
+              queryParams: {
+                'order-id': orderId,
+                token: token
+              }
+            });
             break;
           case 'FAILED':
             console.log('[Payment Flow] Payment failed:', transactionDetails.resultText);

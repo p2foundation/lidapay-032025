@@ -11,7 +11,7 @@ public class MainActivity extends BridgeActivity {
     private static final String CUSTOM_SCHEME = "lidapay";
     private static final String CUSTOM_HOST = "redirect-url";
     private static final String HTTPS_HOST = "api.advansistechnologies.com";
-    private static final String HTTPS_PATH = "/api/v1/advansispay/redirect-url";
+    private static final String HTTPS_PATH = "/api/v1/advansispay/redirect-url" ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,7 @@ public class MainActivity extends BridgeActivity {
 
         if (Intent.ACTION_VIEW.equals(action) && data != null) {
             Log.d(TAG, "Payment response received: " + data.toString());
-            
+
             String scheme = data.getScheme();
             String host = data.getHost();
             String path = data.getPath();
@@ -60,7 +60,7 @@ public class MainActivity extends BridgeActivity {
 
             // Notify the web app about the payment response
             bridge.getWebView().evaluateJavascript(
-                String.format("window.dispatchEvent(new CustomEvent('deepLink', { detail: '%s' }));", 
+                String.format("window.dispatchEvent(new CustomEvent('deepLink', { detail: '%s' }));",
                 uri.toString()),
                 null
             );

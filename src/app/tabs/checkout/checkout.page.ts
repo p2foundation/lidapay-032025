@@ -6,7 +6,6 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
-  IonButton,
   IonButtons,
   IonBackButton,
   IonCard,
@@ -31,6 +30,7 @@ import { StorageService } from 'src/app/services/storage.service';
 interface TransactionData {
   status: 'COMPLETED' | 'PENDING' | 'FAILED';
   transType: 'AIRTIMETOPUP' | 'DATABUNDLELIST' | 'GLOBALAIRTOPUP';
+  result: any;
   resultText: string;
   orderId: string;
   amount: number;
@@ -54,7 +54,6 @@ interface TransactionData {
     CommonModule,
     FormsModule,
     TranslateModule,
-    IonButton,
     IonButtons,
     IonCard,
     IonCardHeader,
@@ -153,6 +152,7 @@ export class CheckoutPage implements OnInit {
         }
       }
     });
+    
   }
 
   async processTransaction() {
@@ -233,37 +233,6 @@ export class CheckoutPage implements OnInit {
         this.hideLoader();
       },
     });
-  }
-  // General momo payment method
-  checkoutFormSubmit(mData: any) {
-    if (!this.data) {
-      this.notification.showError('No transaction data available');
-      return;
-    }
-
-    const checkoutPayload: any = {
-      customerMsisdn: mData.walletAccount,
-      amount: this.data.amount,
-      channel: mData.channel,
-      description: mData.description,
-    };
-
-    if (mData.channel && mData.walletAccount) {
-      this.showLoader();
-      this.paymentServices.debitWalletPayswitch(checkoutPayload).subscribe({
-        next: (payRes) => {
-          console.log(`payment response ==> ${JSON.stringify(payRes)}`);
-          this.handlePaymentResponse(payRes);
-        },
-        error: (err) => {
-          this.hideLoader();
-          console.error('Payment error:', err);
-          this.notification.showError(err);
-        },
-      });
-    } else {
-      this.notification.showWarn('Please select payment option');
-    }
   }
 
   handlePaymentResponse(payRes: any) {

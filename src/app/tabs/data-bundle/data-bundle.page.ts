@@ -12,7 +12,6 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
-  LoadingController,
   ModalController,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
@@ -75,9 +74,7 @@ export class DataBundlePage implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private storage: StorageService,
-    private internetService: InternetDataService,
     private notification: NotificationService,
-    private loadingController: LoadingController,
     private modalController: ModalController,
     private advansisPayService: AdvansisPayService,
     private utilService: UtilsService,
@@ -182,10 +179,7 @@ export class DataBundlePage implements OnInit {
           phoneNumber: form.recipientNumber,
           username: this.userProfile.username || '',
           amount: Number(form.dataCode.price),
-          orderDesc: this.buyDataParams.description,
-          transType: 'DATABUNDLE',
-          redirectUrl: 'lidapay://redirect-url',
-          payTransRef: await this.utilService.generateReference(),
+          orderDesc: this.buyDataParams.description || '',
         };
 
         if (

@@ -156,37 +156,28 @@
     <!-- Form Section -->
     <form
       [formGroup]="globalAirForm"
-      (ngSubmit)="topupFormSubmit(globalAirForm.value)"
+      (ngSubmit)="reloadlyAirFormSubmit(globalAirForm.value)"
       class="form-container"
     >
-      <!-- Country Selection -->
-      <ion-item class="animate__animated animate__fadeInUp animate__delay-2s">
+      <!-- Country Selection with Search Button -->
+      <ion-item class="animate__animated animate__fadeInUp animate__delay-2s" (click)="openCountrySearch()" button>
         <ion-label position="stacked">Select Country</ion-label>
-        <ion-select
-          formControlName="recipientCountryCode"
-          interface="action-sheet"
-          [interfaceOptions]="{ header: 'Select Country' }"
-          placeholder="Choose country"
-          class="country-select"
-          (ionChange)="onCountryChange($event)"
-        >
-          <ion-select-option
-            *ngFor="let country of countries"
-            [value]="country"
-          >
-            <div class="country-option">
+        <div class="country-select">
+          @if (selectedCountry) {
+            <div class="selected-country">
               <img
-                [src]="country.flagUrl"
-                alt="country.name + ' flag'"
-                [title]="country.name + ' flag'"
-                role="img"
-                [attr.aria-label]="country.name + ' flag'"
+                [src]="'https://flagcdn.com/w40/' + selectedCountry.isoName.toLowerCase() + '.png'"
+                [alt]="selectedCountry.name + ' flag'"
                 class="country-flag"
+                onerror="this.style.display='none'"
               />
-              <span>{{ country.name }}</span>
+              <span>{{ selectedCountry.name }}</span>
             </div>
-          </ion-select-option>
-        </ion-select>
+          } @else {
+            <div class="placeholder">Choose country</div>
+          }
+          <ion-icon name="chevron-down-outline" class="dropdown-icon"></ion-icon>
+        </div>
         <ion-note
           slot="error"
           *ngIf="globalAirForm.get('recipientCountryCode')?.touched && globalAirForm.get('recipientCountryCode')?.invalid"
@@ -194,7 +185,6 @@
           {{'Please select a country' | translate}}
         </ion-note>
       </ion-item>
-
       <!-- Phone Number -->
       <ion-item class="animate__animated animate__fadeInUp animate__delay-3s">
         <ion-label position="stacked">Recipient Number</ion-label>
@@ -305,6 +295,40 @@
 </ion-content>
 
 <style>
+  /* Country Select Styles */
+  .country-select {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    min-height: 44px;
+    
+    .selected-country {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+    
+    .placeholder {
+      color: var(--ion-color-medium);
+      flex: 1;
+    }
+    
+    .country-flag {
+      width: 24px;
+      height: 18px;
+      margin-right: 12px;
+      border-radius: 2px;
+      object-fit: cover;
+    }
+    
+    .dropdown-icon {
+      color: var(--ion-color-medium);
+      font-size: 18px;
+    }
+  }
+
   .loading-overlay {
     position: fixed;
     top: 0;

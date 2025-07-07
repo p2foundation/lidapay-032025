@@ -42,8 +42,6 @@ import {
     IonCard,
     IonContent,
     IonHeader,
-    IonTitle,
-    IonToolbar,
     IonList,
     IonItem,
     IonButton,

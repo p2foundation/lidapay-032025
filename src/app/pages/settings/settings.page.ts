@@ -1,7 +1,14 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { IonContent, 
+  IonHeader, 
+  IonTitle, 
+  IonToolbar, 
+  ModalController,
+  IonIcon,
+  IonToggle
+ } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Profile } from 'src/app/interfaces/profile.interface';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
@@ -14,6 +21,8 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { RewardsService } from 'src/app/services/user/rewards.service';
 import QRCode from 'qrcode';
+import { addIcons } from 'ionicons';
+import { chevronForward, moonOutline, camera, qrCodeOutline, cogOutline, languageOutline, shareSocialOutline, keyOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-settings',
@@ -27,7 +36,10 @@ import QRCode from 'qrcode';
     IonToolbar, 
     CommonModule, 
     FormsModule,
-    TranslateModule
+    TranslateModule,
+    ReactiveFormsModule,
+    IonIcon,
+    IonToggle
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
@@ -56,6 +68,17 @@ export class SettingsPage implements OnInit, OnDestroy  {
     .pipe(takeUntil(this.destroy$))
     .subscribe(isDark => {
       this.isDarkMode = isDark;
+    });
+
+    addIcons({
+      'chevron-forward': chevronForward,
+      'moon-outline': moonOutline,
+      'camera': camera,
+      'qr-code-outline': qrCodeOutline,
+      'cog-outline': cogOutline,
+      'share-social-outline': shareSocialOutline,
+      'language-outline': languageOutline,
+      'key-outline': keyOutline,
     });
   }
 

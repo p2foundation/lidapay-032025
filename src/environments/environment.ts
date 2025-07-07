@@ -6,8 +6,9 @@ export const environment = {
   production: false,
   localhost: 'http://localhost:1124',
   baseURL: 'https://api.advansistechnologies.com',
+  vercelURL: 'https://lidapay-prod.vercel.app',
   apiUrl: 'https://api.advansistechnologies.com',
-  version: '0.0.5'
+  version: '0.0.8'
 };
 
 /*

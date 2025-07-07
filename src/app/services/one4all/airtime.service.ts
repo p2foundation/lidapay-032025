@@ -9,8 +9,8 @@ import { environment } from 'src/environments/environment.prod';
 })
 export class AirtimeService {
 
-  private awsServer: string = environment.baseURL;
-  // private localServer: string = environment.local;
+  // private awsServer: string = environment.baseURL;
+  private awsServer: string = environment.localURL;
 
   constructor(
     private readonly http: HttpClient

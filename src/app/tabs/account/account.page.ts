@@ -108,13 +108,6 @@ interface ProfileResponse {
     IonButtons,
     IonLabel,
     IonAvatar,
-    IonText,
-    IonGrid,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonCardSubtitle,
-    IonSpinner,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

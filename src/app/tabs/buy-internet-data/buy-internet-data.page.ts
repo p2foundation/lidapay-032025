@@ -14,7 +14,6 @@ import {
   IonToolbar,
   LoadingController,
   ModalController,
-  IonInput,
   IonSelect,
   IonSelectOption,
   IonButton,
@@ -35,9 +34,6 @@ import {
 import { NavigationExtras, Router } from '@angular/router';
 import { NotificationService } from 'src/app/services/notification.service';
 import { InternetDataService } from 'src/app/services/one4all/internet.data.service';
-import { AdvansisPayService } from 'src/app/services/payments/advansis-pay.service';
-import { StorageService } from 'src/app/services/storage.service';
-import { UtilsService } from 'src/app/services/utils.service';
 import { WaitingModalComponent } from 'src/app/components/waiting-modal/waiting-modal.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -55,7 +51,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
     IonHeader,
     IonTitle,
     IonToolbar,
-    IonInput,
     IonSelect,
     IonSelectOption,
     IonButton,
@@ -97,11 +92,8 @@ export class BuyInternetDataPage implements OnInit {
     private loadingCtrl: LoadingController,
     private route: Router,
     private formBuilder: FormBuilder,
-    private storage: StorageService,
     private internetService: InternetDataService,
     private notification: NotificationService,
-    private utilService: UtilsService,
-    private advansisPayService: AdvansisPayService,
     private translate: TranslateService
   ) {
     this.translate.setDefaultLang('en');
