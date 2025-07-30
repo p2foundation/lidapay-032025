@@ -100,6 +100,24 @@
   
       <!-- Form Section -->
       <form [formGroup]="airtimeForm" (ngSubmit)="topupFormSubmit(airtimeForm.value)" class="form-container">
+        <!-- Country Selection -->
+        <ion-item class="animate__animated animate__fadeInUp animate__delay-1s">
+          <ion-label position="stacked">Country</ion-label>
+          <ion-select
+            formControlName="countryIso"
+            interface="action-sheet"
+            [interfaceOptions]="{ header: 'Select Country' }"
+            placeholder="Choose country"
+            class="country-select">
+            <ion-select-option *ngFor="let country of countries" [value]="country.isoName">
+              {{ country.flag }} {{ country.name }}
+            </ion-select-option>
+          </ion-select>
+          <ion-note slot="error" *ngIf="airtimeForm.get('countryIso')?.touched && airtimeForm.get('countryIso')?.invalid">
+            Please select a country
+          </ion-note>
+        </ion-item>
+
         <!-- Network Selection -->
         <ion-item class="animate__animated animate__fadeInUp animate__delay-2s">
           <ion-label position="stacked">Network Provider</ion-label>
@@ -110,10 +128,9 @@
             placeholder="Choose network"
             class="network-select">
             <ion-select-option value="0">Auto Detect Network</ion-select-option>
-            <ion-select-option value="4">MTN Ghana</ion-select-option>
-            <ion-select-option value="6">Telecel Ghana</ion-select-option>
-            <ion-select-option value="1">AirtelTigo Ghana</ion-select-option>
-            <ion-select-option value="3">Glo Ghana</ion-select-option>
+            <ion-select-option *ngFor="let operator of operators" [value]="operator.id">
+              {{ operator.name }}
+            </ion-select-option>
           </ion-select>
           <ion-note slot="error" *ngIf="airtimeForm.get('network')?.touched && airtimeForm.get('network')?.invalid">
             Please select a network
@@ -127,8 +144,24 @@
             formControlName="recipientNumber"
             type="tel"
             placeholder="Enter phone number"
-            class="custom-input">
+            class="custom-input"
+            (ionInput)="onPhoneNumberInput($event)">
           </ion-input>
+          
+          <!-- Auto-detection indicator -->
+          <div class="auto-detect-info" *ngIf="isDetectingOperator">
+            <ion-spinner name="dots" size="small"></ion-spinner>
+            <span class="text-body-small text-gray-600">Detecting network...</span>
+          </div>
+          
+          <!-- Detected operator display -->
+          <div class="detected-operator" *ngIf="detectedOperator && !isDetectingOperator">
+            <ion-chip color="primary" outline>
+              <ion-icon name="checkmark-circle"></ion-icon>
+              <ion-label>{{ detectedOperator.name }} detected</ion-label>
+            </ion-chip>
+          </div>
+          
           <ion-note slot="error" *ngIf="airtimeForm.get('recipientNumber')?.touched && airtimeForm.get('recipientNumber')?.invalid">
             Please enter a valid phone number
           </ion-note>
@@ -166,9 +199,9 @@
         <h3>Quick Amounts</h3>
         <ion-grid>
           <ion-row>
-            <ion-col size="4" *ngFor="let amount of [5, 10, 20, 50, 100, 200]">
+            <ion-col size="4" *ngFor="let amount of quickAmounts">
               <div class="amount-chip" (click)="selectAmount(amount)">
-                <span>GHS {{amount}}</span>
+                <span>{{ selectedCountry?.currencyCode || 'GHS' }} {{amount}}</span>
               </div>
             </ion-col>
           </ion-row>

@@ -277,13 +277,13 @@ export class BuyReloadlyPage implements OnInit {
         countryIsoCode: form.recipientCountryCode.isoName,
       });
       // Prepare the topup parameters
-      this.topupParams.recipientNumber = form.recipientNumber;
-      this.topupParams.description = `International airtime recharge for ${form.recipientNumber}`;
-      this.topupParams.amount = Number(form.amount);
       this.topupParams.operatorId = operatorResult.operatorId;
+      this.topupParams.amount = Number(form.amount);
+      this.topupParams.description = `International airtime recharge for ${form.recipientNumber}`;
       this.topupParams.recipientEmail = this.userProfile.email || '';
-      this.topupParams.senderNumber = this.userProfile.phoneNumber || '';
+      this.topupParams.recipientNumber = form.recipientNumber;
       this.topupParams.recipientCountryCode = form.recipientCountryCode.isoName;
+      this.topupParams.senderNumber = this.userProfile.phoneNumber || '';
       this.topupParams.payTransRef = await this.utilService.generateReference();
       // Prepare payment
       updateStatus('Preparing payment...');
@@ -296,8 +296,7 @@ export class BuyReloadlyPage implements OnInit {
         username: this.userProfile.username || '',
         amount: Number(form.amount),
         orderDesc: `International airtime recharge for ${form.recipientNumber}`,
-        orderImgUrl:
-          'https://advansistechnologies.com/assets/img/home-six/featured/icon1.png',
+        orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
       };
       // Store transaction
       updateStatus('Saving transaction details...');

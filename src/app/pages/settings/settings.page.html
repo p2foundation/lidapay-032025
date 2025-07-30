@@ -104,15 +104,16 @@
         <ion-icon name="chevron-forward" slot="end"></ion-icon>
       </ion-item>
 
-      <ion-item class="setting-item animate__animated animate__fadeInUp">
+      <ion-item class="setting-item animate__animated animate__fadeInUp" button detail="true" (click)="openThemeSelector()">
         <div class="icon_box theme" slot="start">
-          <ion-icon name="moon-outline"></ion-icon>
+          <ion-icon [name]="getThemeModeIcon()"></ion-icon>
         </div>
         <ion-label>
-          <h2>{{ 'Dark Mode' | translate }}</h2>
-          <p>{{ 'Toggle dark theme' | translate }}</p>
+          <h2>{{ 'Theme' | translate }}</h2>
+          <p>{{ getThemeModeDescription() | translate }}</p>
         </ion-label>
-        <ion-toggle [(ngModel)]="isDarkMode" (ionChange)="toggleDarkMode($event)"></ion-toggle>
+        <ion-note slot="end">{{ getThemeModeLabel() | translate }}</ion-note>
+        <ion-icon name="chevron-forward" slot="end"></ion-icon>
       </ion-item>
     </ion-list>
   </div>

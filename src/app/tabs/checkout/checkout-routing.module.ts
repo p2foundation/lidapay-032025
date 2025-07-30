@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CheckoutPage } from './checkout.page';
 import { WaitingPaymentPage } from './waiting-payment/waiting-payment.page';
+import { ReceiptPage } from './receipt/receipt.page';
 
 const routes: Routes = [
   {
@@ -11,6 +12,10 @@ const routes: Routes = [
   {
     path: 'waiting-payment',
     component: WaitingPaymentPage
+  },
+  {
+    path: 'receipt',
+    component: ReceiptPage
   }
 ];
 
@@ -18,4 +23,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class CheckoutPageRoutingModule {} 
+export class CheckoutPageRoutingModule {}

@@ -1,28 +1,45 @@
-<ion-header>
+<ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="dismiss()">
-        <ion-icon name="close"></ion-icon>
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>Select Country</ion-title>
   </ion-toolbar>
+  
   <ion-toolbar>
-    <ion-searchbar
-      [(ngModel)]="searchTerm"
-      (ionInput)="filterCountries()"
-      placeholder="Search countries..."
-      animated
-      showCancelButton="focus"
-      cancelButtonText="Cancel"
-      debounce="300"
-      class="searchbar"
-    ></ion-searchbar>
+    <div class="searchbar-container">
+      <ion-searchbar
+        #searchbar
+        [(ngModel)]="searchTerm"
+        (ionInput)="filterCountries()"
+        (ionFocus)="onSearchbarFocus()"
+        (ionBlur)="onSearchbarBlur()"
+        placeholder="Search countries..."
+        mode="ios"
+        showCancelButton="focus"
+        cancelButtonText="Cancel"
+        debounce="300"
+        class="custom-searchbar"
+      >
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        <button 
+          *ngIf="searchTerm"
+          ion-button 
+          fill="clear" 
+          (click)="clearSearch()"
+          class="clear-button"
+        >
+          <ion-icon name="close-circle"></ion-icon>
+        </button>
+      </ion-searchbar>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <ion-list>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-list lines="none">
     <ion-item
       *ngFor="let country of filteredCountries"
       button
@@ -32,21 +49,21 @@
     >
       <ion-avatar slot="start" class="flag-avatar">
         <img 
-          [src]="'https://flagcdn.com/w40/' + country.isoName.toLowerCase() + '.png'" 
-          [alt]="country.name + ' flag'"
+          [src]="getCountryFlagUrl(country)" 
+          [alt]="(country?.name || 'Country') + ' flag'"
           class="country-flag"
-          onerror="this.style.display='none'"
+          (error)="onFlagError($event, country)"
         />
       </ion-avatar>
       <ion-label>
-        <h2>{{ country.name }}</h2>
+        <h2>{{ country.name || 'Unknown Country' }}</h2>
         <p *ngIf="country.isoName">{{ country.isoName }}</p>
       </ion-label>
     </ion-item>
   </ion-list>
 
-  <div class="no-results" *ngIf="filteredCountries.length === 0">
-    <ion-icon name="search-outline"></ion-icon>
+  <div class="no-results ion-text-center" *ngIf="filteredCountries.length === 0">
+    <ion-icon name="search-outline" class="no-results-icon"></ion-icon>
     <p>No countries found</p>
   </div>
 </ion-content>

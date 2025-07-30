@@ -26,15 +26,11 @@
 @use "@ionic/angular/css/flex-utils.css" as *;
 
 /**
- * Ionic Dark Mode
+ * Modern Theme System
  * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
+ * Our custom theme system handles light/dark modes
+ * with system preference detection and manual override
  */
-
-/* @use "@ionic/angular/css/palettes/dark.always.css" as *; */
-/* @use "@ionic/angular/css/palettes/dark.class.css" as *; */
-@use '@ionic/angular/css/palettes/dark.system.css' as *;
 
 /**
  * App theme
@@ -52,26 +48,411 @@
 @use 'swiper/css/zoom' as *;
 
 :root {
-    --white: #fff;
-    --primary: #FF4433;
-    // --primary: #0dbaff;
-    --primary-dark: #d09b1a;
-    --transparent: rgba(0, 0, 0, 0);
-    --text-light: #999999;
-    --text-dark: #444444;
-    --text-black: #0e0e0f;
-    --bg-color: #f9f9f9;
-    --green_color: #54cb1f;
-    --red_color: #f83232;
-    --theme-gradient: linear-gradient(104deg, #37005E 0%, #9b51e0 100%);
+  // Modern Color Palette
+  --white: #ffffff;
+  --black: #000000;
+  
+  // Primary Brand Colors - Professional Blue
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+  
+  // Secondary Colors
+  --secondary: #64748b;
+  --secondary-light: #94a3b8;
+  --secondary-dark: #475569;
+  
+  // Success Colors
+  --success: #10b981;
+  --success-light: #34d399;
+  --success-dark: #059669;
+  --success-50: #ecfdf5;
+  --success-100: #d1fae5;
+  
+  // Warning Colors
+  --warning: #f59e0b;
+  --warning-light: #fbbf24;
+  --warning-dark: #d97706;
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  
+  // Error Colors
+  --error: #ef4444;
+  --error-light: #f87171;
+  --error-dark: #dc2626;
+  --error-50: #fef2f2;
+  --error-100: #fee2e2;
+  
+  // Neutral Colors
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  
+  // Text Colors
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-tertiary: var(--gray-500);
+  --text-disabled: var(--gray-400);
+  --text-inverse: var(--white);
+  
+  // Background Colors
+  --bg-primary: var(--white);
+  --bg-secondary: var(--gray-50);
+  --bg-tertiary: var(--gray-100);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  // Border Colors
+  --border-light: var(--gray-200);
+  --border-medium: var(--gray-300);
+  --border-dark: var(--gray-400);
+  
+  // Shadow System
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  // Border Radius
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+  
+  // Spacing Scale
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  
+  // Legacy support
+  --transparent: rgba(0, 0, 0, 0);
+  --text-light: var(--gray-500);
+  --text-dark: var(--gray-700);
+  --text-black: var(--text-primary);
+  --bg-color: var(--bg-secondary);
+  --green_color: var(--success);
+  --red_color: var(--error);
+  --theme-gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  
+  // Animation
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+}
+
+// Dark Mode Overrides for Design System
+body.dark {
+  // Text Colors - Dark Mode
+  --text-primary: var(--gray-50);
+  --text-secondary: var(--gray-300);
+  --text-tertiary: var(--gray-400);
+  --text-disabled: var(--gray-500);
+  --text-inverse: var(--gray-900);
+  
+  // Background Colors - Dark Mode
+  --bg-primary: var(--gray-900);
+  --bg-secondary: var(--gray-800);
+  --bg-tertiary: var(--gray-700);
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  
+  // Border Colors - Dark Mode
+  --border-light: var(--gray-700);
+  --border-medium: var(--gray-600);
+  --border-dark: var(--gray-500);
+  
+  // Shadow adjustments for dark mode
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+}
+
+// Light Mode Overrides (explicit light mode)
+body.light {
+  // Text Colors - Light Mode
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-tertiary: var(--gray-500);
+  --text-disabled: var(--gray-400);
+  --text-inverse: var(--white);
+  
+  // Background Colors - Light Mode
+  --bg-primary: var(--white);
+  --bg-secondary: var(--gray-50);
+  --bg-tertiary: var(--gray-100);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  // Border Colors - Light Mode
+  --border-light: var(--gray-200);
+  --border-medium: var(--gray-300);
+  --border-dark: var(--gray-400);
+  
+  // Shadow adjustments for light mode
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 .bg_color {
     --background: var(--ion-color-light);
 }
 
+// Modern Utility Classes
 .text-theme {
     color: var(--primary);
+}
+
+// Background utilities
+.bg-primary { background-color: var(--primary); }
+.bg-primary-light { background-color: var(--primary-light); }
+.bg-primary-dark { background-color: var(--primary-dark); }
+.bg-success { background-color: var(--success); }
+.bg-warning { background-color: var(--warning); }
+.bg-error { background-color: var(--error); }
+.bg-gray-50 { background-color: var(--gray-50); }
+.bg-gray-100 { background-color: var(--gray-100); }
+.bg-gray-200 { background-color: var(--gray-200); }
+
+// Text color utilities
+.text-primary { color: var(--primary); }
+.text-primary-light { color: var(--primary-light); }
+.text-primary-dark { color: var(--primary-dark); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-error { color: var(--error); }
+.text-gray-50 { color: var(--gray-50); }
+.text-gray-100 { color: var(--gray-100); }
+.text-gray-200 { color: var(--gray-200); }
+.text-gray-300 { color: var(--gray-300); }
+.text-gray-400 { color: var(--gray-400); }
+.text-gray-500 { color: var(--gray-500); }
+.text-gray-600 { color: var(--gray-600); }
+.text-gray-700 { color: var(--gray-700); }
+.text-gray-800 { color: var(--gray-800); }
+.text-gray-900 { color: var(--gray-900); }
+
+// Border utilities
+.border-light { border-color: var(--border-light); }
+.border-medium { border-color: var(--border-medium); }
+.border-dark { border-color: var(--border-dark); }
+.border-primary { border-color: var(--primary); }
+.border-success { border-color: var(--success); }
+.border-warning { border-color: var(--warning); }
+.border-error { border-color: var(--error); }
+
+// Shadow utilities
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+
+// Border radius utilities
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-2xl { border-radius: var(--radius-2xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+// Spacing utilities
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-5 { margin: var(--space-5); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+
+// Modern Card Styles
+.modern-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  transition: var(--transition-normal);
+  
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+}
+
+// Modern Button Styles
+.btn-primary {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-6);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  
+  &:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    background: var(--gray-300);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.btn-secondary {
+  background: var(--bg-primary);
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-6);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  
+  &:hover {
+    background: var(--primary-50);
+    transform: translateY(-1px);
+  }
+}
+
+.btn-success {
+  background: var(--success);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-6);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  
+  &:hover {
+    background: var(--success-dark);
+    transform: translateY(-1px);
+  }
+}
+
+// Modern Input Styles
+.modern-input {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  font-size: 1rem;
+  transition: var(--transition-normal);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-100);
+  }
+  
+  &:disabled {
+    background: var(--gray-50);
+    color: var(--gray-500);
+    cursor: not-allowed;
+  }
+}
+
+// Modern Form Styles
+.form-group {
+  margin-bottom: var(--space-4);
+  
+  label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+  
+  .form-error {
+    color: var(--error);
+    font-size: 0.75rem;
+    margin-top: var(--space-1);
+  }
+}
+
+// Loading States
+.loading-skeleton {
+  background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// Animation Classes
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .d-flex {
@@ -262,15 +643,19 @@ ion-header {
         min-height: unset !important;
         box-shadow: none !important;
         --background: var(--transparent);
-        background: var(--white);
+        background: var(--ion-item-background, var(--ion-background-color, #fff));
         align-items: flex-start;
         --inner-padding-end: 0px;
         --inner-min-height: unset !important;
         --padding-start: 0;
-        --highligh-color-focused: var(--transparent) !important;
+        --highlight-color-focused: var(--ion-color-primary) !important;
+        --highlight-color-valid: var(--ion-color-success) !important;
+        --highlight-color-invalid: var(--ion-color-danger) !important;
+        --border-color: var(--ion-color-step-200, #ccc);
+        --color: var(--ion-text-color);
         box-shadow: none !important;
         --min-height: unset;
-        border-top: 1px solid #ccc !important;
+        border-top: 1px solid var(--ion-color-step-200, #ccc) !important;
 
         .icon_box {
             margin: 0 !important;
@@ -284,7 +669,7 @@ ion-header {
         }
 
         ion-label {
-            color: var(--text-black) !important;
+            color: var(--ion-text-color) !important;
             margin: 0;
             letter-spacing: 0;
             max-width: 100% !important;
@@ -308,7 +693,7 @@ ion-header {
             --padding-top: 0 !important;
             --padding-bottom: 0px !important;
             color: var(--text-black);
-            --placeholder-color: var(--text-light) !important;
+            --placeholder-color: var(--ion-text-color-step-600, #999) !important;
             --placeholder-opacity: 1;
             --placeholder-font-weight: 500 !important;
             flex: unset !important;
@@ -333,7 +718,7 @@ ion-header {
                 padding: 0;
                 font-size: 1.2rem !important;
                 font-weight: 400 !important;
-                --placeholder-color: var(--text-light) !important;
+                --placeholder-color: var(--ion-text-color-step-600, #999) !important;
                 --placeholder-opacity: 1;
                 --placeholder-font-weight: 400 !important;
             }

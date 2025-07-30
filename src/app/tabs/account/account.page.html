@@ -57,15 +57,15 @@
         <span class="label">{{ 'Transactions' | translate }}</span>
       </div>
     </div>
-    <!-- Add this right after the profile stats section -->
+    <!-- Theme Quick Toggle -->
     <div class="quick-settings animate__animated animate__fadeInUp">
-      <ion-item lines="none" button detail="false" (click)="toggleDarkMode()">
-        <ion-icon slot="start" [name]="isDarkMode ? 'moon' : 'sunny'"></ion-icon>
+      <ion-item lines="none" button detail="false" (click)="toggleTheme()">
+        <ion-icon slot="start" [name]="getThemeIcon()"></ion-icon>
         <ion-label>
-          <h4>{{ 'Dark Mode' | translate }}</h4>
-          <p>{{ isDarkMode ? ('Dark' | translate) : ('Light' | translate) }}</p>
+          <h4>{{ 'Theme' | translate }}</h4>
+          <p>{{ getThemeDescription() | translate }}</p>
         </ion-label>
-        <ion-toggle [(ngModel)]="isDarkMode" (ionChange)="toggleDarkMode()"></ion-toggle>
+        <ion-note slot="end">{{ getThemeLabel() | translate }}</ion-note>
       </ion-item>
     </div>
   </div>

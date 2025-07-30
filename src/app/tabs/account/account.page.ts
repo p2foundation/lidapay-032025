@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -111,7 +111,7 @@ interface ProfileResponse {
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AccountPage implements OnInit {
+export class AccountPage implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   profile: Profile = {
@@ -396,5 +396,52 @@ export class AccountPage implements OnInit {
 
   async toggleDarkMode() {
     this.themeService.toggleTheme();
+  }
+
+  // New theme methods for the updated UI
+  toggleTheme() {
+    this.themeService.toggleTheme();
+  }
+
+  getThemeIcon(): string {
+    const currentMode = this.themeService.getThemeMode();
+    switch (currentMode) {
+      case 'system':
+        return 'settings-outline';
+      case 'light':
+        return 'sunny-outline';
+      case 'dark':
+        return 'moon-outline';
+      default:
+        return 'settings-outline';
+    }
+  }
+
+  getThemeLabel(): string {
+    const currentMode = this.themeService.getThemeMode();
+    switch (currentMode) {
+      case 'system':
+        return 'System';
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      default:
+        return 'System';
+    }
+  }
+
+  getThemeDescription(): string {
+    const currentMode = this.themeService.getThemeMode();
+    switch (currentMode) {
+      case 'system':
+        return 'Follows your device theme';
+      case 'light':
+        return 'Always use light theme';
+      case 'dark':
+        return 'Always use dark theme';
+      default:
+        return 'Follows your device theme';
+    }
   }
 }

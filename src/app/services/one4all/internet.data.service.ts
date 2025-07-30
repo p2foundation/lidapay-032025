@@ -1,8 +1,25 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment.prod';
+import { Observable, of, throwError, timer } from 'rxjs';
+import { catchError, tap, retryWhen, concatMap, delay } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+
+interface ApiResponse<T> {
+  status: string;
+  message?: string;
+  data?: T;
+}
+
+interface InternetDataRequest {
+  recipientNumber: string;
+  dataCode: string;
+  network: string;
+  amount: number;
+  description: string;
+  transType: string;
+  payTransRef: string;
+  [key: string]: any;
+}
 
 export interface ValidationResponse {
   valid: boolean;
@@ -37,8 +54,11 @@ export class InternetDataService {
     return this.http
       .post<any>(`${this.awsServer}/api/v1/internet/buydata`, iData)
       .pipe(
-        tap(_res => this.log(`InternetDataService: buy data`)),
-        catchError(this.handleError('InternetDataService', []))
+        tap(_res => console.log(`BUY INTERNET DATA response: ...`)),
+        catchError((_err) => {
+          console.error(`BUY INTERNET DATA error: ${JSON.stringify(_err)}`);
+          throw new Error(_err);
+        })
       );
   }
 

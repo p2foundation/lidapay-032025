@@ -1,7 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
+import { 
+  LoadingController, 
+  ToastController,
   IonContent,
   IonHeader,
   IonTitle,
@@ -12,15 +15,18 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonCardSubtitle,
   IonSpinner,
   IonButton,
-  LoadingController,
-  ToastController,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonIcon
 } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AdvansisPayService } from 'src/app/services/payments/advansis-pay.service';
-import { GlobalService } from 'src/app/services/global.service';
+import { AdvansisPayService } from '../../../services/payments/advansis-pay.service';
+import { GlobalService } from '../../../services/global.service';
 import { App } from '@capacitor/app';
 
 @Component({
@@ -29,22 +35,27 @@ import { App } from '@capacitor/app';
   styleUrls: ['./waiting-payment.page.scss'],
   standalone: true,
   imports: [
-    IonBackButton,
+    CommonModule,
+    FormsModule,
+    TranslateModule,
     IonContent,
     IonHeader,
     IonTitle,
     IonToolbar,
-    CommonModule,
-    FormsModule,
-    TranslateModule,
     IonButtons,
+    IonBackButton,
     IonCard,
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
+    IonCardSubtitle,
     IonSpinner,
     IonButton,
-  ],
+    IonList,
+    IonItem,
+    IonLabel,
+    IonIcon
+  ]
 })
 export class WaitingPaymentPage implements OnInit, OnDestroy {
   orderId: string | null = null;
@@ -80,20 +91,27 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
   private setupDeepLinkListener() {
     this.deepLinkSubscription = App.addListener('appUrlOpen', (data: { url: string }) => {
       console.log('Deep link received in waiting page:', data);
-      const url = new URL(data.url);
+      
+      // Clean the URL by removing newlines and extra spaces
+      const cleanedUrl = data.url.replace(/%0A/g, '').replace(/\s+/g, '');
+      console.log('Cleaned URL in waiting page:', cleanedUrl);
+      
+      const url = new URL(cleanedUrl);
       const path = url.pathname;
 
       if (path === '/redirect-url') {
-        // Clean up the parameters by removing whitespace and newlines
-        const orderId = url.searchParams.get('orderId')?.trim();
-        const token = url.searchParams.get('token')?.trim();
-        const status = url.searchParams.get('status')?.trim();
-        const errorMessage = url.searchParams.get('errorMessage')?.trim();
+        // Try both parameter names since the URL might use either
+        const orderId = url.searchParams.get('order-id') || url.searchParams.get('orderId');
+        const token = url.searchParams.get('token');
+        const status = url.searchParams.get('status');
+        const errorMessage = url.searchParams.get('errorMessage');
+
+        console.log('Extracted parameters in waiting page:', { orderId, token, status, errorMessage });
 
         if (status === 'error' && errorMessage) {
-          this.error = errorMessage;
+          this.error = decodeURIComponent(errorMessage);
           this.loading = false;
-          this.global.showToast(errorMessage, 'danger', 'bottom', 3000);
+          this.global.showToast(this.error, 'danger', 'bottom', 3000);
           return;
         }
 
@@ -118,7 +136,7 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
 
     try {
       this.advansPayService.queryStatus(this.token!).subscribe({
-        next: (transactionDetails) => {
+        next: (transactionDetails: any) => {
           console.log('Transaction Details:', transactionDetails);
           
           const navigationExtras = {
@@ -150,7 +168,7 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
               this.router.navigate(['/tabs/home']);
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error checking payment status:', error);
           this.error = 'Error checking payment status';
           this.loading = false;

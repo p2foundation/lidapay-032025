@@ -193,13 +193,12 @@ export const routes: Routes = [
 
       {
         path: 'checkout',
-        loadComponent: () =>
-          import('./checkout/checkout.page').then((m) => m.CheckoutPage),
+        loadChildren: () => import('./checkout/checkout.module').then(m => m.CheckoutPageModule)
       },
       {
         path: 'receipt',
         loadComponent: () =>
-          import('./receipt/receipt.page').then((m) => m.ReceiptPage),
+          import('./checkout/receipt/receipt.page').then((m) => m.ReceiptPage),
       },
       {
         path: '',

@@ -17,7 +17,6 @@ import { Profile } from 'src/app/interfaces/profile.interface';
   imports: [
     IonContent, 
     IonHeader, 
-    IonTitle, 
     IonToolbar, 
     CommonModule, 
     FormsModule,

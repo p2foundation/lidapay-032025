@@ -1,11 +1,11 @@
-<ion-header class="header_bg bg-transparent" [translucent]="true">
+<ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/recharge"></ion-back-button>
     </ion-buttons>
     <ion-title>
       <div class="d-flex">
-        <span class="page_title animate__animated animate__fadeIn">
+        <span class="page_title">
           {{'Data Bundle' | translate}}
         </span>
       </div>
@@ -13,83 +13,117 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="bg_color"  [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">dataBundle</ion-title>
-    </ion-toolbar>
-  </ion-header>
-    <!-- Skeleton Loading -->
-    <div class="skeleton-wrapper" *ngIf="isLoading">
-      <ion-list lines="none">
-        <!-- Info Card Skeleton -->
-        <ion-card>
-          <ion-card-content>
-            <div class="skeleton-header">
-              <ion-skeleton-text [animated]="true" style="width: 48px; height: 48px; border-radius: 50%;"></ion-skeleton-text>
-              <div class="skeleton-text-group">
-                <ion-skeleton-text [animated]="true" style="width: 60%; height: 20px;"></ion-skeleton-text>
-                <ion-skeleton-text [animated]="true" style="width: 80%; height: 16px; margin-top: 8px;"></ion-skeleton-text>
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading data bundles...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && dataBundle.length === 0" class="ion-text-center ion-padding">
+    <ion-icon name="warning-outline" style="font-size: 48px;"></ion-icon>
+    <h3>No Data Bundles Available</h3>
+    <p>Unable to load data bundles at this time. Please go back and try again.</p>
+    <ion-button routerLink="/tabs/buy-internet-data" fill="clear">
+      <ion-icon slot="start" name="arrow-back"></ion-icon>
+      Go Back
+    </ion-button>
+  </div>
+
+  <!-- Bundle List -->
+  <form [formGroup]="dataBundleForm" (ngSubmit)="onSubmit(dataBundleForm.value)" *ngIf="!isLoading && dataBundle.length > 0" class="ion-padding">
+    <!-- Recipient Number Input -->
+    <!-- <ion-item class="ion-margin-bottom">
+      <ion-label position="floating">Recipient's Phone Number</ion-label>
+      <ion-input 
+        type="tel" 
+        formControlName="recipientNumber" 
+        placeholder="Enter phone number"
+        inputmode="tel"
+        [value]="userProfile?.phoneNumber || ''">
+      </ion-input>
+      <ion-note slot="helper">Enter recipient's phone number with country code</ion-note>
+      <ion-note slot="error" *ngIf="dataBundleForm.get('recipientNumber')?.errors?.['required'] && dataBundleForm.get('recipientNumber')?.touched">
+        Phone number is required
+      </ion-note>
+      <ion-note slot="error" *ngIf="dataBundleForm.get('recipientNumber')?.errors?.['minlength']">
+        Phone number is too short
+      </ion-note>
+    </ion-item> -->
+
+    <ion-text color="dark">
+      <h2>Select Data Bundle</h2>
+      <p class="ion-text-muted">Choose a bundle that suits your needs</p>
+    </ion-text>
+    
+    <div class="bundle-grid">
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let bundle of dataBundle">
+          <ion-card 
+            [class.selected]="selectedBundle?.code === bundle.code"
+            (click)="selectBundle(bundle)"
+            class="bundle-card"
+            [class.flexi-bundle]="bundle['flexible_amount']"
+          >
+            <ion-card-header>
+              <ion-card-title class="bundle-name">
+                {{bundle['name'] || bundle.volume}}
+                <span *ngIf="bundle['flexible_amount']" class="flexi-badge">Flexi</span>
+              </ion-card-title>
+              <ion-card-subtitle class="bundle-network">
+                <ion-icon [name]="getNetworkIcon(getNetworkName(bundle.network))"></ion-icon>
+                {{ getNetworkName(bundle.network) }}
+                <span *ngIf="bundle['category'] && bundle['category'] !== 'FIBRE' && bundle['category'] !== 'Flexi'" class="bundle-category">
+                  • {{bundle['category'].replace('_', ' ')}}
+                </span>
+              </ion-card-subtitle>
+            </ion-card-header>
+            
+            <ion-card-content>
+              <div class="bundle-content">
+                <h2 class="bundle-amount">{{formatAmount(bundle.amount || bundle.price || bundle['bundleAmount'] || 0)}}</h2>
+                <p class="bundle-validity" *ngIf="bundle.validity !== 'N/A'">
+                  {{bundle.validity || bundle.bundleValidity || '30 days'}}
+                </p>
+                <p class="bundle-volume" *ngIf="bundle.volume && bundle.volume !== 'Flexi'">
+                  {{bundle.volume || bundle.bundleVolume}}
+                </p>
+                
+                <ion-button 
+                  expand="block" 
+                  fill="outline"
+                  size="small"
+                  type="button"
+                  (click)="selectBundle(bundle); $event.stopPropagation()"
+                  class="select-button"
+                  [disabled]="bundle['flexible_amount']"
+                >
+                  {{ selectedBundle?.code === bundle.code ? 'Selected' : 'Select' }}
+                  <ion-icon *ngIf="selectedBundle?.code === bundle.code" name="checkmark-circle" slot="end"></ion-icon>
+                </ion-button>
+                <ion-note *ngIf="bundle['flexible_amount']" class="flexi-note">
+                  Custom amount available
+                </ion-note>
               </div>
-            </div>
-          </ion-card-content>
-        </ion-card>
-  
-        <!-- Bundle Cards Skeleton -->
-        <div class="bundles-skeleton ion-padding">
-          <ion-grid>
-            <ion-row>
-              <ion-col size="6" *ngFor="let i of [1,2,3,4,5,6]">
-                <div class="bundle-skeleton-card">
-                  <ion-skeleton-text [animated]="true" style="width: 48px; height: 48px; border-radius: 12px; margin: 16px auto;"></ion-skeleton-text>
-                  <ion-skeleton-text [animated]="true" style="width: 70%; height: 20px; margin: 8px auto;"></ion-skeleton-text>
-                  <ion-skeleton-text [animated]="true" style="width: 90%; height: 16px; margin: 8px auto;"></ion-skeleton-text>
-                  <ion-skeleton-text [animated]="true" style="width: 50%; height: 24px; margin: 12px auto;"></ion-skeleton-text>
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
-      </ion-list>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
     </div>
-  
-    <!-- Actual Content -->
-    <div class="content-wrapper" [class.animate-in]="!isLoading">
-      <!-- Info Card -->
-      <ion-card class="info-card animate__animated animate__fadeInDown animate__delay-1s">
-        <ion-card-content>
-          <div class="card-header">
-            <ion-icon name="cellular-outline" class="header-icon"></ion-icon>
-            <h2>Data Bundles</h2>
-          </div>
-          <p>Choose from our range of data bundles for your mobile device.</p>
-        </ion-card-content>
-      </ion-card>
-  
-      <!-- Data Bundles Grid -->
-      <div class="bundles-grid">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="6" *ngFor="let bundle of dataBundle; let i = index" 
-                     class="animate__animated animate__fadeInUp"
-                     [style.animation-delay]="(i * 0.1 + 0.2) + 's'">
-              <div class="bundle-card" 
-                   (click)="selectBundle(bundle)"
-                   [class.selected]="selectedBundle?.code === bundle.code">
-                <div class="bundle-icon">
-                  <ion-icon [name]="getBundleIcon(bundle.volume)"></ion-icon>
-                  <div class="pulse-ring"></div>
-                </div>
-                <h3>{{ bundle.volume }}</h3>
-                <p>{{ bundle.validity }}</p>
-                <div class="bundle-price">
-                  GHS {{ bundle.price }}
-                </div>
-                <div class="bundle-tag" *ngIf="bundle.isPopular">Popular</div>
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
+    
+    <div class="ion-padding-horizontal ion-margin-top">
+      <ion-button 
+        expand="block" 
+        size="large" 
+        type="submit"
+        [disabled]="!dataBundleForm.valid || !selectedBundle"
+        class="purchase-button"
+        shape="round"
+      >
+        <ion-icon slot="start" name="card"></ion-icon>
+        {{ selectedBundle ? 'Buy ' + (selectedBundle.volume || selectedBundle.bundleVolume) + ' for ' + formatAmount(selectedBundle.amount || selectedBundle.price || selectedBundle['bundleAmount'] || 0) : 'Please select a bundle' }}
+      </ion-button>
     </div>
+  </form>
 </ion-content>

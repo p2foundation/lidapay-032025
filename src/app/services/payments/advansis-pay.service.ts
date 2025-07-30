@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment.prod';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { StateService } from '../state.service';
 
@@ -10,7 +10,9 @@ import { StateService } from '../state.service';
 })
 export class AdvansisPayService {
   // private awServer: string = environment.baseURL;
-  private awServer: string = environment.localURL;
+  // private awServer: string = environment.localURL;
+  private awServer: string = environment.vercelURL;
+
 
 
   constructor(
@@ -37,15 +39,36 @@ export class AdvansisPayService {
   }
   // Query Status
   queryStatus(token: string): Observable<any> {
-    return this.http
-      .get(`${this.awServer}/api/v1/advansispay/query-transaction/${token}`)
-      .pipe(
-        tap((response) => console.log('Payment status:', response)),
-        catchError((error) => {
-          console.error('Payment status check failed:', error);
-          return throwError(() => error);
-        })
-      );
+    const url = `${this.awServer.replace(/\/$/, '')}/api/v1/advansispay/query-transaction`;
+    const requestBody = { token };
+    
+    console.log('[AdvansisPay] Making POST request to:', url);
+    console.log('[AdvansisPay] Request body:', { token: `${token.substring(0, 5)}...${token.substring(token.length - 5)}` });
+    
+    return this.http.post(url, requestBody, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      observe: 'response'
+    }).pipe(
+      tap((response) => {
+        console.log('[AdvansisPay] Response status:', response.status);
+        console.log('[AdvansisPay] Response headers:', response.headers);
+        console.log('[AdvansisPay] Response body:', response.body);
+      }),
+      map((response: any) => response.body),
+      catchError((error) => {
+        console.error('[AdvansisPay] Status check failed:', {
+          status: error.status,
+          statusText: error.statusText,
+          error: error.error,
+          url: error.url,
+          headers: error.headers
+        });
+        return throwError(() => error);
+      })
+    );
   }
   // Post Payment Status
   postPaymentStatus(p2sData: any): Observable<any> {

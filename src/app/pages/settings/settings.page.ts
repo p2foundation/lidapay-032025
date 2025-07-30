@@ -5,7 +5,7 @@ import { IonContent,
   IonHeader, 
   IonTitle, 
   IonToolbar, 
-  ModalController,
+  AlertController,
   IonIcon,
   IonToggle
  } from '@ionic/angular/standalone';
@@ -22,7 +22,7 @@ import { StorageService } from 'src/app/services/storage.service';
 import { RewardsService } from 'src/app/services/user/rewards.service';
 import QRCode from 'qrcode';
 import { addIcons } from 'ionicons';
-import { chevronForward, moonOutline, camera, qrCodeOutline, cogOutline, languageOutline, shareSocialOutline, keyOutline } from 'ionicons/icons';
+import { chevronForward, moonOutline, camera, qrCodeOutline, cogOutline, languageOutline, shareSocialOutline, keyOutline, sunnyOutline, settingsOutline, personOutline, shieldCheckmarkOutline, lockClosedOutline, close, downloadOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-settings',
@@ -52,6 +52,7 @@ export class SettingsPage implements OnInit, OnDestroy  {
   profile: Profile = {} as Profile;
   currentLanguage: string = 'en';
   isDarkMode: boolean = false;
+  currentThemeMode: 'system' | 'light' | 'dark' = 'system';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -62,7 +63,7 @@ export class SettingsPage implements OnInit, OnDestroy  {
     private notificationService: NotificationService,
     private accountService: AccountService,
     private rewardsService: RewardsService,
-    private modalController: ModalController
+    private alertController: AlertController
   ) {
     this.themeService.isDarkMode$
     .pipe(takeUntil(this.destroy$))
@@ -70,16 +71,13 @@ export class SettingsPage implements OnInit, OnDestroy  {
       this.isDarkMode = isDark;
     });
 
-    addIcons({
-      'chevron-forward': chevronForward,
-      'moon-outline': moonOutline,
-      'camera': camera,
-      'qr-code-outline': qrCodeOutline,
-      'cog-outline': cogOutline,
-      'share-social-outline': shareSocialOutline,
-      'language-outline': languageOutline,
-      'key-outline': keyOutline,
+    this.themeService.themeMode$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(themeMode => {
+      this.currentThemeMode = themeMode;
     });
+
+    addIcons({camera,personOutline,chevronForward,shieldCheckmarkOutline,qrCodeOutline,shareSocialOutline,lockClosedOutline,keyOutline,languageOutline,close,downloadOutline,});
   }
 
   ngOnInit() {
@@ -232,8 +230,90 @@ export class SettingsPage implements OnInit, OnDestroy  {
     this.router.navigate(['/change-language']);
   }
 
-  toggleDarkMode(event: any) {
-    this.themeService.setDarkMode(event.detail.checked);
+  setThemeMode(mode: 'system' | 'light' | 'dark') {
+    this.themeService.setThemeMode(mode);
+  }
+
+  getThemeModeIcon(): string {
+    switch (this.currentThemeMode) {
+      case 'system':
+        return 'settings-outline';
+      case 'light':
+        return 'sunny-outline';
+      case 'dark':
+        return 'moon-outline';
+      default:
+        return 'settings-outline';
+    }
+  }
+
+  getThemeModeLabel(): string {
+    switch (this.currentThemeMode) {
+      case 'system':
+        return 'System';
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      default:
+        return 'System';
+    }
+  }
+
+  getThemeModeDescription(): string {
+    switch (this.currentThemeMode) {
+      case 'system':
+        return 'Follows your device theme';
+      case 'light':
+        return 'Always use light theme';
+      case 'dark':
+        return 'Always use dark theme';
+      default:
+        return 'Follows your device theme';
+    }
+  }
+
+  async openThemeSelector() {
+    const alert = await this.alertController.create({
+      header: 'Choose Theme',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ],
+      inputs: [
+        {
+          type: 'radio',
+          label: 'System',
+          value: 'system',
+          checked: this.currentThemeMode === 'system',
+          handler: () => {
+            this.setThemeMode('system');
+          }
+        },
+        {
+          type: 'radio',
+          label: 'Light',
+          value: 'light',
+          checked: this.currentThemeMode === 'light',
+          handler: () => {
+            this.setThemeMode('light');
+          }
+        },
+        {
+          type: 'radio',
+          label: 'Dark',
+          value: 'dark',
+          checked: this.currentThemeMode === 'dark',
+          handler: () => {
+            this.setThemeMode('dark');
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   async scanQRCode() {

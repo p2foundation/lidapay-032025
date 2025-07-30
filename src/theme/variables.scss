@@ -1,54 +1,192 @@
-// For information on how to create your own theme, please see:
-// http://ionicframework.com/docs/theming/
-:root{
-    /** primary **/
-    // #37005e; // indigo
-    // #FD0052; // red
-    --ion-color-primary: #37005E;
-    // --ion-color-primary: #0dbaff;
-    --ion-color-secondary: #FD0052;
+// Modern Theme System for Lidapay
+// This file defines the base theme variables that work with our new design system
 
-    // Light mode variables
-    --ion-background-color: #ffffff;
-    --ion-background-color-rgb: 255, 255, 255;
-    --ion-text-color: #000000;
-    --ion-text-color-rgb: 0, 0, 0;
-    --ion-card-background: #ffffff;
-    --ion-item-background: #ffffff;
-    --ion-toolbar-background: #ffffff;
-    --ion-tab-bar-background: #ffffff;
+:root {
+  // Theme Mode Detection
+  --theme-mode: 'light';
+  
+  // Primary Brand Colors - Professional Blue
+  --ion-color-primary: #2563eb;
+  --ion-color-primary-rgb: 37, 99, 235;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #1d4ed8;
+  --ion-color-primary-tint: #3b82f6;
+  
+  // Secondary Colors
+  --ion-color-secondary: #64748b;
+  --ion-color-secondary-rgb: 100, 116, 139;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #475569;
+  --ion-color-secondary-tint: #94a3b8;
+  
+  // Success Colors
+  --ion-color-success: #10b981;
+  --ion-color-success-rgb: 16, 185, 129;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #059669;
+  --ion-color-success-tint: #34d399;
+  
+  // Warning Colors
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #d97706;
+  --ion-color-warning-tint: #fbbf24;
+  
+  // Danger/Error Colors
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #dc2626;
+  --ion-color-danger-tint: #f87171;
+  
+  // Light Mode Colors (Default)
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+  --ion-card-background: #ffffff;
+  --ion-item-background: #ffffff;
+  --ion-toolbar-background: #ffffff;
+  --ion-tab-bar-background: #ffffff;
+  --ion-border-color: #e2e8f0;
+  
+  // Light Mode Semantic Colors
+  --ion-color-step-50: #f8fafc;
+  --ion-color-step-100: #f1f5f9;
+  --ion-color-step-150: #e2e8f0;
+  --ion-color-step-200: #cbd5e1;
+  --ion-color-step-250: #94a3b8;
+  --ion-color-step-300: #64748b;
+  --ion-color-step-350: #475569;
+  --ion-color-step-400: #334155;
+  --ion-color-step-450: #1e293b;
+  --ion-color-step-500: #0f172a;
+  --ion-color-step-550: #0f172a;
+  --ion-color-step-600: #0f172a;
+  --ion-color-step-650: #0f172a;
+  --ion-color-step-700: #0f172a;
+  --ion-color-step-750: #0f172a;
+  --ion-color-step-800: #0f172a;
+  --ion-color-step-850: #0f172a;
+  --ion-color-step-900: #0f172a;
+  --ion-color-step-950: #0f172a;
 }
 
+// Dark Mode Colors
 @media (prefers-color-scheme: dark) {
-    body.dark {
-        --ion-background-color: #121212;
-        --ion-background-color-rgb: 18, 18, 18;
-        --ion-text-color: #ffffff;
-        --ion-text-color-rgb: 255, 255, 255;
-        --ion-card-background: #1e1e1e;
-        --ion-item-background: #1e1e1e;
-        --ion-toolbar-background: #1e1e1e;
-        --ion-tab-bar-background: #1e1e1e;
-        
-        // Custom dark mode colors
-        --ion-color-step-50: #1e1e1e;
-        --ion-color-step-100: #2a2a2a;
-        --ion-color-step-150: #363636;
-        --ion-color-step-200: #414141;
-        --ion-color-step-250: #4d4d4d;
-        --ion-color-step-300: #595959;
-        --ion-color-step-350: #656565;
-        --ion-color-step-400: #717171;
-        --ion-color-step-450: #7d7d7d;
-        --ion-color-step-500: #898989;
-        --ion-color-step-550: #949494;
-        --ion-color-step-600: #a0a0a0;
-        --ion-color-step-650: #acacac;
-        --ion-color-step-700: #b8b8b8;
-        --ion-color-step-750: #c4c4c4;
-        --ion-color-step-800: #d0d0d0;
-        --ion-color-step-850: #dbdbdb;
-        --ion-color-step-900: #e7e7e7;
-        --ion-color-step-950: #f3f3f3;
-    }
+  :root {
+    --theme-mode: 'dark';
+    
+    // Dark Mode Backgrounds
+    --ion-background-color: #0f172a;
+    --ion-background-color-rgb: 15, 23, 42;
+    --ion-text-color: #f8fafc;
+    --ion-text-color-rgb: 248, 250, 252;
+    --ion-card-background: #1e293b;
+    --ion-item-background: #1e293b;
+    --ion-toolbar-background: #1e293b;
+    --ion-tab-bar-background: #1e293b;
+    --ion-border-color: #334155;
+    
+    // Dark Mode Semantic Colors
+    --ion-color-step-50: #0f172a;
+    --ion-color-step-100: #1e293b;
+    --ion-color-step-150: #334155;
+    --ion-color-step-200: #475569;
+    --ion-color-step-250: #64748b;
+    --ion-color-step-300: #94a3b8;
+    --ion-color-step-350: #cbd5e1;
+    --ion-color-step-400: #e2e8f0;
+    --ion-color-step-450: #f1f5f9;
+    --ion-color-step-500: #f8fafc;
+    --ion-color-step-550: #f8fafc;
+    --ion-color-step-600: #f8fafc;
+    --ion-color-step-650: #f8fafc;
+    --ion-color-step-700: #f8fafc;
+    --ion-color-step-750: #f8fafc;
+    --ion-color-step-800: #f8fafc;
+    --ion-color-step-850: #f8fafc;
+    --ion-color-step-900: #f8fafc;
+    --ion-color-step-950: #f8fafc;
+  }
+}
+
+// Manual Dark Mode Override (when user explicitly chooses dark mode)
+body.dark {
+  --theme-mode: 'dark';
+  
+  // Dark Mode Backgrounds
+  --ion-background-color: #0f172a;
+  --ion-background-color-rgb: 15, 23, 42;
+  --ion-text-color: #f8fafc;
+  --ion-text-color-rgb: 248, 250, 252;
+  --ion-card-background: #1e293b;
+  --ion-item-background: #1e293b;
+  --ion-toolbar-background: #1e293b;
+  --ion-tab-bar-background: #1e293b;
+  --ion-border-color: #334155;
+  
+  // Dark Mode Semantic Colors
+  --ion-color-step-50: #0f172a;
+  --ion-color-step-100: #1e293b;
+  --ion-color-step-150: #334155;
+  --ion-color-step-200: #475569;
+  --ion-color-step-250: #64748b;
+  --ion-color-step-300: #94a3b8;
+  --ion-color-step-350: #cbd5e1;
+  --ion-color-step-400: #e2e8f0;
+  --ion-color-step-450: #f1f5f9;
+  --ion-color-step-500: #f8fafc;
+  --ion-color-step-550: #f8fafc;
+  --ion-color-step-600: #f8fafc;
+  --ion-color-step-650: #f8fafc;
+  --ion-color-step-700: #f8fafc;
+  --ion-color-step-750: #f8fafc;
+  --ion-color-step-800: #f8fafc;
+  --ion-color-step-850: #f8fafc;
+  --ion-color-step-900: #f8fafc;
+  --ion-color-step-950: #f8fafc;
+}
+
+// Manual Light Mode Override (when user explicitly chooses light mode)
+body.light {
+  --theme-mode: 'light';
+  
+  // Light Mode Backgrounds
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+  --ion-card-background: #ffffff;
+  --ion-item-background: #ffffff;
+  --ion-toolbar-background: #ffffff;
+  --ion-tab-bar-background: #ffffff;
+  --ion-border-color: #e2e8f0;
+  
+  // Light Mode Semantic Colors
+  --ion-color-step-50: #f8fafc;
+  --ion-color-step-100: #f1f5f9;
+  --ion-color-step-150: #e2e8f0;
+  --ion-color-step-200: #cbd5e1;
+  --ion-color-step-250: #94a3b8;
+  --ion-color-step-300: #64748b;
+  --ion-color-step-350: #475569;
+  --ion-color-step-400: #334155;
+  --ion-color-step-450: #1e293b;
+  --ion-color-step-500: #0f172a;
+  --ion-color-step-550: #0f172a;
+  --ion-color-step-600: #0f172a;
+  --ion-color-step-650: #0f172a;
+  --ion-color-step-700: #0f172a;
+  --ion-color-step-750: #0f172a;
+  --ion-color-step-800: #0f172a;
+  --ion-color-step-850: #0f172a;
+  --ion-color-step-900: #0f172a;
+  --ion-color-step-950: #0f172a;
 }

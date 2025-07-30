@@ -1,0 +1,125 @@
+/* Custom styles for the receipt page */
+ion-toolbar {
+  --color: white;
+  
+  ion-title {
+    color: white;
+  }
+}
+
+.receipt-container {
+  max-width: 100%;
+  padding: 16px;
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+}
+
+.transaction-amount {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 16px 0;
+  color: var(--ion-color-primary);
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: 48px;
+  --background: var(--ion-item-background, var(--ion-background-color));
+  --color: var(--ion-text-color);
+  --border-color: var(--ion-color-step-200, #ccc);
+  margin-bottom: 8px;
+  
+  ion-label {
+    color: var(--ion-text-color);
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+  
+  ion-note {
+    color: var(--ion-text-color);
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 1;
+  }
+}
+
+ion-button {
+  --border-radius: 8px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+  --box-shadow: none;
+  margin-top: 24px;
+  text-transform: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  
+  &[fill="outline"] {
+    --border-color: var(--ion-color-step-400, #999);
+    --color: var(--ion-text-color);
+    
+    &:hover, &:focus {
+      --background: rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+  }
+}
+
+ion-icon {
+  margin-bottom: 16px;
+  color: var(--ion-color-primary);
+}
+
+ion-title {
+  text-align: center;
+  font-weight: 600;
+  color: var(--ion-text-color);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .receipt-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px var(--ion-color-step-150, rgba(0, 0, 0, 0.1));
+    margin-top: 24px;
+    margin-bottom: 24px;
+    background: var(--ion-card-background, var(--ion-background-color));
+  }
+  
+  ion-content {
+    --padding-start: 24px;
+    --padding-end: 24px;
+    --padding-top: 24px;
+    --padding-bottom: 24px;
+    --background: var(--ion-background-color);
+  }
+}
+
+/* Animation for the success icon */
+@keyframes scaleIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+ion-icon[name="checkmark-circle"] {
+  animation: scaleIn 0.5s ease-out;
+  color: var(--ion-color-success);
+  font-size: 64px;
+}
+
+/* Dark mode specific adjustments */
+@media (prefers-color-scheme: dark) {
+  .receipt-container {
+    --ion-border-color: var(--ion-color-step-400, #333);
+  }
+  
+  ion-item {
+    --border-color: var(--ion-color-step-400, #333);
+    
+    ion-label {
+      opacity: 0.7;
+    }
+  }
+}

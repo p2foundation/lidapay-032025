@@ -12,29 +12,59 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
+  IonButton,
+  IonButtons,
+  IonBackButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonIcon,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonCardSubtitle,
+  IonNote,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonSkeletonText,
+  IonText,
+  LoadingController,
   ModalController,
 } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
-import { WaitingModalComponent } from 'src/app/components/waiting-modal/waiting-modal.component';
-import { firstValueFrom } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AccountService } from 'src/app/services/auth/account.service';
-import { NotificationService } from 'src/app/services/notification.service';
-import { InternetDataService } from 'src/app/services/one4all/internet.data.service';
-import { AdvansisPayService } from 'src/app/services/payments/advansis-pay.service';
 import { StorageService } from 'src/app/services/storage.service';
+import { InternetDataService } from 'src/app/services/one4all/internet.data.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { AdvansisPayService } from 'src/app/services/payments/advansis-pay.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { AccountService } from 'src/app/services/auth/account.service';
+import { firstValueFrom } from 'rxjs';
 import { PhoneNumberModalComponent } from 'src/app/components/phone-number-modal/phone-number-modal.component';
+import { WaitingModalComponent } from 'src/app/components/waiting-modal/waiting-modal.component';
+import { addIcons } from 'ionicons';
+import { wifiOutline, callOutline, warningOutline, arrowBack, checkmarkCircle, card } from 'ionicons/icons';
 
-interface DataBundle {
+export interface DataBundle {
+  id?: string;
   code: string;
+  plan_id?: string;
   network: string;
   volume: string;
-  validity: string;
-  price: number;
+  validity: string | number;
+  price: number | string;
+  amount?: number | string;
+  bundleVolume?: string;
+  bundleValidity?: string | number;
+  plan_name?: string;
+  description?: string;
   isPopular?: boolean;
-  amount: number;
+  [key: string]: any;
 }
+
 @Component({
   selector: 'app-data-bundle',
   templateUrl: './data-bundle.page.html',
@@ -45,6 +75,25 @@ interface DataBundle {
     IonHeader,
     IonTitle,
     IonToolbar,
+    IonButton,
+    IonButtons,
+    IonBackButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonIcon,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonCardSubtitle,
+    IonNote,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonSkeletonText,
+    IonText,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -56,7 +105,7 @@ export class DataBundlePage implements OnInit {
   isLoading: boolean = true;
   dataBundle: DataBundle[] = [];
   selectedBundle: DataBundle | null = null;
-  dataBundleForm!: FormGroup;
+  dataBundleForm: FormGroup;
   userProfile: any = {};
 
   buyDataParams = {
@@ -65,27 +114,30 @@ export class DataBundlePage implements OnInit {
     network: '',
     amount: '',
     description: '',
-    customerEmail: 'info@advansistechnologies.com',
     transType: 'DATABUNDLELIST',
     payTransRef: '',
   };
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private formBuilder: FormBuilder,
     private storage: StorageService,
+    private internetService: InternetDataService,
     private notification: NotificationService,
+    private loadingController: LoadingController,
     private modalController: ModalController,
     private advansisPayService: AdvansisPayService,
     private utilService: UtilsService,
     private accountService: AccountService
   ) {
+    addIcons({warningOutline,arrowBack,checkmarkCircle,card,wifi:wifiOutline,call:callOutline});
     this.dataBundleForm = this.formBuilder.group({
       dataCode: ['', Validators.required],
       recipientNumber: ['', [Validators.required, Validators.minLength(10)]],
     });
 
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.subscribe(params => {
       if (params && params['special']) {
         this.dataBundle = JSON.parse(params['special']);
         console.debug('[BUNDLE LIST] ==>', this.dataBundle);
@@ -100,6 +152,7 @@ export class DataBundlePage implements OnInit {
       this.isLoading = false;
     }, 1000);
   }
+
   // Load User Profile
   async loadUserProfile() {
     try {
@@ -111,21 +164,22 @@ export class DataBundlePage implements OnInit {
       console.error('Error loading profile:', error);
     }
   }
+
   // Select Bundle
   async selectBundle(bundle: DataBundle) {
-    console.debug(`[SELECTED BUNDLE]==>${bundle}`);
+    console.debug(`[SELECTED BUNDLE]==>${bundle}`)
     this.selectedBundle = bundle;
     this.dataBundleForm.patchValue({ dataCode: bundle });
-
+    
     const modal = await this.modalController.create({
       component: PhoneNumberModalComponent,
       componentProps: {
         bundle: bundle,
-        dataBundleForm: this.dataBundleForm,
+        dataBundleForm: this.dataBundleForm
       },
       cssClass: 'phone-number-modal',
       breakpoints: [0, 0.5, 0.8],
-      initialBreakpoint: 0.5,
+      initialBreakpoint: 0.5
     });
 
     modal.onDidDismiss().then((result) => {
@@ -136,6 +190,7 @@ export class DataBundlePage implements OnInit {
 
     await modal.present();
   }
+
   // Get Bundle Icon
   getBundleIcon(volume: string): string {
     const dataSize = parseInt(volume);
@@ -143,21 +198,51 @@ export class DataBundlePage implements OnInit {
     if (dataSize >= 2) return 'cellular-outline';
     return 'cellular-outline';
   }
+
+  // Get Network Icon (for template)
+  getNetworkIcon(network: string): string {
+    if (!network) return 'wifi';
+    const networkStr = String(network).toLowerCase();
+    if (networkStr.includes('mtn')) return 'call';
+    if (networkStr.includes('vodafone')) return 'call';
+    if (networkStr.includes('airteltigo')) return 'call';
+    if (networkStr.includes('glo')) return 'call';
+    return 'wifi';
+  }
+
+  // Helper to get network name from string or object
+  getNetworkName(network: any): string {
+    if (typeof network === 'object' && network !== null && 'name' in network) {
+      return network.name;
+    }
+    return network || '';
+  }
+
+  // Format Amount (for template)
+  formatAmount(amount: number | string): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'GHS',
+      minimumFractionDigits: 2
+    }).format(Number(amount));
+  }
+
   // Waiting Modal
   async presentWaitingModal() {
     const modal = await this.modalController.create({
       component: WaitingModalComponent,
       cssClass: 'waiting-modal',
-      backdropDismiss: false,
+      backdropDismiss: false
     });
     await modal.present();
     return modal;
   }
+
   // Submit Data Bundle Form
   async onSubmit(form: any) {
     if (this.dataBundleForm.valid) {
       const waitingModal = await this.presentWaitingModal();
-
+      
       try {
         if (!this.userProfile?._id) {
           await this.loadUserProfile();
@@ -168,8 +253,7 @@ export class DataBundlePage implements OnInit {
         this.buyDataParams.network = form.dataCode.network;
         this.buyDataParams.amount = form.dataCode.price;
         this.buyDataParams.description = `Internet Bundle Purchase: ${form.dataCode.volume} - ${form.dataCode.validity} days`;
-        this.buyDataParams.payTransRef =
-          await this.utilService.generateReference();
+        this.buyDataParams.payTransRef = await this.utilService.generateReference();
         // Prepare ExpressPay parameters
         const expressPayParams = {
           userId: this.userProfile._id,
@@ -179,29 +263,21 @@ export class DataBundlePage implements OnInit {
           phoneNumber: form.recipientNumber,
           username: this.userProfile.username || '',
           amount: Number(form.dataCode.price),
-          orderDesc: this.buyDataParams.description || '',
+          orderDesc: this.buyDataParams.description,
+          orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
         };
-
-        if (
-          !expressPayParams.firstName ||
-          !expressPayParams.lastName ||
-          !expressPayParams.email
-        ) {
-          throw new Error(
-            'Missing required user profile information. Please update your profile.'
-          );
+        console.log('[Express Pay] => Payment params:', expressPayParams);
+        if (!expressPayParams.firstName || !expressPayParams.lastName || !expressPayParams.email) {
+          throw new Error('Missing required user profile information. Please update your profile.');
         }
         // Store transaction parameters
-        await this.storage.setStorage(
-          'pendingTransaction',
-          JSON.stringify({
-            ...this.buyDataParams,
-            ...expressPayParams,
-            bundleName: form.dataCode.volume,
-            validity: form.dataCode.validity,
-            timestamp: new Date().toISOString(),
-          })
-        );
+        await this.storage.setStorage('pendingTransaction', JSON.stringify({
+          ...this.buyDataParams,
+          ...expressPayParams,
+          bundleName: form.dataCode.volume,
+          validity: form.dataCode.validity,
+          timestamp: new Date().toISOString()
+        }));
         // Initiate payment
         const response = await firstValueFrom(
           this.advansisPayService.expressPayOnline(expressPayParams)
@@ -214,10 +290,7 @@ export class DataBundlePage implements OnInit {
         }
       } catch (error: any) {
         console.error('Payment initiation error:', error);
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Payment service unavailable';
+        const errorMessage = error instanceof Error ? error.message : 'Payment service unavailable';
         this.notification.showError(errorMessage);
       } finally {
         waitingModal.dismiss();
@@ -227,3 +300,4 @@ export class DataBundlePage implements OnInit {
     }
   }
 }
+

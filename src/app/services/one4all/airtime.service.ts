@@ -9,8 +9,8 @@ import { environment } from 'src/environments/environment.prod';
 })
 export class AirtimeService {
 
-  // private awsServer: string = environment.baseURL;
-  private awsServer: string = environment.localURL;
+  private awsServer: string = environment.baseURL;
+  // private awsServer: string = environment.localURL;
 
   constructor(
     private readonly http: HttpClient
@@ -26,7 +26,6 @@ export class AirtimeService {
         catchError(this.handleError('AirtimeService', []))
       );
   }
-
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {

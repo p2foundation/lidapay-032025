@@ -1,0 +1,254 @@
+<ion-header class="header_bg bg-transparent">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="d-flex">
+        <span class="page_title text-heading-2 animate__animated animate__fadeIn">
+          {{ getStepTitle() | translate }}
+        </span>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Progress Bar -->
+  <div class="progress-container" *ngIf="currentStep !== wizardSteps.PROCESSING">
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getStepProgress()"></div>
+    </div>
+    <div class="progress-steps">
+      <div class="step" 
+           *ngFor="let step of [0,1,2,3,4]; let i = index"
+           [class.active]="currentStep === i"
+           [class.completed]="currentStep > i"
+           (click)="goToStep(i)">
+        <div class="step-number">{{ i + 1 }}</div>
+        <div class="step-label">{{ ['Country', 'Network', 'Phone', 'Amount', 'Confirm'][i] }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step Description -->
+  <div class="step-description" *ngIf="currentStep !== wizardSteps.PROCESSING">
+    <p class="text-body text-gray-600">{{ getStepDescription() }}</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p class="text-body text-gray-600">Loading...</p>
+  </div>
+
+  <!-- Step 1: Country Selection -->
+  <div class="step-content fade-in" *ngIf="currentStep === wizardSteps.COUNTRY_SELECTION && !isLoading">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" *ngFor="let country of countries">
+          <ion-card class="country-card modern-card" (click)="selectCountry(country)">
+            <ion-card-content>
+              <div class="country-info">
+                <div class="country-flag">
+                  <span class="flag-emoji">{{ country.flag }}</span>
+                </div>
+                <div class="country-details">
+                  <h3 class="text-heading-3">{{ country.name }}</h3>
+                  <p class="text-body-small text-gray-600">{{ country.currencyCode }} - {{ country.currencyName }}</p>
+                </div>
+                <ion-icon name="chevron-forward" class="arrow-icon"></ion-icon>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Step 2: Operator Selection -->
+  <div class="step-content fade-in" *ngIf="currentStep === wizardSteps.OPERATOR_SELECTION && !isLoading">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12" size-md="6" *ngFor="let operator of operators">
+          <ion-card class="operator-card modern-card" (click)="selectOperator(operator)">
+            <ion-card-content>
+              <div class="operator-info">
+                <div class="operator-logo">
+                  <img [src]="operator.logo" [alt]="operator.name" *ngIf="operator.logo">
+                  <ion-icon name="cellular-outline" *ngIf="!operator.logo"></ion-icon>
+                </div>
+                <div class="operator-details">
+                  <h3 class="text-heading-3">{{ operator.name }}</h3>
+                  <p class="text-body-small text-gray-600">{{ operator.currency }}</p>
+                </div>
+                <ion-icon name="chevron-forward" class="arrow-icon"></ion-icon>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Step 3: Phone Number -->
+  <div class="step-content fade-in" *ngIf="currentStep === wizardSteps.PHONE_NUMBER && !isLoading">
+    <ion-card class="modern-card">
+      <ion-card-content>
+        <div class="form-group">
+          <ion-label position="stacked" class="text-body font-semibold">Phone Number</ion-label>
+          <ion-input
+            formControlName="recipientNumber"
+            type="tel"
+            placeholder="Enter phone number"
+            class="modern-input"
+            (ionInput)="onPhoneNumberInput($event)">
+          </ion-input>
+          
+          <!-- Auto-detection indicator -->
+          <div class="auto-detect-info" *ngIf="isDetectingOperator">
+            <ion-spinner name="dots" size="small"></ion-spinner>
+            <span class="text-body-small text-gray-600">Detecting network...</span>
+          </div>
+          
+          <!-- Detected operator display -->
+          <div class="detected-operator" *ngIf="detectedOperator && !isDetectingOperator">
+            <ion-chip color="primary" outline>
+              <ion-icon name="checkmark-circle"></ion-icon>
+              <ion-label>{{ detectedOperator.name }} detected</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+
+        <!-- Country info -->
+        <div class="country-info-display" *ngIf="selectedCountry">
+          <ion-chip color="secondary" outline>
+            <span class="flag-emoji">{{ selectedCountry.flag }}</span>
+            <ion-label>{{ selectedCountry.name }}</ion-label>
+          </ion-chip>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Step 4: Amount Selection -->
+  <div class="step-content fade-in" *ngIf="currentStep === wizardSteps.AMOUNT_SELECTION && !isLoading">
+    <ion-card class="modern-card">
+      <ion-card-content>
+        <div class="form-group">
+          <ion-label position="stacked" class="text-body font-semibold">Amount</ion-label>
+          <ion-input
+            formControlName="amount"
+            type="number"
+            placeholder="Enter amount"
+            class="modern-input">
+          </ion-input>
+        </div>
+
+        <!-- Quick Amounts -->
+        <div class="quick-amounts">
+          <h4 class="text-heading-3">Quick Amounts</h4>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="4" *ngFor="let amount of quickAmounts">
+                <ion-chip 
+                  class="amount-chip"
+                  [class.selected]="airtimeForm.get('amount')?.value === amount"
+                  (click)="selectAmount(amount)">
+                  <ion-label>{{ selectedCountry?.currencyCode }} {{ amount }}</ion-label>
+                </ion-chip>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+
+        <!-- Operator info -->
+        <div class="operator-info-display" *ngIf="selectedOperator">
+          <ion-chip color="primary" outline>
+            <img [src]="selectedOperator.logo" [alt]="selectedOperator.name" *ngIf="selectedOperator.logo">
+            <ion-label>{{ selectedOperator.name }}</ion-label>
+          </ion-chip>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Step 5: Confirmation -->
+  <div class="step-content fade-in" *ngIf="currentStep === wizardSteps.CONFIRMATION && !isLoading">
+    <ion-card class="modern-card">
+      <ion-card-content>
+        <div class="confirmation-header">
+          <ion-icon name="checkmark-circle" color="success" size="large"></ion-icon>
+          <h3 class="text-heading-2">Confirm Purchase</h3>
+        </div>
+
+        <div class="confirmation-details">
+          <div class="detail-row">
+            <span class="label text-body-small text-gray-600">Country:</span>
+            <span class="value text-body">
+              <span class="flag-emoji">{{ selectedCountry?.flag }}</span>
+              {{ selectedCountry?.name }}
+            </span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label text-body-small text-gray-600">Network:</span>
+            <span class="value text-body">{{ selectedOperator?.name }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label text-body-small text-gray-600">Phone Number:</span>
+            <span class="value text-body">{{ airtimeForm.get('recipientNumber')?.value }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label text-body-small text-gray-600">Amount:</span>
+            <span class="value text-body font-semibold text-primary">
+              {{ selectedCountry?.currencyCode }} {{ airtimeForm.get('amount')?.value }}
+            </span>
+          </div>
+        </div>
+
+        <div class="confirmation-actions">
+          <ion-button 
+            expand="block" 
+            class="btn-primary"
+            (click)="submitAirtime()"
+            [disabled]="!airtimeForm.valid">
+            <ion-icon name="card-outline" slot="start"></ion-icon>
+            Confirm Purchase
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Step 6: Processing -->
+  <div class="step-content fade-in" *ngIf="currentStep === wizardSteps.PROCESSING">
+    <div class="processing-container">
+      <ion-spinner name="crescent" size="large"></ion-spinner>
+      <h3 class="text-heading-2">Processing Your Request</h3>
+      <p class="text-body text-gray-600">Please wait while we process your airtime purchase...</p>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="navigation-buttons" *ngIf="currentStep !== wizardSteps.PROCESSING && currentStep !== wizardSteps.COUNTRY_SELECTION">
+    <ion-button 
+      fill="outline" 
+      class="btn-secondary"
+      (click)="previousStep()">
+      <ion-icon name="arrow-back" slot="start"></ion-icon>
+      Previous
+    </ion-button>
+    
+    <ion-button 
+      class="btn-primary"
+      [disabled]="!canProceed()"
+      (click)="nextStep()"
+      *ngIf="currentStep < wizardSteps.CONFIRMATION">
+      Next
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+    </ion-button>
+  </div>
+</ion-content> 
