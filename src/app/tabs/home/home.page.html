@@ -1,87 +1,27 @@
 <ion-header [translucent]="true">
-  <ion-list lines="none">
-    <ion-item
-      class="search animate__animated animate__fadeInDown animate__faster"
-    >
-      <div class="item_inner d-flex">
-        <h2 class="brand-title">
-          {{'Lida' | translate}}<span class="text-primary"
-            >{{'pay' | translate}}</span
-          >
-        </h2>
-        <ion-button fill="clear" (click)="search()">
-          <ion-icon name="search-outline" slot="icon-only"></ion-icon>
+  <ion-toolbar class="header-toolbar">
+    <div class="header-content">
+      <div class="brand-section">
+        <h1 class="brand-title">
+          Lida<span class="text-primary">pay</span>
+        </h1>
+        <p class="brand-subtitle">Your Digital Financial Partner</p>
+      </div>
+      <div class="header-actions">
+        <ion-button fill="clear" class="search-btn" (click)="search()">
+          <ion-icon name="search-outline"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" class="notification-btn" (click)="openNotification()">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <ion-badge color="danger" *ngIf="hasNotifications" class="notification-badge">3</ion-badge>
         </ion-button>
       </div>
-    </ion-item>
-
-    <ion-item
-      class="quick-actions animate__animated animate__fadeInUp animate__delay-1s"
-    >
-      <div class="item_inner">
-        <ion-row class="ion-text-center">
-          <ion-col
-            size="3"
-            class="animate__animated animate__zoomIn animate__delay-1s"
-          >
-            <ion-ripple-effect></ion-ripple-effect>
-            <div class="action-button" (click)="pay_or_send()">
-              <div class="icon-container">
-                <ion-icon name="cash-outline"></ion-icon>
-              </div>
-              <h6>{{'Pay' | translate}}</h6>
-            </div>
-          </ion-col>
-
-          <ion-col
-            size="3"
-            class="animate__animated animate__zoomIn animate__delay-2s"
-          >
-            <div class="action-button" (click)="walletOrUserAccount()">
-              <div class="icon-container">
-                <ion-icon name="add-circle-outline"></ion-icon>
-              </div>
-              <h6>{{'Wallet' | translate}}</h6>
-            </div>
-          </ion-col>
-
-          <ion-col
-            size="3"
-            class="animate__animated animate__zoomIn animate__delay-3s"
-          >
-            <div class="action-button" (click)="openNotification()">
-              <div class="icon-container">
-                <ion-icon name="notifications-outline"></ion-icon>
-                <ion-badge color="danger" *ngIf="hasNotifications">3</ion-badge>
-              </div>
-              <h6>{{'Notify' | translate}}</h6>
-            </div>
-          </ion-col>
-
-          <ion-col
-            size="3"
-            class="animate__animated animate__zoomIn animate__delay-4s"
-          >
-            <div class="action-button" (click)="goToUserSettings()">
-              <div class="icon-container">
-                <ion-icon name="cog-outline"></ion-icon>
-              </div>
-              <h6>{{'Settings' | translate}}</h6>
-            </div>
-          </ion-col>
-        </ion-row>
-      </div>
-    </ion-item>
-  </ion-list>
+    </div>
+  </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <!-- <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">{{ 'home' | translate}}</ion-title>
-    </ion-toolbar>
-  </ion-header> -->
-  <!-- implementing home refresh page -->
+<ion-content [fullscreen]="true" class="home-content">
+  <!-- Pull to refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content
       pullingIcon="chevron-down-circle-outline"
@@ -94,172 +34,143 @@
 
   <!-- Skeleton Loading -->
   <div class="skeleton-wrapper" *ngIf="isLoading">
-    <!-- Quick Actions Skeleton -->
-    <ion-list lines="none">
-      <ion-item class="search-skeleton">
-        <ion-skeleton-text
-          animated
-          style="width: 120px; height: 32px"
-        ></ion-skeleton-text>
-      </ion-item>
-
-      <ion-item class="quick-actions-skeleton">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="3" *ngFor="let i of [1,2,3,4]">
-              <div class="skeleton-action animate-stagger">
-                <ion-skeleton-text
-                  animated
-                  class="skeleton-circle"
-                ></ion-skeleton-text>
-                <ion-skeleton-text
-                  animated
-                  style="width: 60%; height: 12px; margin: 8px auto 0"
-                ></ion-skeleton-text>
-              </div>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-item>
-    </ion-list>
-
-    <!-- Recharge Cards Skeleton -->
-    <div class="recharge-cards-skeleton">
-      <ion-row>
-        <ion-col size="12" *ngFor="let i of [1,2,3]">
-          <div class="skeleton-card animate-stagger">
-            <div class="skeleton-content">
-              <ion-skeleton-text
-                animated
-                class="skeleton-icon"
-              ></ion-skeleton-text>
-              <div class="skeleton-text">
-                <ion-skeleton-text
-                  animated
-                  style="width: 70%; height: 20px"
-                ></ion-skeleton-text>
-                <ion-skeleton-text
-                  animated
-                  style="width: 40%; height: 14px; margin-top: 8px"
-                ></ion-skeleton-text>
-              </div>
-            </div>
-          </div>
-        </ion-col>
-      </ion-row>
+    <div class="skeleton-header">
+      <ion-skeleton-text animated style="width: 200px; height: 32px; margin-bottom: 8px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 150px; height: 16px;"></ion-skeleton-text>
+    </div>
+    
+    <div class="skeleton-main-content">
+      <ion-skeleton-text animated style="width: 100%; height: 120px; border-radius: 16px; margin-bottom: 24px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 100%; height: 120px; border-radius: 16px; margin-bottom: 24px;"></ion-skeleton-text>
     </div>
   </div>
 
-  <!-- Actual Content (shown when !isLoading) -->
+  <!-- Actual Content -->
   <div class="content-wrapper" [class.animate-in]="!isLoading">
-    <div class="scroll_container">
-      <div class="recharge-cards">
-        <!-- International Recharge -->
-        <ion-card
-          class="recharge-card animate__animated animate__fadeInRight animate__delay-3s"
-          (click)="gotoInternational()"
-        >
-          <div class="card-content">
-            <div class="icon-badge global">
-              <img src="assets/imgs/ic_recharge.png" alt="Global" />
-              <div class="pulse-ring"></div>
-            </div>
-            <div class="card-info">
-              <h3>{{'Global Recharge' | translate}}</h3>
-              <p class="location">
-                <ion-icon name="globe-outline"></ion-icon>
-                {{'International' | translate}}
-              </p>
-            </div>
-            <ion-ripple-effect></ion-ripple-effect>
-          </div>
-        </ion-card>
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <div class="welcome-message">
+          <h2 class="welcome-title">Welcome back!</h2>
+          <p class="welcome-subtitle">What would you like to do today?</p>
+        </div>
+      </div>
+    </div>
 
-        <!-- Airtime Topup -->
-        <ion-card
-          class="recharge-card animate__animated animate__fadeInRight animate__delay-4s"
-          (click)="gotoAirtimePage()"
-        >
-          <div class="card-content">
-            <div class="icon-badge airtime">
-              <img src="assets/imgs/ic_recharge.png" alt="Airtime" />
-              <div class="pulse-ring"></div>
-            </div>
-            <div class="card-info">
-              <h3>{{'Airtime Topup' | translate}}</h3>
-              <p class="location">
-                <ion-icon name="location-outline"></ion-icon>
-                {{'Ghana' | translate}}
-              </p>
-              <span class="promo-tag">80% Cashback</span>
-            </div>
-            <ion-ripple-effect></ion-ripple-effect>
+    <!-- Quick Services Section -->
+    <div class="quick-services-section">
+      <div class="section-header">
+        <h3 class="section-title">Quick Services</h3>
+        <ion-button fill="clear" size="small" class="see-all-btn" (click)="viewAllServices()">
+          See All
+        </ion-button>
+      </div>
+      
+      <div class="quick-services-grid">
+        <div class="quick-service-card" (click)="gotoRemitstarPage()">
+          <div class="service-icon">
+            <ion-icon name="swap-horizontal-outline"></ion-icon>
           </div>
-        </ion-card>
-
-        <!-- Internet Data -->
-        <ion-card
-          class="recharge-card animate__animated animate__fadeInRight animate__delay-5s"
-          (click)="gotoInternetPage()"
-        >
-          <div class="card-content">
-            <div class="icon-badge internet">
-              <img src="assets/imgs/ic_recharge.png" alt="Internet" />
-              <div class="pulse-ring"></div>
-            </div>
-            <div class="card-info">
-              <h3>{{'Internet Data' | translate}}</h3>
-              <p class="location">
-                <ion-icon name="location-outline"></ion-icon>
-                {{'Ghana' | translate}}
-              </p>
-              <span class="promo-tag">4G/5G</span>
-            </div>
-            <ion-ripple-effect></ion-ripple-effect>
+          <span class="service-label">Funds Transfer</span>
+        </div>
+        
+        <div class="quick-service-card" (click)="airtimeConversion()">
+          <div class="service-icon">
+            <ion-icon name="repeat-outline"></ion-icon>
           </div>
-        </ion-card>
+          <span class="service-label">Airtime Conversion</span>
+        </div>
+        
+        <div class="quick-service-card" (click)="gotoAirtimePage()">
+          <div class="service-icon">
+            <ion-icon name="cellular-outline"></ion-icon>
+          </div>
+          <span class="service-label">Airtime Purchase</span>
+        </div>
+      </div>
+    </div>
 
-        <!-- Remitstar -->
-        <ion-card
-          class="recharge-card animate__animated animate__fadeInRight animate__delay-6s"
-          (click)="gotoRemitstarPage()"
-        >  
-          <div class="card-content">
-            <div class="icon-badge remitstar">
-              <img src="assets/imgs/ic_recharge.png" alt="Remitstar" />
-              <div class="pulse-ring"></div>
-            </div>
-            <div class="card-info">
-              <h3>{{'Remitstar' | translate}}</h3>
-              <p class="location">
-                <ion-icon name="location-outline"></ion-icon>
-                {{'Money Transfer' | translate}}
-              </p>
-              <span class="promo-tag">No e-Levy</span>
-            </div>
-            <ion-ripple-effect></ion-ripple-effect>
-          </div>  
-        </ion-card>
+    <!-- Transaction Summary Section -->
+    <div class="transaction-summary-section">
+      <div class="transaction-card pending-card" (click)="viewPendingTransactions()">
+        <div class="transaction-icon">
+          <ion-icon name="time-outline"></ion-icon>
+        </div>
+        <div class="transaction-content">
+          <h4 class="transaction-title">Pending Transactions</h4>
+          <div class="transaction-count">{{ pendingTransactions }}</div>
+        </div>
+        <div class="transaction-arrow">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </div>
+      </div>
+
+      <div class="transaction-card completed-card" (click)="viewCompletedTransactions()">
+        <div class="transaction-icon">
+          <ion-icon name="checkmark-circle-outline"></ion-icon>
+        </div>
+        <div class="transaction-content">
+          <h4 class="transaction-title">Completed Transactions</h4>
+          <div class="transaction-count">{{ totalTransactions }}</div>
+        </div>
+        <div class="transaction-arrow">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Action Cards -->
+    <div class="main-actions">
+      <div class="action-card primary-action" (click)="gotoAirtimePage()">
+        <div class="action-content">
+          <div class="action-icon">
+            <ion-icon name="cellular-outline"></ion-icon>
+          </div>
+          <div class="action-text">
+            <h3>Buy Airtime</h3>
+            <p>Top up any phone number worldwide</p>
+          </div>
+        </div>
+        <ion-ripple-effect></ion-ripple-effect>
+      </div>
+
+      <div class="action-card secondary-action" (click)="gotoInternetPage()">
+        <div class="action-content">
+          <div class="action-icon">
+            <ion-icon name="wifi-outline"></ion-icon>
+          </div>
+          <div class="action-text">
+            <h3>Internet Data</h3>
+            <p>High-speed data bundles for all networks</p>
+          </div>
+        </div>
+        <ion-ripple-effect></ion-ripple-effect>
       </div>
     </div>
 
     <!-- Promotional Banner -->
-    <div
-      class="promo-banner animate__animated animate__fadeInUp animate__delay-4s"
-    >
-      <ion-card>
-        <div class="banner-content">
-          <div class="banner-text">
-            <h3>Winter Sale</h3>
-            <h2>10% OFF</h2>
-            <ion-button fill="clear" size="small">
-              {{'Buy now' | translate}}
+    <div class="promo-section" *ngIf="showPromo">
+      <div class="promo-card">
+        <div class="promo-content">
+          <div class="promo-text">
+            <div class="promo-badge">Special Offer</div>
+            <h2 class="promo-title">Get 10% Cashback</h2>
+            <p class="promo-description">On your first airtime purchase</p>
+            <ion-button fill="clear" size="small" class="promo-btn">
+              Learn More
               <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
             </ion-button>
           </div>
-          <img src="assets/imgs/banner3.png" alt="Winter Sale Banner" />
+          <div class="promo-decoration">
+            <div class="decoration-circle"></div>
+            <div class="decoration-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
         </div>
-      </ion-card>
+      </div>
     </div>
   </div>
 </ion-content>

@@ -34,5 +34,10 @@ export const routes: Routes = [
     path: 'settings',
     loadComponent: () => import('./pages/settings/settings.page').then( m => m.SettingsPage),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'tabs/buy-airtime/enhanced-purchase',
+    loadComponent: () => import('./tabs/buy-airtime/enhanced-airtime-purchase.page').then( m => m.EnhancedAirtimePurchasePage),
+    canActivate: [AuthGuard]
   }
 ];

@@ -66,16 +66,23 @@ export class EnhancedAirtimeService {
   getCountries(): Observable<Country[]> {
     return this.reloadlyService.getReloadlyCountries().pipe(
       map((response: any) => {
-        if (response && response.data) {
-          return response.data.map((country: any) => ({
-            isoName: country.isoName,
-            name: country.name,
-            currencyCode: country.currencyCode,
-            currencyName: country.currencyName,
-            flag: country.flag,
-            callingCodes: country.callingCodes || []
-          }));
+        console.log('EnhancedAirtimeService - Raw response:', response);
+        if (response && Array.isArray(response)) {
+          const countries = response.map((country: any) => {
+            console.log('Processing country:', country);
+            return {
+              isoName: country.isoName,
+              name: country.name,
+              currencyCode: country.currencyCode,
+              currencyName: country.currencyName,
+              flag: country.flag,
+              callingCodes: country.callingCodes || []
+            };
+          });
+          console.log('Processed countries:', countries);
+          return countries;
         }
+        console.log('EnhancedAirtimeService - No valid response data');
         return [];
       }),
       catchError(error => {
@@ -97,7 +104,19 @@ export class EnhancedAirtimeService {
     // For other countries, use Reloadly
     return this.reloadlyService.getOperators(countryIso).pipe(
       map((response: any) => {
-        if (response && response.data) {
+        console.log('EnhancedAirtimeService - Operators response:', response);
+        if (response && Array.isArray(response)) {
+          return response.map((operator: any) => ({
+            id: operator.id,
+            name: operator.name,
+            country: operator.country,
+            currency: operator.currency,
+            logo: operator.logo,
+            fixedAmounts: operator.fixedAmounts,
+            localAmounts: operator.localAmounts,
+            internationalAmounts: operator.internationalAmounts
+          }));
+        } else if (response && response.data && Array.isArray(response.data)) {
           return response.data.map((operator: any) => ({
             id: operator.id,
             name: operator.name,
@@ -109,6 +128,7 @@ export class EnhancedAirtimeService {
             internationalAmounts: operator.internationalAmounts
           }));
         }
+        console.log('EnhancedAirtimeService - No valid operators data');
         return [];
       }),
       catchError(error => {
@@ -135,6 +155,7 @@ export class EnhancedAirtimeService {
     // For international numbers, use Reloadly
     return this.reloadlyService.autoDetectOperator(params).pipe(
       map((response: any) => {
+        console.log('EnhancedAirtimeService - Auto detect response:', response);
         if (response && response.data) {
           return {
             id: response.data.id,
@@ -142,6 +163,14 @@ export class EnhancedAirtimeService {
             country: response.data.country,
             currency: response.data.currency,
             logo: response.data.logo
+          };
+        } else if (response && response.id) {
+          return {
+            id: response.id,
+            name: response.name,
+            country: response.country,
+            currency: response.currency,
+            logo: response.logo
           };
         }
         throw new Error('No operator found');
@@ -206,6 +235,22 @@ export class EnhancedAirtimeService {
         currency: 'GHS',
         logo: 'assets/imgs/operators/glo.png',
         fixedAmounts: [5, 10, 20, 50, 100, 200, 500]
+      },
+      {
+        id: 5,
+        name: 'Busy Ghana',
+        country: 'GH',
+        currency: 'GHS',
+        logo: 'assets/imgs/operators/busy.png',
+        fixedAmounts: [5, 10, 20, 50, 100, 200, 500]
+      },
+      {
+        id: 7,
+        name: 'Surfline Ghana',
+        country: 'GH',
+        currency: 'GHS',
+        logo: 'assets/imgs/operators/surfline.png',
+        fixedAmounts: [5, 10, 20, 50, 100, 200, 500]
       }
     ];
 
@@ -233,6 +278,10 @@ export class EnhancedAirtimeService {
                cleanNumber.startsWith('26') || cleanNumber.startsWith('27') || cleanNumber.startsWith('28') ||
                cleanNumber.startsWith('29')) {
       operatorId = 3; // Glo
+    } else if (cleanNumber.startsWith('26') || cleanNumber.startsWith('56')) {
+      operatorId = 5; // Busy
+    } else if (cleanNumber.startsWith('28') || cleanNumber.startsWith('58')) {
+      operatorId = 7; // Surfline
     } else {
       return throwError(() => new Error('Unable to detect operator for this number'));
     }

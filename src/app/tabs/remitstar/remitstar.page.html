@@ -1,16 +1,434 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button default-href="/tabs/home" text="" (click)="goBack()"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{'remitstar' | translate}}</ion-title>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <h1>Remitstar</h1>
+        <p>Fast & Secure Money Transfers</p>
+      </div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">{{'remitstar' | translate}}</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="remitstar-content">
+  <!-- Progress Bar -->
+  <div class="progress-section" *ngIf="currentStep !== TransferStep.PROCESSING">
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getStepProgress()"></div>
+    </div>
+    <div class="step-indicators">
+      <div class="step-indicator" 
+           *ngFor="let step of [0,1,2,3,4]; let i = index"
+           [class.active]="i === currentStep"
+           [class.completed]="i < currentStep">
+        <div class="step-number">{{ i + 1 }}</div>
+        <div class="step-label">{{ getStepTitle() }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Transfer Type Selection -->
+  <div class="step-content fade-in" *ngIf="currentStep === TransferStep.TRANSFER_TYPE">
+    <div class="step-header">
+      <ion-icon name="swap-horizontal-outline" class="step-icon"></ion-icon>
+      <h2>Choose Transfer Type</h2>
+      <p>Select the type of transfer you want to make</p>
+    </div>
+    
+    <div class="transfer-types-grid">
+      <div class="transfer-type-card" 
+           *ngFor="let type of transferTypes"
+           (click)="selectTransferType(type)"
+           [style.background]="type.gradient">
+        
+        <div class="transfer-type-header">
+          <div class="transfer-type-icon">
+            <ion-icon [name]="type.icon"></ion-icon>
+          </div>
+          <div class="transfer-type-badge">
+            <ion-badge color="light">Recommended</ion-badge>
+          </div>
+        </div>
+        
+        <div class="transfer-type-content">
+          <h3>{{ type.title }}</h3>
+          <p>{{ type.description }}</p>
+          
+          <div class="transfer-type-features">
+            <div class="feature-tag" *ngFor="let feature of type.features">
+              {{ feature }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="transfer-type-footer">
+          <ion-button fill="clear" size="small" class="select-btn">
+            Select
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+        
+        <div class="transfer-type-overlay"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Recipient Information -->
+  <div class="step-content fade-in" *ngIf="currentStep === TransferStep.RECIPIENT_INFO">
+    <div class="step-header">
+      <ion-icon name="person-outline" class="step-icon"></ion-icon>
+      <h2>Recipient Information</h2>
+      <p>Enter the recipient's details</p>
+    </div>
+    
+    <form [formGroup]="transferForm" class="recipient-form">
+      <ion-card class="form-card">
+        <ion-cardContent>
+          <ion-item class="form-item">
+            <ion-label position="stacked">Recipient Name *</ion-label>
+            <ion-input
+              formControlName="recipientName"
+              placeholder="Enter full name"
+              type="text">
+            </ion-input>
+            <ion-note slot="error" *ngIf="transferForm.get('recipientName')?.touched && transferForm.get('recipientName')?.invalid">
+              Please enter a valid name
+            </ion-note>
+          </ion-item>
+          
+          <ion-item class="form-item">
+            <ion-label position="stacked">Phone Number *</ion-label>
+            <ion-input
+              formControlName="recipientPhone"
+              placeholder="+233 XX XXX XXXX"
+              type="tel">
+            </ion-input>
+            <ion-note slot="error" *ngIf="transferForm.get('recipientPhone')?.touched && transferForm.get('recipientPhone')?.invalid">
+              Please enter a valid phone number
+            </ion-note>
+          </ion-item>
+          
+          <ion-item class="form-item">
+            <ion-label position="stacked">Email (Optional)</ion-label>
+            <ion-input
+              formControlName="recipientEmail"
+              placeholder="recipient@email.com"
+              type="email">
+            </ion-input>
+            <ion-note slot="error" *ngIf="transferForm.get('recipientEmail')?.touched && transferForm.get('recipientEmail')?.invalid">
+              Please enter a valid email
+            </ion-note>
+          </ion-item>
+          
+          <ion-item class="form-item" button (click)="openBankModal()">
+            <ion-label position="stacked">Bank *</ion-label>
+            <ion-input
+              [value]="selectedBank?.name || 'Select Bank'"
+              readonly
+              placeholder="Select Bank">
+            </ion-input>
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-item>
+          
+          <ion-item class="form-item">
+            <ion-label position="stacked">Account Number *</ion-label>
+            <ion-input
+              formControlName="accountNumber"
+              placeholder="Enter account number"
+              type="text">
+            </ion-input>
+            <ion-note slot="error" *ngIf="transferForm.get('accountNumber')?.touched && transferForm.get('accountNumber')?.invalid">
+              Please enter a valid account number
+            </ion-note>
+          </ion-item>
+          
+          <ion-item class="form-item">
+            <ion-label position="stacked">Account Name *</ion-label>
+            <ion-input
+              formControlName="accountName"
+              placeholder="Enter account name"
+              type="text">
+            </ion-input>
+            <ion-note slot="error" *ngIf="transferForm.get('accountName')?.touched && transferForm.get('accountName')?.invalid">
+              Please enter a valid account name
+            </ion-note>
+          </ion-item>
+        </ion-cardContent>
+      </ion-card>
+    </form>
+  </div>
+
+  <!-- Step 3: Amount & Currency -->
+  <div class="step-content fade-in" *ngIf="currentStep === TransferStep.AMOUNT_CURRENCY">
+    <div class="step-header">
+      <ion-icon name="calculator-outline" class="step-icon"></ion-icon>
+      <h2>Amount & Currency</h2>
+      <p>Set the transfer amount and currency</p>
+    </div>
+    
+    <form [formGroup]="transferForm" class="amount-form">
+      <ion-card class="form-card">
+        <ion-cardContent>
+          <!-- Currency Selection -->
+          <ion-item class="form-item" button (click)="openCurrencyModal()">
+            <ion-label position="stacked">Currency *</ion-label>
+            <ion-input
+              [value]="selectedCurrency ? selectedCurrency.flag + ' ' + selectedCurrency.code : 'Select Currency'"
+              readonly
+              placeholder="Select Currency">
+            </ion-input>
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-item>
+          
+          <!-- Quick Amounts -->
+          <div class="quick-amounts">
+            <h3>Quick Amounts</h3>
+            <div class="amount-chips">
+              <ion-chip 
+                *ngFor="let amount of quickAmounts"
+                [class.selected]="selectedAmount === amount"
+                (click)="selectAmount(amount)">
+                {{ selectedCurrency?.symbol || '₵' }} {{ amount }}
+              </ion-chip>
+              <ion-chip 
+                [class.selected]="showCustomAmount"
+                (click)="showCustomAmountInput()">
+                Custom
+              </ion-chip>
+            </div>
+          </div>
+          
+          <!-- Custom Amount Input -->
+          <ion-item class="form-item" *ngIf="showCustomAmount">
+            <ion-label position="stacked">Custom Amount *</ion-label>
+            <ion-input
+              formControlName="amount"
+              placeholder="Enter amount"
+              type="number">
+            </ion-input>
+            <ion-note slot="error" *ngIf="transferForm.get('amount')?.touched && transferForm.get('amount')?.invalid">
+              Please enter a valid amount
+            </ion-note>
+          </ion-item>
+          
+          <!-- Transfer Purpose -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Transfer Purpose *</ion-label>
+            <ion-textarea
+              formControlName="purpose"
+              placeholder="What is this transfer for?"
+              rows="3">
+            </ion-textarea>
+            <ion-note slot="error" *ngIf="transferForm.get('purpose')?.touched && transferForm.get('purpose')?.invalid">
+              Please enter transfer purpose
+            </ion-note>
+          </ion-item>
+        </ion-cardContent>
+      </ion-card>
+    </form>
+  </div>
+
+  <!-- Step 4: Payment Method -->
+  <div class="step-content fade-in" *ngIf="currentStep === TransferStep.PAYMENT_METHOD">
+    <div class="step-header">
+      <ion-icon name="card-outline" class="step-icon"></ion-icon>
+      <h2>Payment Method</h2>
+      <p>Choose how you want to pay</p>
+    </div>
+    
+    <form [formGroup]="transferForm" class="payment-form">
+      <ion-card class="form-card">
+        <ion-cardContent>
+          <ion-radio-group formControlName="paymentMethod">
+            <ion-item *ngFor="let method of paymentMethods" class="payment-method-item">
+              <ion-radio [value]="method.id" slot="start"></ion-radio>
+              <ion-label>
+                <div class="payment-method-header">
+                  <div class="payment-method-icon">
+                    <ion-icon [name]="method.icon"></ion-icon>
+                  </div>
+                  <div class="payment-method-info">
+                    <h3>{{ method.name }}</h3>
+                    <p>{{ method.description }}</p>
+                  </div>
+                </div>
+                <div class="payment-method-details">
+                  <ion-chip size="small" color="primary">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <ion-label>{{ method.processingTime }}</ion-label>
+                  </ion-chip>
+                  <ion-chip size="small" color="secondary">
+                    <ion-icon name="card-outline"></ion-icon>
+                    <ion-label>{{ method.fees }} fee</ion-label>
+                  </ion-chip>
+                </div>
+              </ion-label>
+            </ion-item>
+          </ion-radio-group>
+        </ion-cardContent>
+      </ion-card>
+    </form>
+  </div>
+
+  <!-- Step 5: Confirmation -->
+  <div class="step-content fade-in" *ngIf="currentStep === TransferStep.CONFIRMATION">
+    <div class="step-header">
+      <ion-icon name="checkmark-circle-outline" class="step-icon"></ion-icon>
+      <h2>Confirm Transfer</h2>
+      <p>Review your transfer details</p>
+    </div>
+    
+    <ion-card class="confirmation-card">
+      <ion-cardContent>
+        <div class="confirmation-header">
+          <ion-icon name="shield-checkmark-outline" color="success" size="large"></ion-icon>
+          <h3>Transfer Summary</h3>
+        </div>
+        
+        <div class="confirmation-details">
+          <div class="detail-row">
+            <span class="label">Transfer Type:</span>
+            <span class="value">{{ selectedTransferType?.title }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Recipient:</span>
+            <span class="value">{{ transferForm.get('recipientName')?.value }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Bank:</span>
+            <span class="value">{{ selectedBank?.name }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Account:</span>
+            <span class="value">{{ transferForm.get('accountNumber')?.value }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Amount:</span>
+            <span class="value font-semibold text-primary">
+              {{ selectedCurrency?.symbol }} {{ transferForm.get('amount')?.value }}
+            </span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Payment Method:</span>
+            <span class="value">{{ selectedPaymentMethod?.name }}</span>
+          </div>
+          
+          <div class="detail-row">
+            <span class="label">Purpose:</span>
+            <span class="value">{{ transferForm.get('purpose')?.value }}</span>
+          </div>
+        </div>
+        
+        <div class="terms-section">
+          <ion-item>
+            <ion-checkbox formControlName="termsAccepted" slot="start"></ion-checkbox>
+            <ion-label>
+              I agree to the <a href="#">terms and conditions</a> and <a href="#">privacy policy</a>
+            </ion-label>
+          </ion-item>
+        </div>
+      </ion-cardContent>
+    </ion-card>
+  </div>
+
+  <!-- Step 6: Processing -->
+  <div class="step-content fade-in" *ngIf="currentStep === TransferStep.PROCESSING">
+    <div class="processing-container">
+      <ion-spinner name="crescent" class="processing-spinner"></ion-spinner>
+      <h2>Processing Your Transfer</h2>
+      <p>Please wait while we process your request...</p>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="navigation-buttons" *ngIf="currentStep !== TransferStep.PROCESSING">
+    <ion-button 
+      fill="outline" 
+      class="btn-secondary"
+      (click)="previousStep()"
+      [disabled]="currentStep === 0">
+      <ion-icon name="chevron-back" slot="start"></ion-icon>
+      Previous
+    </ion-button>
+    
+    <ion-button 
+      class="btn-primary"
+      [disabled]="!canProceedToNextStep()"
+      (click)="nextStep()"
+      *ngIf="currentStep < TransferStep.CONFIRMATION">
+      Next
+      <ion-icon name="chevron-forward" slot="end"></ion-icon>
+    </ion-button>
+    
+    <ion-button 
+      *ngIf="currentStep === TransferStep.CONFIRMATION"
+      (click)="confirmTransfer()"
+      [disabled]="!transferForm.valid || isProcessing">
+      <ion-icon name="checkmark" slot="start"></ion-icon>
+      Confirm Transfer
+    </ion-button>
+  </div>
 </ion-content>
+
+<!-- Bank Selection Modal -->
+<ion-modal [isOpen]="showBankModal" (didDismiss)="closeBankModal()">
+  <ng-template>
+    <ion-modalHeader>
+      <ion-modalToolbar>
+        <ion-modalTitle>Select Bank</ion-modalTitle>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeBankModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-modalToolbar>
+    </ion-modalHeader>
+    
+    <ion-modalContent>
+      <ion-list>
+        <ion-item *ngFor="let bank of banks" button (click)="selectBank(bank)">
+          <ion-label>
+            <h3>{{ bank.name }}</h3>
+            <p>{{ bank.code }}</p>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end"></ion-icon>
+        </ion-item>
+      </ion-list>
+    </ion-modalContent>
+  </ng-template>
+</ion-modal>
+
+<!-- Currency Selection Modal -->
+<ion-modal [isOpen]="showCurrencyModal" (didDismiss)="closeCurrencyModal()">
+  <ng-template>
+    <ion-modalHeader>
+      <ion-modalToolbar>
+        <ion-modalTitle>Select Currency</ion-modalTitle>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeCurrencyModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-modalToolbar>
+    </ion-modalHeader>
+    
+    <ion-modalContent>
+      <ion-list>
+        <ion-item *ngFor="let currency of currencies" button (click)="selectCurrency(currency)">
+          <ion-label>
+            <h3>{{ currency.flag }} {{ currency.code }}</h3>
+            <p>{{ currency.name }}</p>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end"></ion-icon>
+        </ion-item>
+      </ion-list>
+    </ion-modalContent>
+  </ng-template>
+</ion-modal>

@@ -54,21 +54,9 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'partners',
-        children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('./partners/partners.page').then((m) => m.PartnersPage),
-          },
-          {
-            path: 'details/:id',
-            loadComponent: () =>
-              import('./partners/partner-details/partner-details.page').then(
-                (m) => m.PartnerDetailsPage
-              ),
-          },
-        ],
+        path: 'ai-chat',
+        loadComponent: () =>
+          import('./ai-chat/ai-chat.page').then((m) => m.AiChatPage),
       },
       {
         path: 'orders',
@@ -115,6 +103,11 @@ export const routes: Routes = [
               ),
           },
         ],
+      },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./services/services.page').then((m) => m.ServicesPage),
       },
       {
         path: 'search',

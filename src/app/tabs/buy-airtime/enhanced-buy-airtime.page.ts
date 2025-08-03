@@ -1,19 +1,23 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular/standalone';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, 
   IonLabel, IonInput, IonSelect, IonSelectOption, IonCard, IonCardContent,
   IonButtons, IonBackButton, IonIcon, IonGrid, IonRow, IonCol, IonChip,
-  IonSpinner, IonAlert, IonToast, IonModal, IonList, IonAvatar, IonBadge
+  IonSpinner, IonAlert, IonToast, IonModal, IonList, IonAvatar, IonBadge,
+  ModalController
 } from '@ionic/angular/standalone';
 
 import { EnhancedAirtimeService, Country, Operator, AirtimeRequest } from 'src/app/services/enhanced-airtime.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { AccountService } from 'src/app/services/auth/account.service';
+import { AdvansisPayService } from 'src/app/services/payments/advansis-pay.service';
+import { StorageService } from 'src/app/services/storage.service';
+import { UtilsService } from 'src/app/services/utils.service';
+import { ReloadlyService } from 'src/app/services/reloadly.service';
 import { Profile } from 'src/app/interfaces';
 
 enum WizardStep {
@@ -34,7 +38,6 @@ enum WizardStep {
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    IonicModule,
     IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem,
     IonLabel, IonInput, IonSelect, IonSelectOption, IonCard, IonCardContent,
     IonButtons, IonBackButton, IonIcon, IonGrid, IonRow, IonCol, IonChip,
@@ -64,13 +67,22 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   // Quick amounts
   quickAmounts = [5, 10, 20, 50, 100, 200, 500];
   
+  // Payment and transaction properties
+  private readonly GHANA_ISO = 'GH';
+  topupParams: any = {};
+  
   private destroy$ = new Subject<void>();
 
   constructor(
     private formBuilder: FormBuilder,
     private enhancedAirtimeService: EnhancedAirtimeService,
     private notificationService: NotificationService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private advansisPayService: AdvansisPayService,
+    private storage: StorageService,
+    private utilService: UtilsService,
+    private reloadlyService: ReloadlyService,
+    private modalController: ModalController
   ) {
     this.airtimeForm = this.formBuilder.group({
       countryIso: ['', Validators.required],
@@ -110,11 +122,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       .subscribe({
         next: (countries) => {
           this.countries = countries;
-          // Set Ghana as default
-          const ghana = countries.find(c => c.isoName === 'GH');
-          if (ghana) {
-            this.selectCountry(ghana);
-          }
+          // Don't auto-select Ghana, let user choose
         },
         error: (error) => {
           console.error('Error loading countries:', error);
@@ -127,15 +135,6 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   private setupFormListeners() {
-    // Listen to country changes
-    this.airtimeForm.get('countryIso')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(countryIso => {
-        if (countryIso) {
-          this.loadOperators(countryIso);
-        }
-      });
-
     // Listen to phone number changes for auto-detection
     this.airtimeForm.get('recipientNumber')?.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -147,6 +146,14 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   private loadOperators(countryIso: string) {
+    // For non-Ghanaian countries, skip operator loading since we'll use auto-detection
+    if (countryIso !== this.GHANA_ISO) {
+      this.operators = [];
+      this.selectedOperator = null;
+      this.airtimeForm.patchValue({ operatorId: '' });
+      return;
+    }
+
     this.isLoading = true;
     this.enhancedAirtimeService.getOperators(countryIso)
       .pipe(takeUntil(this.destroy$))
@@ -169,18 +176,29 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   private autoDetectOperator(phoneNumber: string) {
     if (!phoneNumber || !this.selectedCountry) return;
 
+    console.log('Starting auto-detection for:', this.selectedCountry.name, 'phone:', phoneNumber);
     this.isDetectingOperator = true;
+    
     this.enhancedAirtimeService.autoDetectOperator(phoneNumber, this.selectedCountry.isoName)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (operator) => {
+          console.log('Auto-detection successful:', operator);
           this.detectedOperator = operator;
           this.airtimeForm.patchValue({ operatorId: operator.id });
           this.selectedOperator = operator;
+          
+          // For non-Ghanaian countries, show a notification that operator was detected
+          if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
+            this.notificationService.showSuccess(`Network detected: ${operator.name}`);
+          }
         },
         error: (error) => {
           console.error('Auto-detection failed:', error);
-          // Don't show error for auto-detection failures
+          // For non-Ghanaian countries, show a warning but don't block the flow
+          if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
+            this.notificationService.showWarn('Could not auto-detect network. Please ensure the phone number is correct.');
+          }
         },
         complete: () => {
           this.isDetectingOperator = false;
@@ -189,8 +207,23 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   selectCountry(country: Country) {
+    console.log('Selected country:', country);
     this.selectedCountry = country;
     this.airtimeForm.patchValue({ countryIso: country.isoName });
+    
+    // Clear any previous operator selection
+    this.selectedOperator = null;
+    this.detectedOperator = null;
+    this.airtimeForm.patchValue({ operatorId: '' });
+    
+    // Load operators only for Ghana
+    if (country.isoName === this.GHANA_ISO) {
+      this.loadOperators(country.isoName);
+    } else {
+      // For non-Ghanaian countries, clear operators array
+      this.operators = [];
+    }
+    
     this.nextStep();
   }
 
@@ -210,6 +243,12 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     if (this.selectedCountry) {
       const formatted = this.enhancedAirtimeService.formatPhoneNumber(phoneNumber, this.selectedCountry.isoName);
       this.airtimeForm.patchValue({ recipientNumber: formatted });
+      
+      // Auto-detect operator for non-Ghanaian countries when phone number is entered
+      if (this.selectedCountry.isoName !== this.GHANA_ISO && formatted.length >= 7) {
+        console.log('Auto-detecting operator for:', this.selectedCountry.name, 'with phone:', formatted);
+        this.autoDetectOperator(formatted);
+      }
     }
   }
 
@@ -219,18 +258,35 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     
     if (!phoneNumber || !countryIso) return false;
     
+    // For non-Ghanaian countries, basic validation is sufficient since operator will be auto-detected
+    if (countryIso !== this.GHANA_ISO) {
+      return phoneNumber.length >= 7;
+    }
+    
     return this.enhancedAirtimeService.validatePhoneNumber(phoneNumber, countryIso);
   }
 
   nextStep() {
     if (this.currentStep < WizardStep.CONFIRMATION) {
       this.currentStep++;
+      
+      // For non-Ghanaian countries, skip operator selection step
+      if (this.currentStep === WizardStep.OPERATOR_SELECTION && 
+          this.selectedCountry?.isoName !== this.GHANA_ISO) {
+        this.currentStep = WizardStep.PHONE_NUMBER;
+      }
     }
   }
 
   previousStep() {
     if (this.currentStep > WizardStep.COUNTRY_SELECTION) {
       this.currentStep--;
+      
+      // For non-Ghanaian countries, skip operator selection step when going back
+      if (this.currentStep === WizardStep.OPERATOR_SELECTION && 
+          this.selectedCountry?.isoName !== this.GHANA_ISO) {
+        this.currentStep = WizardStep.COUNTRY_SELECTION;
+      }
     }
   }
 
@@ -244,42 +300,271 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       return;
     }
 
+    const formData = this.airtimeForm.value;
+    const countryIso = formData.countryIso;
+    const isGhana = countryIso === this.GHANA_ISO;
+
+    // For non-Ghanaian countries, ensure we have operator information from auto-detection
+    if (!isGhana && !this.selectedOperator && !this.detectedOperator) {
+      this.notificationService.showWarn('Please enter a valid phone number to auto-detect the network');
+      return;
+    }
+
     this.currentStep = WizardStep.PROCESSING;
 
-    const request: AirtimeRequest = {
-      recipientNumber: this.airtimeForm.get('recipientNumber')?.value,
-      amount: this.airtimeForm.get('amount')?.value,
-      countryIso: this.airtimeForm.get('countryIso')?.value,
-      operatorId: this.airtimeForm.get('operatorId')?.value,
-      autoDetect: this.airtimeForm.get('autoDetect')?.value,
-      description: `Airtime recharge for ${this.airtimeForm.get('recipientNumber')?.value}`
-    };
-
     try {
-      const response = await firstValueFrom(
-        this.enhancedAirtimeService.submitAirtime(request)
-      );
+      // Check user profile
+      if (!this.userProfile?._id) {
+        await this.getUserProfile();
+      }
 
-      if (response.success) {
-        this.notificationService.showSuccess(response.message);
-        
-        // Handle checkout URL if provided
-        if (response.checkoutUrl) {
-          window.open(response.checkoutUrl, '_system');
-        }
-        
-        // Reset form and go back to first step
-        this.resetForm();
-        this.currentStep = WizardStep.COUNTRY_SELECTION;
+      if (isGhana) {
+        await this.processGhanaAirtime(formData);
       } else {
-        this.notificationService.showError(response.error || 'Transaction failed');
-        this.currentStep = WizardStep.CONFIRMATION;
+        await this.processInternationalAirtime(formData);
       }
     } catch (error: any) {
       console.error('Airtime submission error:', error);
       this.notificationService.showError(error.message || 'Transaction failed');
       this.currentStep = WizardStep.CONFIRMATION;
     }
+  }
+
+  private async processGhanaAirtime(formData: any) {
+    const modalResult = await this.presentWaitingModal();
+
+    try {
+      // Prepare Ghana airtime parameters (for storage only - not for direct API call)
+      this.topupParams = {
+        recipientNumber: formData.recipientNumber,
+        description: `Airtime recharge for ${formData.operatorId}: ${formData.recipientNumber} - GH₵${formData.amount} (${new Date().toLocaleString()})`,
+        amount: this.formatAmount(formData.amount),
+        network: formData.operatorId,
+        payTransRef: await this.utilService.generateReference(),
+        transType: 'AIRTIMETOPUP',
+        customerEmail: 'info@advansistechnologies.com'
+      };
+
+      // Express Pay Parameters
+      const expressPayParams = {
+        userId: this.userProfile._id,
+        firstName: this.userProfile.firstName || '',
+        lastName: this.userProfile.lastName || '',
+        email: this.userProfile.email || '',
+        phoneNumber: formData.recipientNumber,
+        username: this.userProfile?.username || '',
+        amount: Number(formData.amount),
+        orderDesc: this.topupParams.description,
+        orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
+      };
+
+      console.log('[Ghana Airtime] => Payment params:', expressPayParams);
+      console.log('[Ghana Airtime] => Airtime params:', this.topupParams);
+
+      // Validate profile information
+      if (!expressPayParams.firstName || !expressPayParams.lastName || !expressPayParams.email) {
+        throw new Error('Missing required user profile information. Please update your profile.');
+      }
+
+      // Store transaction details
+      await this.storage.setStorage('pendingTransaction', JSON.stringify({
+        ...this.topupParams,
+        ...expressPayParams,
+        timestamp: new Date().toISOString(),
+      }));
+
+      // Initiate payment (don't call airtime service directly)
+      const response = await firstValueFrom(
+        this.advansisPayService.expressPayOnline(expressPayParams)
+      );
+
+      console.log('[Ghana Payment response]=>', JSON.stringify(response, null, 2));
+
+      if (!response || !response.data?.checkoutUrl) {
+        throw new Error('Payment service did not return a checkout URL');
+      }
+
+      // Validate response
+      if (!response.data.token || !response.data['order-id']) {
+        throw new Error('Invalid payment response: Missing required fields');
+      }
+
+      // Store additional transaction details
+      await this.storage.setStorage('pendingTransaction', JSON.stringify({
+        ...this.topupParams,
+        ...expressPayParams,
+        timestamp: new Date().toISOString(),
+        transactionToken: response.data.token,
+        orderId: response.data['order-id']
+      }));
+
+      // Open checkout URL
+      window.open(response.data.checkoutUrl, '_system');
+
+      // Reset form and go back to first step
+      this.resetForm();
+      this.currentStep = WizardStep.COUNTRY_SELECTION;
+      this.notificationService.showSuccess('Payment initiated successfully');
+
+    } catch (error: any) {
+      console.error('Ghana airtime processing error:', error);
+      this.notificationService.showError(error.message || 'Transaction failed');
+      this.currentStep = WizardStep.CONFIRMATION;
+    } finally {
+      if (modalResult.modal) {
+        await modalResult.modal.dismiss();
+      }
+    }
+  }
+
+  private async processInternationalAirtime(formData: any) {
+    const modalResult = await this.presentWaitingModal();
+
+    try {
+      // Use the already detected operator from the wizard
+      const operator = this.selectedOperator || this.detectedOperator;
+      console.log('Processing international airtime with operator:', operator);
+      
+      if (!operator) {
+        throw new Error('No operator detected. Please ensure the phone number is correct.');
+      }
+
+      modalResult.updateStatus('Preparing transaction...');
+
+      // Prepare international topup parameters (for storage only - not for direct API call)
+      this.topupParams = {
+        operatorId: operator.id,
+        amount: Number(formData.amount),
+        description: `International airtime recharge for ${formData.recipientNumber} (${operator.name})`,
+        recipientEmail: this.userProfile.email || '',
+        recipientNumber: formData.recipientNumber,
+        recipientCountryCode: formData.countryIso,
+        senderNumber: this.userProfile.phoneNumber || '',
+        payTransRef: await this.utilService.generateReference(),
+        transType: 'GLOBALAIRTOPUP',
+        customerEmail: 'info@advansistechnologies.com'
+      };
+
+      // Prepare payment parameters
+      modalResult.updateStatus('Preparing payment...');
+      const expressPayParams = {
+        userId: this.userProfile._id,
+        firstName: this.userProfile.firstName || '',
+        lastName: this.userProfile.lastName || '',
+        email: this.userProfile.email || '',
+        phoneNumber: formData.recipientNumber,
+        username: this.userProfile.username || '',
+        amount: Number(formData.amount),
+        orderDesc: `International airtime recharge for ${formData.recipientNumber} (${operator.name})`,
+        orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
+      };
+
+      // Store transaction details
+      modalResult.updateStatus('Saving transaction details...');
+      console.log('[International Airtime] => topupParams', this.topupParams);
+      console.log('[International Airtime] => expressPayParams', expressPayParams);
+
+      await this.storage.setStorage('pendingTransaction', JSON.stringify({
+        ...this.topupParams,
+        ...expressPayParams,
+        timestamp: new Date().toISOString(),
+      }));
+
+      // Initiate payment (don't call airtime service directly)
+      modalResult.updateStatus('Initiating payment...');
+      const response = await firstValueFrom(
+        this.advansisPayService.expressPayOnline(expressPayParams)
+      );
+
+      console.log('[International Payment response]=>', response);
+
+      if (response && response.status === 201 && response.data?.checkoutUrl) {
+        modalResult.updateStatus('Redirecting to payment gateway...');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await modalResult.modal.dismiss();
+        window.open(response.data.checkoutUrl, '_system');
+
+        // Reset form and go back to first step
+        this.resetForm();
+        this.currentStep = WizardStep.COUNTRY_SELECTION;
+        this.notificationService.showSuccess('Payment initiated successfully');
+      } else {
+        throw new Error('Failed to initiate payment');
+      }
+    } catch (error: any) {
+      console.error('International airtime processing error:', error);
+      this.notificationService.showError(error.message || 'Transaction failed');
+      this.currentStep = WizardStep.CONFIRMATION;
+    } finally {
+      if (modalResult.modal) {
+        await modalResult.modal.dismiss();
+      }
+    }
+  }
+
+  private async detectOperator(params: { phone: string; countryIsoCode: string }) {
+    console.log('Calling autoDetectOperator with:', {
+      phone: params.phone,
+      countryIsoCode: params.countryIsoCode,
+    });
+
+    try {
+      const response = await firstValueFrom(
+        this.reloadlyService.autoDetectOperator({
+          phone: params.phone,
+          countryIsoCode: params.countryIsoCode,
+        })
+      );
+
+      console.log('[autoDetectOperator] => response:', response);
+
+      if (response && response.operatorId) {
+        return {
+          operatorId: response.operatorId,
+          operatorName: response.operatorName,
+        };
+      } else {
+        throw new Error('Failed to detect operator');
+      }
+    } catch (error) {
+      console.error('Operator detection error:', error);
+      throw new Error('Failed to detect network operator');
+    }
+  }
+
+  private async getUserProfile() {
+    try {
+      const response = await firstValueFrom(this.accountService.getProfile());
+      if (response) {
+        this.userProfile = response;
+      } else {
+        throw new Error('Failed to load user profile');
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      throw new Error('Failed to load user profile');
+    }
+  }
+
+  private formatAmount(amount: number): number {
+    return Number(amount) * 100; // Convert to kobo
+  }
+
+  private async presentWaitingModal(): Promise<{ modal: HTMLIonModalElement; updateStatus: (message: string) => void }> {
+    const modal = await this.modalController.create({
+      component: 'ion-loading',
+      componentProps: {
+        message: 'Processing...',
+        spinner: 'crescent'
+      }
+    });
+    await modal.present();
+
+    const updateStatus = (message: string) => {
+      modal.componentProps = { ...modal.componentProps, message };
+    };
+
+    return { modal, updateStatus };
   }
 
   private resetForm() {
@@ -292,7 +577,17 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   getStepProgress(): number {
-    return ((this.currentStep + 1) / (Object.keys(WizardStep).length / 2)) * 100;
+    // Calculate total steps, accounting for skipped operator selection for non-Ghanaian countries
+    const totalSteps = this.selectedCountry?.isoName !== this.GHANA_ISO ? 5 : 6;
+    const currentStepIndex = this.currentStep;
+    
+    // Adjust step index if we're past operator selection for non-Ghanaian countries
+    let adjustedStepIndex = currentStepIndex;
+    if (this.selectedCountry?.isoName !== this.GHANA_ISO && currentStepIndex > WizardStep.OPERATOR_SELECTION) {
+      adjustedStepIndex = currentStepIndex - 1;
+    }
+    
+    return ((adjustedStepIndex + 1) / totalSteps) * 100;
   }
 
   getStepTitle(): string {
@@ -319,8 +614,14 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       case WizardStep.COUNTRY_SELECTION:
         return 'Choose the country for airtime topup';
       case WizardStep.OPERATOR_SELECTION:
+        if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
+          return 'Network will be auto-detected from phone number';
+        }
         return 'Select your mobile network provider';
       case WizardStep.PHONE_NUMBER:
+        if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
+          return 'Enter the phone number to recharge (network will be auto-detected)';
+        }
         return 'Enter the phone number to recharge';
       case WizardStep.AMOUNT_SELECTION:
         return 'Choose the amount to recharge';
@@ -338,6 +639,10 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       case WizardStep.COUNTRY_SELECTION:
         return !!this.selectedCountry;
       case WizardStep.OPERATOR_SELECTION:
+        // For non-Ghanaian countries, operator selection is not required (auto-detection will be used)
+        if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
+          return true;
+        }
         return !!this.selectedOperator;
       case WizardStep.PHONE_NUMBER:
         return this.validatePhoneNumber();

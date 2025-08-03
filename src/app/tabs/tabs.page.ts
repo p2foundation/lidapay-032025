@@ -5,6 +5,7 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
+  IonModal,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -13,7 +14,7 @@ import {
   square,
   homeOutline,
   reloadCircleOutline,
-  diamondOutline,
+  chatbubbleOutline,
   timeOutline,
   personOutline,
   cellularOutline,
@@ -22,6 +23,7 @@ import {
 } from 'ionicons/icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { AiChatPage } from './ai-chat/ai-chat.page';
 
 @Component({
   selector: 'app-tabs',
@@ -34,17 +36,20 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
     IonTabButton,
     IonIcon,
     IonLabel,
+    IonModal,
     TranslateModule,
+    AiChatPage,
   ],
 })
 export class TabsPage {
   public environmentInjector = inject(EnvironmentInjector);
+  isAiChatOpen = false;
 
   constructor() {
     addIcons({
       homeOutline,
       reloadCircleOutline,
-      diamondOutline,
+      chatbubbleOutline,
       timeOutline,
       personOutline,
       triangle,
@@ -62,5 +67,18 @@ export class TabsPage {
     } catch (error) {
       console.log('Haptics error:', error);
     }
+  }
+
+  async openAiChat() {
+    try {
+      await Haptics.impact({ style: ImpactStyle.Medium });
+      this.isAiChatOpen = true;
+    } catch (error) {
+      console.log('Haptics error:', error);
+    }
+  }
+
+  closeAiChat() {
+    this.isAiChatOpen = false;
   }
 }

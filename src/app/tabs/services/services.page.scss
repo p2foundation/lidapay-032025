@@ -1,0 +1,441 @@
+// Services Page Styles
+.services-content {
+  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  
+  .header-toolbar {
+    --background: transparent;
+    --border-style: none;
+    
+    .header-title {
+      .title-content {
+        h1 {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--ion-color-dark);
+        }
+        
+        p {
+          margin: 4px 0 0 0;
+          font-size: 0.875rem;
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+  }
+}
+
+// Skeleton Loading
+.skeleton-wrapper {
+  padding: 20px;
+  
+  .skeleton-header {
+    margin-bottom: 24px;
+  }
+  
+  .skeleton-search {
+    margin-bottom: 16px;
+  }
+  
+  .skeleton-filters {
+    margin-bottom: 24px;
+  }
+  
+  .skeleton-services {
+    .ion-skeleton-text {
+      margin-bottom: 16px;
+    }
+  }
+}
+
+// Content Wrapper
+.content-wrapper {
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  
+  &.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Search Section
+.search-section {
+  margin-bottom: 20px;
+  
+  .custom-searchbar {
+    --background: rgba(255, 255, 255, 0.9);
+    --border-radius: 12px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --placeholder-color: var(--ion-color-medium);
+    
+    ion-searchbar {
+      --background: transparent;
+    }
+  }
+}
+
+// Category Filters
+.category-filters {
+  margin-bottom: 24px;
+  
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    
+    .filter-chip {
+      --background: rgba(255, 255, 255, 0.8);
+      --color: var(--ion-color-medium);
+      --border-radius: 20px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      
+      &.active {
+        --background: var(--ion-color-primary);
+        --color: white;
+        transform: scale(1.05);
+      }
+      
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+  }
+}
+
+// Services Section
+.services-section {
+  .section-header {
+    margin-bottom: 20px;
+    
+    .section-title {
+      margin: 0 0 4px 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+    
+    .section-subtitle {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// No Results
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  
+  .no-results-content {
+    .no-results-icon {
+      font-size: 3rem;
+      color: var(--ion-color-medium);
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+    
+    p {
+      margin: 0 0 16px 0;
+      font-size: 0.875rem;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// Services Grid
+.services-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Service Card
+.service-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 20px;
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    
+    .service-overlay {
+      opacity: 1;
+    }
+  }
+  
+  .service-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    
+    .service-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      ion-icon {
+        font-size: 1.5rem;
+        color: white;
+      }
+    }
+    
+    .service-badges {
+      display: flex;
+      gap: 4px;
+      
+      ion-badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 8px;
+        
+        &.new-badge {
+          --background: #10b981;
+        }
+        
+        &.popular-badge {
+          --background: #f59e0b;
+        }
+        
+        &.custom-badge {
+          --background: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+  
+  .service-content {
+    margin-bottom: 16px;
+    
+    .service-title {
+      margin: 0 0 8px 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    
+    .service-description {
+      margin: 0 0 12px 0;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+    
+    .service-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      
+      .feature-tag {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      
+      .feature-more {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        opacity: 0.8;
+      }
+    }
+  }
+  
+  .service-footer {
+    .service-action-btn {
+      --color: white;
+      --background: rgba(255, 255, 255, 0.2);
+      --border-radius: 8px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      
+      ion-icon {
+        margin-left: 4px;
+      }
+    }
+  }
+  
+  .service-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+}
+
+// Quick Actions
+.quick-actions {
+  .quick-action-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    
+    .quick-action-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      
+      .quick-action-icon {
+        font-size: 2rem;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      
+      .quick-action-text {
+        flex: 1;
+        
+        h4 {
+          margin: 0 0 4px 0;
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        
+        p {
+          margin: 0;
+          font-size: 0.875rem;
+          opacity: 0.9;
+        }
+      }
+      
+      ion-button {
+        --color: white;
+        --background: rgba(255, 255, 255, 0.2);
+        --border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .content-wrapper {
+    padding: 16px;
+  }
+  
+  .services-grid {
+    gap: 12px;
+  }
+  
+  .service-card {
+    padding: 16px;
+    
+    .service-header {
+      margin-bottom: 12px;
+      
+      .service-icon {
+        width: 40px;
+        height: 40px;
+        
+        ion-icon {
+          font-size: 1.25rem;
+        }
+      }
+    }
+    
+    .service-content {
+      margin-bottom: 12px;
+      
+      .service-title {
+        font-size: 1rem;
+      }
+      
+      .service-description {
+        font-size: 0.8rem;
+      }
+    }
+  }
+  
+  .quick-actions {
+    .quick-action-card {
+      padding: 16px;
+      
+      .quick-action-content {
+        gap: 12px;
+        
+        .quick-action-icon {
+          font-size: 1.5rem;
+        }
+        
+        .quick-action-text {
+          h4 {
+            font-size: 0.9rem;
+          }
+          
+          p {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .services-content {
+    --background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+  }
+  
+  .custom-searchbar {
+    --background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .filter-chip {
+    --background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .section-title {
+    color: white !important;
+  }
+  
+  .section-subtitle {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+} 

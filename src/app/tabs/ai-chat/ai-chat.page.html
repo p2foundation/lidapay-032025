@@ -1,0 +1,92 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar class="chat-header">
+    <ion-title class="chat-title">
+      <ion-icon name="chatbubble-outline" class="title-icon"></ion-icon>
+      AI Remitter
+    </ion-title>
+    <ion-button fill="clear" slot="end" (click)="closeChatHandler()">
+      <ion-icon name="close-outline"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="chat-content">
+  <!-- Chat Messages -->
+  <div class="chat-messages" #chatContainer>
+    <div class="message-container" *ngFor="let message of messages">
+      <div class="message" [class.user-message]="message.isUser" [class.ai-message]="!message.isUser">
+        <div class="message-avatar" *ngIf="!message.isUser">
+          <ion-avatar>
+            <img src="assets/imgs/ai-avatar.png" alt="AI Assistant" />
+          </ion-avatar>
+        </div>
+        
+        <div class="message-bubble">
+          <div class="message-text">{{ message.text }}</div>
+          <div class="message-time">
+            {{ message.timestamp | date:'shortTime' }}
+          </div>
+        </div>
+        
+        <div class="message-avatar" *ngIf="message.isUser">
+          <ion-avatar>
+            <img src="assets/imgs/user-avatar.png" alt="User" />
+          </ion-avatar>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div class="message-container" *ngIf="isTyping">
+      <div class="message ai-message">
+        <div class="message-avatar">
+          <ion-avatar>
+            <img src="assets/imgs/ai-avatar.png" alt="AI Assistant" />
+          </ion-avatar>
+        </div>
+        <div class="message-bubble typing-bubble">
+          <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input-area">
+    <div class="input-container">
+      <ion-textarea
+        [(ngModel)]="newMessage"
+        placeholder="Type your message..."
+        rows="1"
+        autoGrow="true"
+        maxlength="500"
+        (keydown)="onKeyPress($event)"
+        class="message-input"
+      ></ion-textarea>
+      
+      <div class="input-actions">
+        <ion-button
+          fill="clear"
+          class="voice-btn"
+          (click)="startVoiceInput()"
+          [disabled]="newMessage.trim().length > 0"
+        >
+          <ion-icon name="mic-outline"></ion-icon>
+        </ion-button>
+        
+        <ion-button
+          fill="clear"
+          class="send-btn"
+          (click)="sendMessage()"
+          [disabled]="!newMessage.trim() || isLoading"
+        >
+          <ion-icon name="paper-plane-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content> 

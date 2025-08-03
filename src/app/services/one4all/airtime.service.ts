@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment.prod';
 
@@ -23,16 +23,15 @@ export class AirtimeService {
       .post<any>(`${this.awsServer}/api/v1/airtime/topup`, mData)
       .pipe(
         tap(_res => this.log(`AirtimeService: airtime credit`)),
-        catchError(this.handleError('AirtimeService', []))
+        catchError(this.handleError('AirtimeService'))
       );
   }
 
-  private handleError<T>(operation = 'operation', result?: T) {
+  private handleError<T>(operation = 'operation') {
     return (error: any): Observable<T> => {
-      console.error(error); // log to console instead
-      alert(error);
+      console.error(`${operation} failed:`, error);
       this.log(`${operation} failed: ${error.message}`);
-      return of(result as T);
+      return throwError(() => error);
     };
   }
 

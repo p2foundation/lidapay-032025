@@ -68,14 +68,34 @@
 
   <!-- Step 2: Operator Selection -->
   <div class="step-content fade-in" *ngIf="currentStep === wizardSteps.OPERATOR_SELECTION && !isLoading">
-    <ion-grid>
+    <!-- For non-Ghanaian countries, show auto-detection message -->
+    <div *ngIf="selectedCountry?.isoName !== 'GH'" class="auto-detection-message">
+      <ion-card class="modern-card">
+        <ion-card-content>
+          <div class="text-center">
+            <ion-icon name="cellular-outline" size="large" color="primary"></ion-icon>
+            <h3 class="text-heading-3">Network Auto-Detection</h3>
+            <p class="text-body text-gray-600">
+              For {{ selectedCountry?.name }}, the mobile network will be automatically detected 
+              when you enter the phone number in the next step.
+            </p>
+            <ion-button expand="block" (click)="nextStep()" class="modern-button">
+              Continue
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- For Ghana, show operator selection -->
+    <ion-grid *ngIf="selectedCountry?.isoName === 'GH'">
       <ion-row>
         <ion-col size="12" size-md="6" *ngFor="let operator of operators">
           <ion-card class="operator-card modern-card" (click)="selectOperator(operator)">
             <ion-card-content>
               <div class="operator-info">
                 <div class="operator-logo">
-                  <img [src]="operator.logo" [alt]="operator.name" *ngIf="operator.logo">
+                  <img [src]="operator.logo" [alt]="operator.name + ' logo'" [title]="operator.name + ' logo'" *ngIf="operator.logo">
                   <ion-icon name="cellular-outline" *ngIf="!operator.logo"></ion-icon>
                 </div>
                 <div class="operator-details">
@@ -123,8 +143,17 @@
         <!-- Country info -->
         <div class="country-info-display" *ngIf="selectedCountry">
           <ion-chip color="secondary" outline>
-            <span class="flag-emoji">{{ selectedCountry.flag }}</span>
-            <ion-label>{{ selectedCountry.name }}</ion-label>
+            <span class="flag-emoji">
+              <img *ngIf="selectedCountry?.flag && selectedCountry.flag.startsWith('http')"
+                   [src]="selectedCountry.flag"
+                   [alt]="selectedCountry.name + ' flag'"
+                   [title]="selectedCountry.name + ' flag'"
+                   style="width: 24px; height: 18px; vertical-align: middle; margin-right: 4px;" />
+              <span *ngIf="!selectedCountry?.flag || !selectedCountry.flag.startsWith('http')">
+                {{ selectedCountry?.flag || '🏳️' }}
+              </span>
+            </span>
+            {{ selectedCountry?.name }}
           </ion-chip>
         </div>
       </ion-card-content>
@@ -165,7 +194,7 @@
         <!-- Operator info -->
         <div class="operator-info-display" *ngIf="selectedOperator">
           <ion-chip color="primary" outline>
-            <img [src]="selectedOperator.logo" [alt]="selectedOperator.name" *ngIf="selectedOperator.logo">
+                              <img [src]="selectedOperator.logo" [alt]="selectedOperator.name + ' logo'" [title]="selectedOperator.name + ' logo'" *ngIf="selectedOperator.logo">
             <ion-label>{{ selectedOperator.name }}</ion-label>
           </ion-chip>
         </div>
@@ -186,7 +215,16 @@
           <div class="detail-row">
             <span class="label text-body-small text-gray-600">Country:</span>
             <span class="value text-body">
-              <span class="flag-emoji">{{ selectedCountry?.flag }}</span>
+              <span class="flag-emoji">
+                <img *ngIf="selectedCountry?.flag && selectedCountry.flag.startsWith('http')"
+                     [src]="selectedCountry.flag"
+                     [alt]="selectedCountry.name + ' flag'"
+                     [title]="selectedCountry.name + ' flag'"
+                     style="width: 24px; height: 18px; vertical-align: middle; margin-right: 4px;" />
+                <span *ngIf="!selectedCountry?.flag || !selectedCountry.flag.startsWith('http')">
+                  {{ selectedCountry?.flag || '🏳️' }}
+                </span>
+              </span>
               {{ selectedCountry?.name }}
             </span>
           </div>

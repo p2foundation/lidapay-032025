@@ -1,0 +1,641 @@
+// Remitstar Page Styles
+.remitstar-content {
+  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  
+  .header-toolbar {
+    --background: transparent;
+    --border-style: none;
+    
+    .header-title {
+      .title-content {
+        h1 {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--ion-color-dark);
+        }
+        
+        p {
+          margin: 4px 0 0 0;
+          font-size: 0.875rem;
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+  }
+}
+
+// Progress Section
+.progress-section {
+  padding: 20px 20px 0;
+  
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+  }
+  
+  .step-indicators {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      
+      .step-number {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        color: var(--ion-color-medium);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        transition: all 0.3s ease;
+      }
+      
+      .step-label {
+        font-size: 0.75rem;
+        color: var(--ion-color-medium);
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      &.active {
+        .step-number {
+          background: var(--ion-color-primary);
+          color: white;
+          transform: scale(1.1);
+        }
+        
+        .step-label {
+          opacity: 1;
+          color: var(--ion-color-primary);
+          font-weight: 600;
+        }
+      }
+      
+      &.completed {
+        .step-number {
+          background: var(--ion-color-success);
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+// Step Content
+.step-content {
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  
+  &.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Step Header
+.step-header {
+  text-align: center;
+  margin-bottom: 24px;
+  
+  .step-icon {
+    font-size: 3rem;
+    color: var(--ion-color-primary);
+    margin-bottom: 16px;
+  }
+  
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Transfer Types Grid
+.transfer-types-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// Transfer Type Card
+.transfer-type-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    
+    .transfer-type-overlay {
+      opacity: 1;
+    }
+  }
+  
+  .transfer-type-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    
+    .transfer-type-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      ion-icon {
+        font-size: 1.5rem;
+        color: white;
+      }
+    }
+    
+    .transfer-type-badge {
+      ion-badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+    }
+  }
+  
+  .transfer-type-content {
+    margin-bottom: 16px;
+    
+    h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    
+    p {
+      margin: 0 0 12px 0;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+    
+    .transfer-type-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      
+      .feature-tag {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .transfer-type-footer {
+    .select-btn {
+      --color: white;
+      --background: rgba(255, 255, 255, 0.2);
+      --border-radius: 8px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      
+      ion-icon {
+        margin-left: 4px;
+      }
+    }
+  }
+  
+  .transfer-type-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+}
+
+// Form Styles
+.form-card {
+  --background: rgba(255, 255, 255, 0.9);
+  --border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  
+  .form-item {
+    --background: transparent;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    margin-bottom: 16px;
+    
+    ion-label {
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin-bottom: 8px;
+    }
+    
+    ion-input, ion-textarea {
+      --background: rgba(255, 255, 255, 0.8);
+      --border-radius: 8px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --placeholder-color: var(--ion-color-medium);
+    }
+    
+    ion-note {
+      font-size: 0.75rem;
+      color: var(--ion-color-danger);
+      margin-top: 4px;
+    }
+  }
+}
+
+// Quick Amounts
+.quick-amounts {
+  margin-bottom: 24px;
+  
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+  
+  .amount-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    
+    ion-chip {
+      --background: rgba(255, 255, 255, 0.8);
+      --color: var(--ion-color-dark);
+      --border-radius: 20px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      transition: all 0.2s ease;
+      
+      &.selected {
+        --background: var(--ion-color-primary);
+        --color: white;
+        transform: scale(1.05);
+      }
+      
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+  }
+}
+
+// Payment Methods
+.payment-method-item {
+  --background: transparent;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  margin-bottom: 12px;
+  
+  .payment-method-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    
+    .payment-method-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--ion-color-primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      ion-icon {
+        font-size: 1.25rem;
+        color: white;
+      }
+    }
+    
+    .payment-method-info {
+      flex: 1;
+      
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+      
+      p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+  
+  .payment-method-details {
+    display: flex;
+    gap: 8px;
+    
+    ion-chip {
+      font-size: 0.75rem;
+      height: 24px;
+    }
+  }
+}
+
+// Confirmation Card
+.confirmation-card {
+  --background: rgba(255, 255, 255, 0.9);
+  --border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  
+  .confirmation-header {
+    text-align: center;
+    margin-bottom: 24px;
+    
+    ion-icon {
+      margin-bottom: 16px;
+    }
+    
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+  }
+  
+  .confirmation-details {
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .label {
+        font-size: 0.875rem;
+        color: var(--ion-color-medium);
+        font-weight: 500;
+      }
+      
+      .value {
+        font-size: 0.875rem;
+        color: var(--ion-color-dark);
+        font-weight: 600;
+        text-align: right;
+        
+        &.font-semibold {
+          font-weight: 700;
+        }
+        
+        &.text-primary {
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+  
+  .terms-section {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    
+    ion-item {
+      --background: transparent;
+      --border-style: none;
+      
+      ion-label {
+        font-size: 0.875rem;
+        color: var(--ion-color-dark);
+        
+        a {
+          color: var(--ion-color-primary);
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+
+// Processing Container
+.processing-container {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .processing-spinner {
+    margin-bottom: 24px;
+  }
+  
+  h2 {
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Navigation Buttons
+.navigation-buttons {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  
+  ion-button {
+    flex: 1;
+    
+    &.btn-secondary {
+      --background: transparent;
+      --color: var(--ion-color-dark);
+      --border-color: var(--ion-color-medium);
+      --border-width: 1px;
+      --border-style: solid;
+    }
+    
+    &.btn-primary {
+      --background: var(--ion-color-primary);
+      --color: white;
+    }
+  }
+}
+
+// Modal Styles
+ion-modal {
+  --background: rgba(0, 0, 0, 0.5);
+  
+  ion-header {
+    --background: var(--ion-color-primary);
+    --color: white;
+  }
+  
+  ion-content {
+    --background: white;
+  }
+  
+  ion-list {
+    padding: 0;
+    
+    ion-item {
+      --background: transparent;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --padding-start: 16px;
+      --padding-end: 16px;
+      
+      ion-label {
+        h3 {
+          margin: 0 0 4px 0;
+          font-size: 1rem;
+          font-weight: 600;
+          color: var(--ion-color-dark);
+        }
+        
+        p {
+          margin: 0;
+          font-size: 0.875rem;
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .step-content {
+    padding: 16px;
+  }
+  
+  .transfer-types-grid {
+    gap: 12px;
+  }
+  
+  .transfer-type-card {
+    padding: 20px;
+    
+    .transfer-type-header {
+      margin-bottom: 12px;
+      
+      .transfer-type-icon {
+        width: 40px;
+        height: 40px;
+        
+        ion-icon {
+          font-size: 1.25rem;
+        }
+      }
+    }
+    
+    .transfer-type-content {
+      margin-bottom: 12px;
+      
+      h3 {
+        font-size: 1.125rem;
+      }
+      
+      p {
+        font-size: 0.8rem;
+      }
+    }
+  }
+  
+  .navigation-buttons {
+    padding: 16px;
+    gap: 8px;
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .remitstar-content {
+    --background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+  }
+  
+  .form-card {
+    --background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .step-header {
+    h2 {
+      color: white;
+    }
+    
+    p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+  
+  .quick-amounts {
+    h3 {
+      color: white;
+    }
+  }
+  
+  .navigation-buttons {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}

@@ -28,7 +28,7 @@ export class AuthService {
 
   async checkLoggedIn(): Promise<boolean> {
     try {
-      const token = await this.storage.getAccessToken();
+      const token = await this.storage.getStorage('token');
       const isValid = Boolean(token && !this.isTokenExpired(token));
       this.isAuthenticatedSubject.next(isValid);
       return isValid;
@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    return from(this.storage.getRefreshToken()).pipe(
+    return from(this.storage.getStorage('refreshToken')).pipe(
       switchMap(refreshToken => {
         if (!refreshToken) {
           return throwError(() => 'No refresh token available');
@@ -49,8 +49,8 @@ export class AuthService {
         return this.http.post(`${this.BASE_URL}/api/v1/users/refresh-token`, { refreshToken }).pipe(
           tap(async (response: any) => {
             if (response?.access_token) {
-              await this.storage.setAccessToken(response.access_token);
-              await this.storage.setRefreshToken(response.refresh_token);
+              await this.storage.setStorage('token', response.access_token);
+              await this.storage.setStorage('refreshToken', response.refresh_token);
             }
           })
         );
@@ -78,8 +78,8 @@ export class AuthService {
 
   private async handleAuthResponse(response: AuthResponse) {
     if (response?.access_token) {
-      await this.storage.setAccessToken(response.access_token);
-      await this.storage.setRefreshToken(response.refresh_token);
+      await this.storage.setStorage('token', response.access_token);
+      await this.storage.setStorage('refreshToken', response.refresh_token);
       await this.storage.setStorage('profile', JSON.stringify(response.user));
       await this.state.updateState({
         userId: response.user._id,

@@ -5,15 +5,14 @@
       <ion-label>{{'home' | translate}}</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="recharge" href="/tabs/recharge">
+    <ion-tab-button tab="recharge" href="/tabs/services">
       <ion-icon aria-hidden="true" name="reload-circle-outline"></ion-icon>
-      <ion-label>{{'reload' | translate}}</ion-label>
+      <ion-label>{{'services' | translate}}</ion-label>
     </ion-tab-button>
  
-    <ion-tab-button tab="partners" href="/tabs/partners">
-      <ion-icon aria-hidden="true" name="diamond-outline"></ion-icon>
-      <ion-label>{{'partners' | translate}}</ion-label>
-    </ion-tab-button>
+          <ion-tab-button class="ai-chat-tab" (click)="openAiChat()">
+        <ion-label>{{'remitter' | translate}}</ion-label>
+      </ion-tab-button>
 
     <ion-tab-button tab="orders" href="/tabs/orders">
       <ion-icon aria-hidden="true" name="time-outline"></ion-icon>
@@ -26,3 +25,14 @@
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
+
+<!-- AI Chat Modal -->
+<ion-modal 
+  [isOpen]="isAiChatOpen" 
+  (didDismiss)="closeAiChat()"
+  class="ai-chat-modal"
+>
+  <ng-template>
+    <app-ai-chat (closeChat)="closeAiChat()"></app-ai-chat>
+  </ng-template>
+</ion-modal>

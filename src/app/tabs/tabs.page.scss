@@ -1,7 +1,10 @@
 
 ion-tabs {
 	ion-tab-bar {
-		--background: var(--ion-color-light);
+		--background: white;
+		--color: #666;
+		--color-selected: var(--ion-color-primary);
+		border-top: 1px solid #e0e0e0;
 		border-radius: 16px 16px 0 0;
 		box-shadow: 0px -1px 5px rgba(0, 0, 0, 0.05);
 		padding-bottom: env(safe-area-inset-bottom);
@@ -16,12 +19,12 @@ ion-tabs {
 			padding: 8px 0;
 
 			ion-icon {
-				font-size: 22px;
+				font-size: 24px;
 				margin-bottom: 4px;
 			}
 
 			ion-label {
-				font-size: 11px;
+				font-size: 12px;
 				font-weight: 500;
 				margin: 4px 0 0;
 				line-height: 1.2;
@@ -69,6 +72,118 @@ ion-tabs {
 	}
 }
 
+// Special styling for AI Chat tab
+.ai-chat-tab {
+  --color: #ec4899;
+  --color-selected: #ec4899;
+  transform: translateY(-12px);
+  margin: 0 -6px;
+  position: relative;
+  z-index: 10;
+  min-width: 100px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  ion-label {
+    font-weight: 700;
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.2;
+    color: var(--text-white);
+    margin: 0;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 6px;
+    background: linear-gradient(90deg, #4c1d95, #ec4899, #f97316);
+    border-radius: 0 0 6px 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 2px 8px rgba(76, 29, 149, 0.3);
+  }
+  
+  &.tab-selected::before {
+    opacity: 1;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(76, 29, 149, 0.1) 70%, transparent 100%);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.3s ease;
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  
+  &.tab-selected::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.2);
+  }
+  
+  // Glow effect on hover
+  &:hover {
+    ion-label {
+      color: #f97316;
+      transform: scale(1.05);
+    }
+  }
+}
+
+// Animations
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+// AI Chat Modal Styling
+.ai-chat-modal {
+  --height: 85%;
+  --border-radius: 20px 20px 0 0;
+  --backdrop-opacity: 0.5;
+  
+  &::part(content) {
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  &::part(backdrop) {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
 :host-context(.ios) {
 	ion-tab-bar {
 		height: calc(50px + env(safe-area-inset-bottom));
@@ -82,9 +197,16 @@ ion-tabs {
 	}
 }
 
+// Dark mode support
 @media (prefers-color-scheme: dark) {
 	ion-tabs ion-tab-bar {
-		--background: var(--ion-background-color);
+		--background: #1f2937;
 		box-shadow: 0px -1px 2px rgba(0, 0, 0, 0.2);
+		border-top-color: #374151;
+	}
+
+	ion-tab-button {
+		--color: #9ca3af;
+		--color-selected: #3b82f6;
 	}
 }

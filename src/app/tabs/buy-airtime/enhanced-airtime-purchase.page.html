@@ -1,0 +1,304 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button 
+        [text]="currentStep === PurchaseStep.COUNTRY_SELECTION ? '' : 'Back'"
+        (click)="goBack()">
+      </ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <h1>{{ getStepTitle() }}</h1>
+        <p>{{ getStepDescription() }}</p>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="purchase-content">
+  <!-- Progress Bar -->
+  <div class="progress-container" *ngIf="currentStep !== PurchaseStep.PROCESSING">
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getStepProgress()"></div>
+    </div>
+    <div class="progress-steps">
+      <div class="step" 
+           *ngFor="let step of [0,1,2,3,4]; let i = index"
+           [class.active]="currentStep === i"
+           [class.completed]="currentStep > i"
+           (click)="goToStep(i)">
+        <div class="step-number">{{ i + 1 }}</div>
+        <div class="step-label">{{ ['Country', 'Network', 'Phone', 'Amount', 'Confirm'][i] }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <form [formGroup]="airtimeForm" class="step-content">
+    
+    <!-- Step 1: Country Selection -->
+    <div *ngIf="currentStep === PurchaseStep.COUNTRY_SELECTION" class="step-wrapper">
+      <div class="step-header">
+        <ion-icon name="globe-outline" class="step-icon"></ion-icon>
+        <h2>Select Country</h2>
+        <p>Choose the country for your airtime purchase</p>
+      </div>
+      
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="isLoadingCountries">
+        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container" *ngIf="!isLoadingCountries && countries.length > 0">
+        <ion-item class="search-item">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          <ion-input
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{standalone: true}"
+            placeholder="Search countries..."
+            (ionInput)="filterCountries()"
+            class="search-input">
+          </ion-input>
+          <ion-icon 
+            name="close-circle" 
+            slot="end" 
+            *ngIf="searchTerm"
+            (click)="clearSearch()">
+          </ion-icon>
+        </ion-item>
+      </div>
+
+      <!-- Countries Grid -->
+      <div class="countries-grid" *ngIf="!isLoadingCountries && filteredCountries.length > 0">
+        <div class="country-card" 
+             *ngFor="let country of filteredCountries"
+             [class.selected]="selectedCountry?.isoName === country.isoName"
+             (click)="onCountryChange(country.isoName)">
+          <div class="country-flag">
+            <img [src]="country.flag" [alt]="country.name" [title]="country.name" *ngIf="country.flag && country.flag.startsWith('http')">
+            <span *ngIf="!country.flag || !country.flag.startsWith('http')">{{ country.flag || '🏳️' }}</span>
+          </div>
+          <div class="country-info">
+            <h3>{{ country.name }}</h3>
+            <p>{{ country.currencyCode }} ({{ country.currencyName }})</p>
+          </div>
+          <ion-icon name="checkmark" class="check-icon" *ngIf="selectedCountry?.isoName === country.isoName"></ion-icon>
+        </div>
+      </div>
+
+      <!-- No Search Results -->
+      <div class="no-results" *ngIf="!isLoadingCountries && searchTerm && filteredCountries.length === 0">
+        <ion-icon name="search-outline" class="no-results-icon"></ion-icon>
+        <h3>No countries found</h3>
+        <p>Try searching with different keywords</p>
+        <ion-button fill="clear" (click)="clearSearch()">
+          Clear Search
+        </ion-button>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-container" *ngIf="!isLoadingCountries && countries.length === 0">
+        <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+        <h3>No countries available</h3>
+        <p>Please try refreshing the page or contact support.</p>
+        <ion-button fill="clear" (click)="loadCountries()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Retry
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Step 2: Network Selection -->
+    <div *ngIf="currentStep === PurchaseStep.NETWORK_SELECTION" class="step-wrapper">
+      <div class="step-header">
+        <ion-icon name="cellular-outline" class="step-icon"></ion-icon>
+        <h2>Choose Network</h2>
+        <p>Select the mobile network provider</p>
+      </div>
+      
+      <div class="networks-grid" *ngIf="!isLoadingOperators">
+        <div class="network-card" 
+             *ngFor="let operator of operators"
+             [class.selected]="selectedOperator?.id === operator.id"
+             (click)="onOperatorSelect(operator)">
+          <div class="network-logo">
+            <img [src]="getOperatorImage(operator)" [alt]="operator.name" [title]="operator.name">
+          </div>
+          <div class="network-info">
+            <h3>{{ operator.name }}</h3>
+            <p>{{ operator.currency }}</p>
+          </div>
+          <ion-icon name="checkmark" class="check-icon" *ngIf="selectedOperator?.id === operator.id"></ion-icon>
+        </div>
+      </div>
+      
+      <div class="loading-container" *ngIf="isLoadingOperators">
+        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 100%; height: 80px;"></ion-skeleton-text>
+      </div>
+    </div>
+
+    <!-- Step 3: Phone Number -->
+    <div *ngIf="currentStep === PurchaseStep.RECIPIENT_NUMBER" class="step-wrapper">
+      <div class="step-header">
+        <ion-icon name="call-outline" class="step-icon"></ion-icon>
+        <h2>Enter Phone Number</h2>
+        <p>Enter the phone number to top up</p>
+      </div>
+      
+      <div class="form-container">
+        <ion-item class="phone-input-item">
+          <ion-label position="stacked">Phone Number</ion-label>
+          <ion-input
+            formControlName="recipientNumber"
+            type="tel"
+            placeholder="Enter phone number"
+            (ionInput)="onPhoneNumberInput($event)"
+            class="phone-input">
+          </ion-input>
+          <ion-note slot="error" *ngIf="airtimeForm.get('recipientNumber')?.touched && airtimeForm.get('recipientNumber')?.invalid">
+            Please enter a valid phone number
+          </ion-note>
+        </ion-item>
+        
+        <!-- Auto-detection indicator -->
+        <div class="auto-detection" *ngIf="isDetectingOperator">
+          <ion-spinner name="crescent"></ion-spinner>
+          <span>Detecting network...</span>
+        </div>
+        
+        <!-- Detected operator -->
+        <div class="detected-operator" *ngIf="detectedOperator && !isDetectingOperator">
+          <ion-icon name="checkmark-circle" color="success"></ion-icon>
+          <span>Detected: {{ detectedOperator.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Amount Selection -->
+    <div *ngIf="currentStep === PurchaseStep.AMOUNT_SELECTION" class="step-wrapper">
+      <div class="step-header">
+        <ion-icon name="card-outline" class="step-icon"></ion-icon>
+        <h2>Select Amount</h2>
+        <p>Choose the amount to purchase</p>
+      </div>
+      
+      <div class="amount-selection">
+        <!-- Quick Amounts -->
+        <div class="quick-amounts">
+          <h3>Quick Amounts</h3>
+          <div class="amount-chips">
+            <ion-chip 
+              *ngFor="let amount of quickAmounts"
+              [class.selected]="selectedAmount === amount"
+              (click)="selectAmount(amount)">
+              {{ selectedCountry?.currencyCode || 'GHS' }} {{ amount }}
+            </ion-chip>
+            <ion-chip 
+              [class.selected]="showCustomAmount"
+              (click)="showCustomAmountInput()">
+              Custom
+            </ion-chip>
+          </div>
+        </div>
+        
+        <!-- Custom Amount Input -->
+        <div class="custom-amount" *ngIf="showCustomAmount">
+          <ion-item>
+            <ion-label position="stacked">Custom Amount</ion-label>
+            <ion-input
+              formControlName="amount"
+              type="number"
+              placeholder="Enter amount"
+              class="amount-input">
+            </ion-input>
+            <ion-note slot="error" *ngIf="airtimeForm.get('amount')?.touched && airtimeForm.get('amount')?.invalid">
+              Please enter a valid amount
+            </ion-note>
+          </ion-item>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Transaction Summary -->
+    <div *ngIf="currentStep === PurchaseStep.TRANSACTION_SUMMARY" class="step-wrapper">
+      <div class="step-header">
+        <ion-icon name="information-circle-outline" class="step-icon"></ion-icon>
+        <h2>Confirm Purchase</h2>
+        <p>Review and confirm your purchase</p>
+      </div>
+      
+      <div class="summary-card">
+        <div class="summary-item">
+          <span class="label">Country:</span>
+          <span class="value">
+            <span class="flag-emoji">
+              <img *ngIf="isFlagUrl(selectedCountry?.flag)"
+                   [src]="selectedCountry?.flag"
+                   [alt]="getCountryName(selectedCountry) + ' flag'"
+                   [title]="getCountryName(selectedCountry) + ' flag'"
+                   style="width: 24px; height: 18px; vertical-align: middle; margin-right: 4px;" />
+              <span *ngIf="!isFlagUrl(selectedCountry?.flag)">
+                {{ getFlagDisplay(selectedCountry?.flag) }}
+              </span>
+            </span>
+            {{ getCountryName(selectedCountry) }}
+          </span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Network:</span>
+          <span class="value">{{ selectedOperator?.name }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Phone Number:</span>
+          <span class="value">{{ airtimeForm.get('recipientNumber')?.value }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Amount:</span>
+          <span class="value">{{ selectedCountry?.currencyCode || 'GHS' }} {{ airtimeForm.get('amount')?.value }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6: Processing -->
+    <div *ngIf="currentStep === PurchaseStep.PROCESSING" class="step-wrapper">
+      <div class="processing-container">
+        <ion-spinner name="crescent" class="processing-spinner"></ion-spinner>
+        <h2>Processing Your Purchase</h2>
+        <p>Please wait while we process your request...</p>
+      </div>
+    </div>
+  </form>
+
+  <!-- Navigation Buttons -->
+  <div class="navigation-buttons" *ngIf="currentStep !== PurchaseStep.PROCESSING">
+    <ion-button 
+      fill="outline" 
+      (click)="previousStep()"
+      [disabled]="currentStep === 0">
+      <ion-icon name="chevron-back" slot="start"></ion-icon>
+      Previous
+    </ion-button>
+    
+    <ion-button 
+      *ngIf="currentStep < PurchaseStep.TRANSACTION_SUMMARY"
+      (click)="nextStep()"
+      [disabled]="!canProceedToNextStep()">
+      Next
+      <ion-icon name="chevron-forward" slot="end"></ion-icon>
+    </ion-button>
+    
+    <ion-button 
+      *ngIf="currentStep === PurchaseStep.TRANSACTION_SUMMARY"
+      (click)="confirmPurchase()"
+      [disabled]="!airtimeForm.valid || isProcessing">
+      <ion-icon name="checkmark" slot="start"></ion-icon>
+      Confirm Purchase
+    </ion-button>
+  </div>
+</ion-content> 
