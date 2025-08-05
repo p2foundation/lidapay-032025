@@ -23,6 +23,8 @@ import {
   IonSpinner,
   IonSkeletonText,
   IonLabel,
+  IonItem,
+  IonInput,
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
@@ -36,6 +38,7 @@ import {
   arrowForwardOutline,
   searchOutline,
   helpCircleOutline,
+  closeCircle,
 } from 'ionicons/icons';
 
 interface Service {
@@ -81,6 +84,8 @@ interface Service {
     IonSpinner,
     IonSkeletonText,
     IonLabel,
+    IonItem,
+    IonInput,
   ],
 })
 export class ServicesPage implements OnInit {
@@ -177,6 +182,7 @@ export class ServicesPage implements OnInit {
       arrowForwardOutline,
       searchOutline,
       helpCircleOutline,
+      closeCircle,
     });
   }
 
@@ -232,5 +238,16 @@ export class ServicesPage implements OnInit {
       return this.services.length;
     }
     return this.services.filter(service => service.category === category).length;
+  }
+
+  clearSearch() {
+    this.searchTerm = '';
+    this.filterServices();
+  }
+
+  clearFilters() {
+    this.searchTerm = '';
+    this.selectedCategory = 'all';
+    this.filterServices();
   }
 } 

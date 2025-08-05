@@ -2,9 +2,9 @@
   <ion-toolbar class="chat-header">
     <ion-title class="chat-title">
       <ion-icon name="chatbubble-outline" class="title-icon"></ion-icon>
-      AI Remitter
+      <span class="title-text">AI Remitter</span>
     </ion-title>
-    <ion-button fill="clear" slot="end" (click)="closeChatHandler()">
+    <ion-button fill="clear" slot="end" (click)="closeChatHandler()" class="close-btn">
       <ion-icon name="close-outline"></ion-icon>
     </ion-button>
   </ion-toolbar>
@@ -17,7 +17,8 @@
       <div class="message" [class.user-message]="message.isUser" [class.ai-message]="!message.isUser">
         <div class="message-avatar" *ngIf="!message.isUser">
           <ion-avatar>
-            <img src="assets/imgs/ai-avatar.png" alt="AI Assistant" />
+            <img src="assets/imgs/avatar.png" alt="AI Assistant" 
+                 (error)="onImageError($event)" />
           </ion-avatar>
         </div>
         
@@ -30,7 +31,8 @@
         
         <div class="message-avatar" *ngIf="message.isUser">
           <ion-avatar>
-            <img src="assets/imgs/user-avatar.png" alt="User" />
+            <img src="assets/imgs/avatar-placeholder.png" alt="User" 
+                 (error)="onImageError($event)" />
           </ion-avatar>
         </div>
       </div>
@@ -41,7 +43,8 @@
       <div class="message ai-message">
         <div class="message-avatar">
           <ion-avatar>
-            <img src="assets/imgs/ai-avatar.png" alt="AI Assistant" />
+            <img src="assets/imgs/avatar.png" alt="AI Assistant" 
+                 (error)="onImageError($event)" />
           </ion-avatar>
         </div>
         <div class="message-bubble typing-bubble">

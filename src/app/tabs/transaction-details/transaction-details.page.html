@@ -1,0 +1,329 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button 
+        defaultHref="/tabs/home" 
+        (click)="goBack()"
+        icon="arrow-back-outline">
+      </ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <ion-icon name="receipt-outline" class="title-icon"></ion-icon>
+        <span>Transaction Details</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="shareTransaction()">
+        <ion-icon name="share-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="transaction-details-content">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading transaction details...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-wrapper" [class.animate-in]="!isLoading" *ngIf="transaction">
+    <!-- Transaction Header -->
+    <div class="transaction-header">
+      <div class="transaction-icon">
+        <ion-icon [name]="getTypeIcon(transaction.type)"></ion-icon>
+      </div>
+      <div class="transaction-info">
+        <h1 class="transaction-title">{{ getTypeLabel(transaction.type) }}</h1>
+        <p class="transaction-description">{{ transaction.description }}</p>
+        <div class="transaction-status">
+          <ion-badge [color]="getStatusColor(transaction.status)" class="status-badge">
+            <ion-icon [name]="getStatusIcon(transaction.status)"></ion-icon>
+            {{ transaction.status | titlecase }}
+          </ion-badge>
+        </div>
+      </div>
+    </div>
+
+    <!-- Amount Card -->
+    <ion-card class="amount-card">
+      <ion-cardContent>
+        <div class="amount-display">
+          <div class="amount-label">Amount</div>
+          <div class="amount-value">{{ formatCurrency(transaction.amount) }}</div>
+          <div class="amount-currency">{{ transaction.currency }}</div>
+        </div>
+        <div class="amount-details" *ngIf="transaction.fees !== undefined">
+          <div class="detail-item">
+            <span class="detail-label">Fees:</span>
+            <span class="detail-value">{{ formatCurrency(transaction.fees) }}</span>
+          </div>
+          <div class="detail-item total" *ngIf="transaction.totalAmount">
+            <span class="detail-label">Total:</span>
+            <span class="detail-value">{{ formatCurrency(transaction.totalAmount) }}</span>
+          </div>
+        </div>
+      </ion-cardContent>
+    </ion-card>
+
+    <!-- Transaction Details -->
+    <ion-card class="details-card">
+      <ion-cardHeader>
+        <ion-cardTitle class="card-title">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Transaction Details
+        </ion-cardTitle>
+      </ion-cardHeader>
+      <ion-cardContent>
+        <ion-list class="details-list">
+          <ion-item class="detail-item">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Reference</span>
+                <div class="detail-value-container">
+                  <span class="detail-value">{{ transaction.reference }}</span>
+                  <ion-button fill="clear" size="small" (click)="copyReference()">
+                    <ion-icon name="copy-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Date & Time</span>
+                <span class="detail-value">{{ formatDate(transaction.timestamp) }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.processingTime">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Processing Time</span>
+                <span class="detail-value">{{ transaction.processingTime }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.provider">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Provider</span>
+                <span class="detail-value">{{ transaction.provider }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.recipient">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Recipient</span>
+                <span class="detail-value">{{ transaction.recipient }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.sender">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Sender</span>
+                <span class="detail-value">{{ transaction.sender }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-cardContent>
+    </ion-card>
+
+    <!-- Additional Information -->
+    <ion-card class="additional-card" *ngIf="transaction.metadata">
+      <ion-cardHeader>
+        <ion-cardTitle class="card-title">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Additional Information
+        </ion-cardTitle>
+      </ion-cardHeader>
+      <ion-cardContent>
+        <ion-list class="details-list">
+          <ion-item class="detail-item" *ngIf="transaction.metadata.phoneNumber">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Phone Number</span>
+                <span class="detail-value">{{ transaction.metadata.phoneNumber }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.metadata.networkProvider">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Network</span>
+                <span class="detail-value">{{ transaction.metadata.networkProvider }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.metadata.dataBundle">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Data Bundle</span>
+                <span class="detail-value">{{ transaction.metadata.dataBundle }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.metadata.bankName">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Bank</span>
+                <span class="detail-value">{{ transaction.metadata.bankName }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.metadata.accountNumber">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Account Number</span>
+                <span class="detail-value">{{ transaction.metadata.accountNumber }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.metadata.conversionRate">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Conversion Rate</span>
+                <span class="detail-value">{{ (transaction.metadata.conversionRate * 100).toFixed(0) }}%</span>
+              </div>
+            </ion-label>
+          </ion-item>
+
+          <ion-item class="detail-item" *ngIf="transaction.metadata.originalAmount">
+            <ion-label>
+              <div class="detail-row">
+                <span class="detail-label">Original Amount</span>
+                <span class="detail-value">{{ formatCurrency(transaction.metadata.originalAmount) }}</span>
+              </div>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-cardContent>
+    </ion-card>
+
+    <!-- Notes Section -->
+    <ion-card class="notes-card" *ngIf="transaction.notes">
+      <ion-cardHeader>
+        <ion-cardTitle class="card-title">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Notes
+        </ion-cardTitle>
+      </ion-cardHeader>
+      <ion-cardContent>
+        <p class="notes-text">{{ transaction.notes }}</p>
+      </ion-cardContent>
+    </ion-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button 
+        expand="block" 
+        size="large"
+        class="receipt-btn"
+        (click)="downloadReceipt()">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Download Receipt
+      </ion-button>
+
+      <ion-button 
+        expand="block" 
+        size="large"
+        fill="outline"
+        class="print-btn"
+        (click)="printReceipt()">
+        <ion-icon name="print-outline" slot="start"></ion-icon>
+        Print Receipt
+      </ion-button>
+
+      <ion-button 
+        expand="block" 
+        size="large"
+        fill="clear"
+        class="support-btn"
+        (click)="contactSupport()">
+        <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+        Contact Support
+      </ion-button>
+    </div>
+
+    <!-- Timeline Section -->
+    <ion-card class="timeline-card">
+      <ion-cardHeader>
+        <ion-cardTitle class="card-title">
+          <ion-icon name="time-outline"></ion-icon>
+          Transaction Timeline
+        </ion-cardTitle>
+      </ion-cardHeader>
+      <ion-cardContent>
+        <div class="timeline">
+          <div class="timeline-item completed">
+            <div class="timeline-icon">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </div>
+            <div class="timeline-content">
+              <h4>Transaction Initiated</h4>
+              <p>{{ formatTime(transaction.timestamp) }}</p>
+            </div>
+          </div>
+
+          <div class="timeline-item completed" *ngIf="transaction.status === 'completed'">
+            <div class="timeline-icon">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </div>
+            <div class="timeline-content">
+              <h4>Transaction Completed</h4>
+              <p>{{ formatTime(transaction.timestamp) }}</p>
+            </div>
+          </div>
+
+          <div class="timeline-item pending" *ngIf="transaction.status === 'pending'">
+            <div class="timeline-icon">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+            <div class="timeline-content">
+              <h4>Processing</h4>
+              <p>Transaction is being processed</p>
+            </div>
+          </div>
+
+          <div class="timeline-item failed" *ngIf="transaction.status === 'failed'">
+            <div class="timeline-icon">
+              <ion-icon name="close-circle-outline"></ion-icon>
+            </div>
+            <div class="timeline-content">
+              <h4>Transaction Failed</h4>
+              <p>Please contact support for assistance</p>
+            </div>
+          </div>
+        </div>
+      </ion-cardContent>
+    </ion-card>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="!isLoading && !transaction">
+    <div class="error-content">
+      <ion-icon name="close-circle-outline" class="error-icon"></ion-icon>
+      <h3>Transaction Not Found</h3>
+      <p>The transaction you're looking for doesn't exist or has been removed.</p>
+      <ion-button expand="block" (click)="goBack()">
+        Go Back
+      </ion-button>
+    </div>
+  </div>
+</ion-content> 

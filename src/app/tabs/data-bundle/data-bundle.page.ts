@@ -78,10 +78,7 @@ export interface DataBundle {
     IonButton,
     IonButtons,
     IonBackButton,
-    IonInput,
-    IonItem,
-    IonLabel,
-    IonList,
+
     IonIcon,
     IonCard,
     IonCardHeader,

@@ -1,23 +1,18 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
       <ion-back-button text="" icon="arrow-back-outline"></ion-back-button>
     </ion-buttons>
-    <div class="header-content">
-      <span class="page_title animate__animated animate__fadeIn">
-        {{ 'account' | translate }}
-      </span>
-    </div>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <h1>{{ 'account' | translate }}</h1>
+        <p>Manage your profile and preferences</p>
+      </div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">{{ 'account' | translate }}</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
+<ion-content [fullscreen]="true" class="account-content">
   <!-- Loading Skeleton -->
   <div class="skeleton-wrapper" *ngIf="isLoading">
     <div class="profile-skeleton">
@@ -30,119 +25,161 @@
       <ion-skeleton-text animated class="stat-item-skeleton"></ion-skeleton-text>
     </div>
   </div>
+
   <!-- Profile Section -->
   <div class="profile-section" *ngIf="!isLoading">
     <div class="profile-header animate__animated animate__fadeIn">
       <div class="avatar-container">
-        <ion-avatar>
+        <ion-avatar class="profile-avatar">
           <img [src]="profile.gravatar || defaultAvatarUrl" 
-               alt="profile.firstName"
-               [title]="profile.firstName"
+               [alt]="profile.firstName + ' profile picture'"
+               [title]="profile.firstName + ' profile picture'"
                (error)="profile.gravatar = defaultAvatarUrl">
         </ion-avatar>
+        <div class="avatar-badge">
+          <ion-icon name="checkmark-circle" color="success" title="Verified Account"></ion-icon>
+        </div>
       </div>
-      <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
-      <p>{{ profile.email }}</p>
+      <div class="profile-info">
+        <h2 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h2>
+        <p class="profile-email">{{ profile.email }}</p>
+        <div class="profile-status">
+          <ion-badge color="success" class="status-badge">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            Verified Account
+          </ion-badge>
+        </div>
+      </div>
     </div>
 
+    <!-- Stats Cards -->
     <div class="stats-container animate__animated animate__fadeInUp">
       <div class="stat-card">
-        <ion-icon name="diamond-outline"></ion-icon>
-        <span class="value">{{ rewardPoints | number }}</span>
-        <span class="label">{{ 'Points' | translate }}</span>
+        <div class="stat-icon">
+          <ion-icon name="diamond-outline"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ rewardPoints | number }}</span>
+          <span class="stat-label">{{ 'Points' | translate }}</span>
+        </div>
       </div>
       <div class="stat-card">
-        <ion-icon name="receipt-outline"></ion-icon>
-        <span class="value">{{ totalTransactions }}</span>
-        <span class="label">{{ 'Transactions' | translate }}</span>
+        <div class="stat-icon">
+          <ion-icon name="receipt-outline"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ totalTransactions }}</span>
+          <span class="stat-label">{{ 'Transactions' | translate }}</span>
+        </div>
       </div>
     </div>
-    <!-- Theme Quick Toggle -->
+
+    <!-- Quick Settings -->
     <div class="quick-settings animate__animated animate__fadeInUp">
-      <ion-item lines="none" button detail="false" (click)="toggleTheme()">
-        <ion-icon slot="start" [name]="getThemeIcon()"></ion-icon>
+      <ion-item lines="none" button detail="false" (click)="toggleTheme()" class="theme-toggle">
+        <ion-icon slot="start" [name]="getThemeIcon()" class="theme-icon"></ion-icon>
         <ion-label>
           <h4>{{ 'Theme' | translate }}</h4>
           <p>{{ getThemeDescription() | translate }}</p>
         </ion-label>
-        <ion-note slot="end">{{ getThemeLabel() | translate }}</ion-note>
+        <ion-note slot="end" class="theme-label">{{ getThemeLabel() | translate }}</ion-note>
       </ion-item>
     </div>
   </div>
+
   <!-- Menu Sections -->
   <div class="menu-sections" *ngIf="!isLoading">
     <!-- Account Section -->
     <div class="menu-section animate__animated animate__fadeInUp animate__delay-1s">
-      <h3 class="section-title">{{ 'Account' | translate }}</h3>
-      <ion-list lines="none">
-        <ion-item button detail="true" (click)="myProfile()">
-          <ion-icon slot="start" name="person-outline"></ion-icon>
+      <h3 class="section-title">
+        <ion-icon name="person-circle-outline"></ion-icon>
+        {{ 'Account' | translate }}
+      </h3>
+      <ion-list lines="none" class="menu-list">
+        <ion-item button detail="true" (click)="myProfile()" class="menu-item">
+          <ion-icon slot="start" name="person-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'My Profile' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
         
-        <ion-item button detail="true" (click)="goToTransactionPage()">
-          <ion-icon slot="start" name="receipt-outline"></ion-icon>
+        <ion-item button detail="true" (click)="goToTransactionPage()" class="menu-item">
+          <ion-icon slot="start" name="receipt-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Transaction History' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
-        <ion-item button detail="true" (click)="gotoAdvansRewards()">
-          <ion-icon slot="start" name="gift-outline"></ion-icon>
+        <ion-item button detail="true" (click)="gotoAdvansRewards()" class="menu-item">
+          <ion-icon slot="start" name="gift-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Rewards' | translate }}</ion-label>
+          <ion-badge color="warning" slot="end" class="reward-badge">New</ion-badge>
         </ion-item>
       </ion-list>
     </div>
 
     <!-- Settings Section -->
     <div class="menu-section animate__animated animate__fadeInUp animate__delay-2s">
-      <h3 class="section-title">{{ 'Settings' | translate }}</h3>
-      <ion-list lines="none">
-        <ion-item button detail="true" (click)="goToSettings()">
-          <ion-icon slot="start" name="settings-outline"></ion-icon>
+      <h3 class="section-title">
+        <ion-icon name="settings-outline"></ion-icon>
+        {{ 'Settings' | translate }}
+      </h3>
+      <ion-list lines="none" class="menu-list">
+        <ion-item button detail="true" (click)="goToSettings()" class="menu-item">
+          <ion-icon slot="start" name="settings-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Settings' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
-        <ion-item button detail="true" (click)="notification()">
-          <ion-icon slot="start" name="notifications-outline"></ion-icon>
+        <ion-item button detail="true" (click)="notification()" class="menu-item">
+          <ion-icon slot="start" name="notifications-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Notifications' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
-        <ion-item button detail="true" (click)="change_language()">
-          <ion-icon slot="start" name="language-outline"></ion-icon>
+        <ion-item button detail="true" (click)="change_language()" class="menu-item">
+          <ion-icon slot="start" name="language-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Language' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
-        <ion-item button detail="true" (click)="help()">
-          <ion-icon slot="start" name="help-circle-outline"></ion-icon>
+        <ion-item button detail="true" (click)="help()" class="menu-item">
+          <ion-icon slot="start" name="help-circle-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Help & Support' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
       </ion-list>
     </div>
 
     <!-- Other Section -->
     <div class="menu-section animate__animated animate__fadeInUp animate__delay-3s">
-      <h3 class="section-title">{{ 'Other' | translate }}</h3>
-      <ion-list lines="none">
-        <ion-item button detail="true" (click)="inviteFriends()">
-          <ion-icon slot="start" name="share-social-outline"></ion-icon>
+      <h3 class="section-title">
+        <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+        {{ 'Other' | translate }}
+      </h3>
+      <ion-list lines="none" class="menu-list">
+        <ion-item button detail="true" (click)="inviteFriends()" class="menu-item">
+          <ion-icon slot="start" name="share-social-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Invite Friends' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
-        <ion-item button detail="true" (click)="contactUs()">
-          <ion-icon slot="start" name="mail-outline"></ion-icon>
+        <ion-item button detail="true" (click)="contactUs()" class="menu-item">
+          <ion-icon slot="start" name="mail-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Contact Us' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
-        <ion-item button detail="true" (click)="condition()">
-          <ion-icon slot="start" name="document-text-outline"></ion-icon>
+        <ion-item button detail="true" (click)="condition()" class="menu-item">
+          <ion-icon slot="start" name="document-text-outline" class="menu-icon"></ion-icon>
           <ion-label>{{ 'Terms & Conditions' | translate }}</ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
       </ion-list>
     </div>
   </div>
 
-  <!-- Logout Button -->
+  <!-- Logout Section -->
   <div class="logout-section animate__animated animate__fadeInUp animate__delay-4s">
-    <ion-button expand="block" color="danger" (click)="logout()" [disabled]="isLoading">
+    <ion-button expand="block" color="danger" (click)="logout()" [disabled]="isLoading" class="logout-button">
       <ion-icon slot="start" name="log-out-outline"></ion-icon>
       {{ 'Logout' | translate }}
     </ion-button>
@@ -150,7 +187,7 @@
 
   <!-- App Version -->
   <div class="version-info animate__animated animate__fadeIn animate__delay-4s">
-    <p>v{{ config.version }}</p>
+    <p class="version-text">v{{ config.version }}</p>
     <p class="developed-by" (click)="developed_by()">
       {{ 'Developed by' | translate }} Advansis Technologies
     </p>

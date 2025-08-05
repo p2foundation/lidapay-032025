@@ -110,6 +110,11 @@ export const routes: Routes = [
           import('./services/services.page').then((m) => m.ServicesPage),
       },
       {
+        path: 'airtime-conversion',
+        loadComponent: () =>
+          import('./airtime-conversion/airtime-conversion.page').then((m) => m.AirtimeConversionPage),
+      },
+      {
         path: 'search',
         loadComponent: () =>
           import('./search/search.page').then((m) => m.SearchPage),
@@ -192,6 +197,11 @@ export const routes: Routes = [
         path: 'receipt',
         loadComponent: () =>
           import('./checkout/receipt/receipt.page').then((m) => m.ReceiptPage),
+      },
+      {
+        path: 'transaction-details/:id',
+        loadComponent: () =>
+          import('./transaction-details/transaction-details.page').then((m) => m.TransactionDetailsPage),
       },
       {
         path: '',

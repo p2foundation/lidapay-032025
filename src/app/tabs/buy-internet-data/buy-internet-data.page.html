@@ -149,7 +149,7 @@
             <ion-col size="4" *ngFor="let provider of networkProviders">
               <div class="provider-card">
                 <div class="logo-container">
-                  <img [src]="'assets/imgs/operators/' + provider.toLowerCase() + '.png'" 
+                  <img [src]="getProviderImage(provider)" 
                     [alt]="provider + ' logo'" title="Network provider logo" class="provider-logo" loading="lazy">
                 </div>
                 <span class="provider-name">{{provider}}</span>

@@ -65,14 +65,23 @@
 .search-section {
   margin-bottom: 20px;
   
-  .custom-searchbar {
+  .search-item {
     --background: rgba(255, 255, 255, 0.9);
     --border-radius: 12px;
     --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    --placeholder-color: var(--ion-color-medium);
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 48px;
     
-    ion-searchbar {
-      --background: transparent;
+    ion-icon {
+      color: var(--ion-color-medium);
+      font-size: 1.2rem;
+    }
+    
+    .search-input {
+      --placeholder-color: var(--ion-color-medium);
+      --color: var(--ion-color-dark);
+      font-size: 0.9rem;
     }
   }
 }
@@ -83,27 +92,89 @@
   
   .filter-chips {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     overflow-x: auto;
-    padding-bottom: 4px;
+    padding-bottom: 8px;
+    scrollbar-width: none; // Firefox
+    -ms-overflow-style: none; // IE and Edge
+    
+    &::-webkit-scrollbar {
+      display: none; // Chrome, Safari, Opera
+    }
     
     .filter-chip {
-      --background: rgba(255, 255, 255, 0.8);
+      --background: rgba(255, 255, 255, 0.9);
       --color: var(--ion-color-medium);
-      --border-radius: 20px;
-      --padding-start: 16px;
-      --padding-end: 16px;
-      white-space: nowrap;
-      transition: all 0.2s ease;
+      --border-radius: 24px;
+      --padding-start: 20px;
+      --padding-end: 20px;
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+      min-width: fit-content;
+      min-width: -moz-fit-content;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      
+      ion-label {
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: unset;
+      }
       
       &.active {
         --background: var(--ion-color-primary);
         --color: white;
-        transform: scale(1.05);
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+        border-color: var(--ion-color-primary);
       }
       
       &:hover {
-        transform: scale(1.02);
+        transform: scale(1.01);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+      }
+      
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 480px) {
+    .filter-chips {
+      gap: 8px;
+      
+      .filter-chip {
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --padding-top: 10px;
+        --padding-bottom: 10px;
+        
+        ion-label {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 360px) {
+    .filter-chips {
+      gap: 6px;
+      
+      .filter-chip {
+        --padding-start: 12px;
+        --padding-end: 12px;
+        --padding-top: 8px;
+        --padding-bottom: 8px;
+        
+        ion-label {
+          font-size: 12px;
+        }
       }
     }
   }
@@ -423,7 +494,7 @@
     --background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
   }
   
-  .custom-searchbar {
+  .search-item {
     --background: rgba(255, 255, 255, 0.1);
   }
   

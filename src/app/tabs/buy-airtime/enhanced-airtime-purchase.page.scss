@@ -2,59 +2,80 @@
   --page-padding: 16px;
   --card-border-radius: 16px;
   --step-height: 60px;
+  
+  // Dark Theme Custom Properties
+  --dark-bg-primary: #0f172a;
+  --dark-bg-secondary: #1e293b;
+  --dark-bg-tertiary: #334155;
+  --dark-border: #475569;
+  --dark-text-primary: #f8fafc;
+  --dark-text-secondary: #cbd5e1;
+  --dark-text-muted: #94a3b8;
+  --dark-input-bg: #1e293b;
+  --dark-input-border: #475569;
+  --dark-input-focus: #3b82f6;
+  --dark-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --dark-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --brand-accent: #ec4899;
+  --brand-accent-rgb: 236, 72, 153;
 }
 
-// Header Styles
+// Header Styles with Dark Theme
 .header-toolbar {
-  --background: var(--ion-color-primary);
-  --color: white;
+  --background: linear-gradient(135deg, var(--dark-bg-primary) 0%, var(--dark-bg-secondary) 100%);
+  --color: var(--dark-text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   
   .header-title {
     .title-content {
       h1 {
         margin: 0;
         font-size: 20px;
-        font-weight: 600;
-        color: white;
+        font-weight: 700;
+        color: var(--dark-text-primary);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       }
       
       p {
         margin: 4px 0 0;
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--dark-text-secondary);
         font-weight: 400;
       }
     }
   }
 }
 
-// Content Styles
+// Content Styles with Dark Theme
 .purchase-content {
-  --background: var(--ion-color-light);
+  --background: var(--dark-bg-primary);
   
   .step-content {
     padding: var(--page-padding);
   }
 }
 
-// Progress Bar
+// Progress Bar with Dark Theme
 .progress-container {
   padding: 20px var(--page-padding) 0;
-  background: white;
-  border-bottom: 1px solid var(--ion-color-light-shade);
+  background: var(--dark-bg-secondary);
+  border-bottom: 1px solid var(--dark-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   
   .progress-bar {
-    height: 4px;
-    background: var(--ion-color-light-shade);
+    height: 6px;
+    background: var(--dark-bg-tertiary);
     border-radius: var(--radius-full);
     overflow: hidden;
     margin-bottom: 16px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
     
     .progress-fill {
       height: 100%;
-      background: var(--ion-color-primary);
+      background: linear-gradient(90deg, var(--brand-accent) 0%, var(--ion-color-primary) 100%);
       border-radius: var(--radius-full);
       transition: width 0.3s ease;
+      box-shadow: 0 0 8px rgba(var(--brand-accent-rgb), 0.4);
     }
   }
   
@@ -72,22 +93,24 @@
       transition: all 0.3s ease;
       
       .step-number {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        background: var(--ion-color-light-shade);
-        color: var(--ion-color-medium);
+        background: var(--dark-bg-tertiary);
+        color: var(--dark-text-muted);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 14px;
         font-weight: 600;
         transition: all 0.3s ease;
+        border: 2px solid transparent;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       }
       
       .step-label {
         font-size: 12px;
-        color: var(--ion-color-medium);
+        color: var(--dark-text-muted);
         font-weight: 500;
         text-align: center;
         transition: color 0.3s ease;
@@ -95,30 +118,36 @@
       
       &.active {
         .step-number {
-          background: var(--ion-color-primary);
+          background: linear-gradient(135deg, var(--brand-accent) 0%, var(--ion-color-primary) 100%);
           color: white;
+          border-color: var(--brand-accent);
+          box-shadow: 0 0 12px rgba(var(--brand-accent-rgb), 0.4);
         }
         
         .step-label {
-          color: var(--ion-color-primary);
+          color: var(--brand-accent);
+          font-weight: 600;
         }
       }
       
       &.completed {
         .step-number {
-          background: var(--ion-color-success);
+          background: linear-gradient(135deg, var(--ion-color-success) 0%, #34d399 100%);
           color: white;
+          border-color: var(--ion-color-success);
+          box-shadow: 0 0 12px rgba(var(--ion-color-success-rgb), 0.4);
         }
         
         .step-label {
           color: var(--ion-color-success);
+          font-weight: 600;
         }
       }
     }
   }
 }
 
-// Step Wrapper
+// Step Wrapper with Dark Theme
 .step-wrapper {
   animation: fadeInUp 0.3s ease-out;
   
@@ -128,126 +157,159 @@
     
     .step-icon {
       font-size: 48px;
-      color: var(--ion-color-primary);
+      color: var(--brand-accent);
       margin-bottom: 16px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
     }
     
     h2 {
       margin: 0 0 8px;
       font-size: 24px;
       font-weight: 700;
-      color: var(--ion-color-dark);
+      color: var(--dark-text-primary);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     p {
       margin: 0;
       font-size: 16px;
-      color: var(--ion-color-medium);
+      color: var(--dark-text-secondary);
     }
   }
 }
 
-// Search Container
+// Enhanced Search Container with Dark Theme
 .search-container {
   margin-bottom: 20px;
   
   .search-item {
-    --background: white;
+    --background: var(--dark-input-bg);
     --border-radius: 12px;
     --padding-start: 16px;
     --padding-end: 16px;
     --padding-top: 12px;
     --padding-bottom: 12px;
-    border: 2px solid var(--ion-color-light-shade);
-    transition: border-color 0.3s ease;
+    border: 2px solid var(--dark-input-border);
+    transition: all 0.3s ease;
+    box-shadow: var(--dark-card-shadow);
     
     &:focus-within {
-      border-color: var(--ion-color-primary);
+      border-color: var(--dark-input-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), var(--dark-card-shadow);
     }
     
     ion-icon {
-      color: var(--ion-color-medium);
+      color: var(--dark-text-muted);
       font-size: 20px;
     }
     
     .search-input {
       font-size: 16px;
       font-weight: 500;
+      color: var(--dark-text-primary);
+      
+      &::placeholder {
+        color: var(--dark-text-muted);
+      }
     }
   }
 }
 
-// No Results
-.no-results {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 40px 20px;
-  
-  .no-results-icon {
-    font-size: 48px;
-    color: var(--ion-color-medium);
+// Enhanced Form Inputs with Dark Theme
+.form-container {
+  .phone-input-item {
+    --background: var(--dark-input-bg);
+    --border-radius: var(--card-border-radius);
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
     margin-bottom: 16px;
+    border: 2px solid var(--dark-input-border);
+    transition: all 0.3s ease;
+    box-shadow: var(--dark-card-shadow);
+    
+    &:focus-within {
+      border-color: var(--dark-input-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), var(--dark-card-shadow);
+    }
+    
+    ion-label {
+      font-weight: 600;
+      color: var(--dark-text-primary);
+    }
+    
+    ion-input {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--dark-text-primary);
+      
+      &::placeholder {
+        color: var(--dark-text-muted);
+      }
+    }
+    
+    ion-note {
+      color: var(--ion-color-danger);
+      font-weight: 500;
+    }
   }
   
-  h3 {
-    margin: 0 0 8px;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-  }
-  
-  p {
-    margin: 0 0 20px;
-    font-size: 16px;
-    color: var(--ion-color-medium);
-  }
-}
-
-// Loading and Error States
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px 0;
-}
-
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 40px 20px;
-  
-  .error-icon {
-    font-size: 48px;
-    color: var(--ion-color-danger);
+  .auto-detection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(var(--brand-accent-rgb), 0.1);
+    border: 1px solid rgba(var(--brand-accent-rgb), 0.2);
+    border-radius: var(--card-border-radius);
     margin-bottom: 16px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    
+    ion-spinner {
+      color: var(--brand-accent);
+    }
+    
+    span {
+      font-size: 14px;
+      color: var(--brand-accent);
+      font-weight: 500;
+    }
   }
   
-  h3 {
-    margin: 0 0 8px;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-  }
-  
-  p {
-    margin: 0 0 20px;
-    font-size: 16px;
-    color: var(--ion-color-medium);
+  .detected-operator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(var(--ion-color-success-rgb), 0.1);
+    border: 1px solid rgba(var(--ion-color-success-rgb), 0.2);
+    border-radius: var(--card-border-radius);
+    margin-bottom: 16px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    
+    ion-icon {
+      font-size: 20px;
+    }
+    
+    span {
+      font-size: 14px;
+      color: var(--ion-color-success);
+      font-weight: 500;
+    }
   }
 }
 
-// Country Selection
+// Enhanced Country Cards with Dark Theme
 .countries-grid {
   display: grid;
   gap: 16px;
   
   .country-card {
-    background: white;
-    border: 2px solid var(--ion-color-light-shade);
+    background: var(--dark-bg-secondary);
+    border: 2px solid var(--dark-border);
     border-radius: var(--card-border-radius);
     padding: 20px;
     display: flex;
@@ -256,16 +318,18 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    box-shadow: var(--dark-card-shadow);
     
     &:hover {
-      border-color: var(--ion-color-primary);
+      border-color: var(--brand-accent);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--dark-hover-shadow);
     }
     
     &.selected {
-      border-color: var(--ion-color-primary);
-      background: rgba(var(--ion-color-primary-rgb), 0.05);
+      border-color: var(--brand-accent);
+      background: linear-gradient(135deg, rgba(var(--brand-accent-rgb), 0.1) 0%, rgba(var(--ion-color-primary-rgb), 0.05) 100%);
+      box-shadow: 0 0 20px rgba(var(--brand-accent-rgb), 0.2);
       
       .check-icon {
         opacity: 1;
@@ -287,6 +351,7 @@
         height: 100%;
         object-fit: contain;
         border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       }
       
       span {
@@ -302,13 +367,13 @@
         margin: 0 0 4px;
         font-size: 18px;
         font-weight: 600;
-        color: var(--ion-color-dark);
+        color: var(--dark-text-primary);
       }
       
       p {
         margin: 0;
         font-size: 14px;
-        color: var(--ion-color-medium);
+        color: var(--dark-text-secondary);
       }
     }
     
@@ -317,22 +382,23 @@
       top: 16px;
       right: 16px;
       font-size: 20px;
-      color: var(--ion-color-primary);
+      color: var(--brand-accent);
       opacity: 0;
       transform: scale(0);
       transition: all 0.3s ease;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
     }
   }
 }
 
-// Network Selection
+// Enhanced Network Cards with Dark Theme
 .networks-grid {
   display: grid;
   gap: 16px;
   
   .network-card {
-    background: white;
-    border: 2px solid var(--ion-color-light-shade);
+    background: var(--dark-bg-secondary);
+    border: 2px solid var(--dark-border);
     border-radius: var(--card-border-radius);
     padding: 20px;
     display: flex;
@@ -341,16 +407,18 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    box-shadow: var(--dark-card-shadow);
     
     &:hover {
-      border-color: var(--ion-color-primary);
+      border-color: var(--brand-accent);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--dark-hover-shadow);
     }
     
     &.selected {
-      border-color: var(--ion-color-primary);
-      background: rgba(var(--ion-color-primary-rgb), 0.05);
+      border-color: var(--brand-accent);
+      background: linear-gradient(135deg, rgba(var(--brand-accent-rgb), 0.1) 0%, rgba(var(--ion-color-primary-rgb), 0.05) 100%);
+      box-shadow: 0 0 20px rgba(var(--brand-accent-rgb), 0.2);
       
       .check-icon {
         opacity: 1;
@@ -364,6 +432,7 @@
       border-radius: 8px;
       overflow: hidden;
       flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       
       img {
         width: 100%;
@@ -379,13 +448,13 @@
         margin: 0 0 4px;
         font-size: 18px;
         font-weight: 600;
-        color: var(--ion-color-dark);
+        color: var(--dark-text-primary);
       }
       
       p {
         margin: 0;
         font-size: 14px;
-        color: var(--ion-color-medium);
+        color: var(--dark-text-secondary);
       }
     }
     
@@ -394,78 +463,16 @@
       top: 16px;
       right: 16px;
       font-size: 20px;
-      color: var(--ion-color-primary);
+      color: var(--brand-accent);
       opacity: 0;
       transform: scale(0);
       transition: all 0.3s ease;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
     }
   }
 }
 
-// Phone Number Input
-.form-container {
-  .phone-input-item {
-    --background: white;
-    --border-radius: var(--card-border-radius);
-    --padding-start: 20px;
-    --padding-end: 20px;
-    --padding-top: 16px;
-    --padding-bottom: 16px;
-    margin-bottom: 16px;
-    
-    ion-label {
-      font-weight: 600;
-      color: var(--ion-color-dark);
-    }
-    
-    ion-input {
-      font-size: 18px;
-      font-weight: 500;
-    }
-  }
-  
-  .auto-detection {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    background: rgba(var(--ion-color-primary-rgb), 0.1);
-    border-radius: var(--card-border-radius);
-    margin-bottom: 16px;
-    
-    ion-spinner {
-      color: var(--ion-color-primary);
-    }
-    
-    span {
-      font-size: 14px;
-      color: var(--ion-color-primary);
-      font-weight: 500;
-    }
-  }
-  
-  .detected-operator {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    background: rgba(var(--ion-color-success-rgb), 0.1);
-    border-radius: var(--card-border-radius);
-    margin-bottom: 16px;
-    
-    ion-icon {
-      font-size: 20px;
-    }
-    
-    span {
-      font-size: 14px;
-      color: var(--ion-color-success);
-      font-weight: 500;
-    }
-  }
-}
-
-// Amount Selection
+// Enhanced Amount Selection with Dark Theme
 .amount-selection {
   .quick-amounts {
     margin-bottom: 24px;
@@ -474,7 +481,7 @@
       margin: 0 0 16px;
       font-size: 18px;
       font-weight: 600;
-      color: var(--ion-color-dark);
+      color: var(--dark-text-primary);
     }
     
     .amount-chips {
@@ -483,21 +490,27 @@
       gap: 12px;
       
       ion-chip {
-        --background: white;
-        --color: var(--ion-color-dark);
-        --border-color: var(--ion-color-light-shade);
+        --background: var(--dark-bg-secondary);
+        --color: var(--dark-text-primary);
+        --border-color: var(--dark-border);
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
+        box-shadow: var(--dark-card-shadow);
+        border: 2px solid var(--dark-border);
         
         &:hover {
-          --background: var(--ion-color-primary);
+          --background: var(--brand-accent);
           --color: white;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(var(--brand-accent-rgb), 0.3);
         }
         
         &.selected {
-          --background: var(--ion-color-primary);
+          --background: var(--brand-accent);
           --color: white;
+          border-color: var(--brand-accent);
+          box-shadow: 0 0 12px rgba(var(--brand-accent-rgb), 0.4);
         }
       }
     }
@@ -505,27 +518,54 @@
   
   .custom-amount {
     ion-item {
-      --background: white;
+      --background: var(--dark-input-bg);
       --border-radius: var(--card-border-radius);
       --padding-start: 20px;
       --padding-end: 20px;
+      border: 2px solid var(--dark-input-border);
+      transition: all 0.3s ease;
+      box-shadow: var(--dark-card-shadow);
+      
+      &:focus-within {
+        border-color: var(--dark-input-focus);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), var(--dark-card-shadow);
+      }
+      
+      ion-label {
+        color: var(--dark-text-primary);
+        font-weight: 600;
+      }
+      
+      ion-input {
+        color: var(--dark-text-primary);
+        
+        &::placeholder {
+          color: var(--dark-text-muted);
+        }
+      }
+      
+      ion-note {
+        color: var(--ion-color-danger);
+        font-weight: 500;
+      }
     }
   }
 }
 
-// Transaction Summary
+// Enhanced Transaction Summary with Dark Theme
 .summary-card {
-  background: white;
+  background: var(--dark-bg-secondary);
   border-radius: var(--card-border-radius);
   padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--dark-card-shadow);
+  border: 1px solid var(--dark-border);
   
   .summary-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid var(--ion-color-light-shade);
+    border-bottom: 1px solid var(--dark-border);
     
     &:last-child {
       border-bottom: none;
@@ -533,70 +573,150 @@
     
     .label {
       font-size: 16px;
-      color: var(--ion-color-medium);
+      color: var(--dark-text-secondary);
       font-weight: 500;
     }
     
     .value {
       font-size: 16px;
-      color: var(--ion-color-dark);
+      color: var(--dark-text-primary);
       font-weight: 600;
     }
   }
 }
 
-// Processing
+// Enhanced Processing with Dark Theme
 .processing-container {
   text-align: center;
   padding: 60px 20px;
   
   .processing-spinner {
     font-size: 48px;
-    color: var(--ion-color-primary);
+    color: var(--brand-accent);
     margin-bottom: 24px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
   
   h2 {
     margin: 0 0 12px;
     font-size: 24px;
     font-weight: 600;
-    color: var(--ion-color-dark);
+    color: var(--dark-text-primary);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
   
   p {
     margin: 0;
     font-size: 16px;
-    color: var(--ion-color-medium);
+    color: var(--dark-text-secondary);
   }
 }
 
-// Loading Container
+// Enhanced Loading and Error States with Dark Theme
 .loading-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 20px 0;
 }
 
-// Navigation Buttons
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  
+  .error-icon {
+    font-size: 48px;
+    color: var(--ion-color-danger);
+    margin-bottom: 16px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+  
+  h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark-text-primary);
+  }
+  
+  p {
+    margin: 0 0 20px;
+    font-size: 16px;
+    color: var(--dark-text-secondary);
+  }
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  
+  .no-results-icon {
+    font-size: 48px;
+    color: var(--dark-text-muted);
+    margin-bottom: 16px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+  
+  h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark-text-primary);
+  }
+  
+  p {
+    margin: 0 0 20px;
+    font-size: 16px;
+    color: var(--dark-text-secondary);
+  }
+}
+
+// Enhanced Navigation Buttons with Dark Theme
 .navigation-buttons {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px var(--page-padding);
-  background: white;
-  border-top: 1px solid var(--ion-color-light-shade);
+  background: var(--dark-bg-secondary);
+  border-top: 1px solid var(--dark-border);
   position: sticky;
   bottom: 0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
   
   ion-button {
     min-width: 120px;
+    font-weight: 600;
     
     &[fill="outline"] {
-      --border-color: var(--ion-color-medium);
-      --color: var(--ion-color-medium);
+      --border-color: var(--dark-border);
+      --color: var(--dark-text-primary);
+      --border-width: 2px;
+      
+      &:hover {
+        --border-color: var(--brand-accent);
+        --color: var(--brand-accent);
+      }
+    }
+    
+    &:not([fill="outline"]) {
+      --background: linear-gradient(135deg, var(--brand-accent) 0%, var(--ion-color-primary) 100%);
+      --color: white;
+      box-shadow: 0 4px 8px rgba(var(--brand-accent-rgb), 0.3);
+      
+      &:hover {
+        box-shadow: 0 6px 12px rgba(var(--brand-accent-rgb), 0.4);
+        transform: translateY(-1px);
+      }
     }
   }
 }
 
-// Animations
+// Enhanced Animations
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -605,52 +725,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-// Dark Mode Adjustments
-@media (prefers-color-scheme: dark) {
-  .purchase-content {
-    --background: var(--ion-color-dark);
-  }
-  
-  .progress-container {
-    background: var(--ion-color-dark-shade);
-    border-bottom-color: var(--ion-color-dark-tint);
-  }
-  
-  .country-card,
-  .network-card,
-  .phone-input-item,
-  .custom-amount ion-item,
-  .summary-card {
-    background: var(--ion-color-dark-shade);
-    border-color: var(--ion-color-dark-tint);
-  }
-  
-  .step-header h2 {
-    color: var(--ion-color-light);
-  }
-  
-  .step-header p {
-    color: var(--ion-color-light-shade);
-  }
-  
-  .country-info h3,
-  .network-info h3,
-  .summary-item .value {
-    color: var(--ion-color-light);
-  }
-  
-  .country-info p,
-  .network-info p,
-  .summary-item .label {
-    color: var(--ion-color-light-shade);
-  }
-  
-  .navigation-buttons {
-    background: var(--ion-color-dark-shade);
-    border-top-color: var(--ion-color-dark-tint);
   }
 }
 
@@ -670,5 +744,51 @@
   .countries-grid,
   .networks-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// Light Mode Override (when user explicitly chooses light mode)
+body.light {
+  .purchase-content {
+    --background: #ffffff;
+  }
+  
+  .progress-container {
+    background: #ffffff;
+    border-bottom-color: #e2e8f0;
+  }
+  
+  .country-card,
+  .network-card,
+  .phone-input-item,
+  .custom-amount ion-item,
+  .summary-card {
+    background: #ffffff;
+    border-color: #e2e8f0;
+  }
+  
+  .step-header h2 {
+    color: #0f172a;
+  }
+  
+  .step-header p {
+    color: #64748b;
+  }
+  
+  .country-info h3,
+  .network-info h3,
+  .summary-item .value {
+    color: #0f172a;
+  }
+  
+  .country-info p,
+  .network-info p,
+  .summary-item .label {
+    color: #64748b;
+  }
+  
+  .navigation-buttons {
+    background: #ffffff;
+    border-top-color: #e2e8f0;
   }
 } 

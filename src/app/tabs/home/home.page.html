@@ -2,18 +2,25 @@
   <ion-toolbar class="header-toolbar">
     <div class="header-content">
       <div class="brand-section">
-        <h1 class="brand-title">
-          Lida<span class="text-primary">pay</span>
-        </h1>
+        <h1 class="brand-title">Lida<span class="text-primary">pay</span></h1>
         <p class="brand-subtitle">Your Digital Financial Partner</p>
       </div>
       <div class="header-actions">
         <ion-button fill="clear" class="search-btn" (click)="search()">
           <ion-icon name="search-outline"></ion-icon>
         </ion-button>
-        <ion-button fill="clear" class="notification-btn" (click)="openNotification()">
+        <ion-button
+          fill="clear"
+          class="notification-btn"
+          (click)="openNotification()"
+        >
           <ion-icon name="notifications-outline"></ion-icon>
-          <ion-badge color="danger" *ngIf="hasNotifications" class="notification-badge">3</ion-badge>
+          <ion-badge
+            color="danger"
+            *ngIf="hasNotifications"
+            class="notification-badge"
+            >3</ion-badge
+          >
         </ion-button>
       </div>
     </div>
@@ -35,13 +42,35 @@
   <!-- Skeleton Loading -->
   <div class="skeleton-wrapper" *ngIf="isLoading">
     <div class="skeleton-header">
-      <ion-skeleton-text animated style="width: 200px; height: 32px; margin-bottom: 8px;"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 150px; height: 16px;"></ion-skeleton-text>
+      <ion-skeleton-text
+        animated
+        style="width: 200px; height: 32px; margin-bottom: 8px"
+      ></ion-skeleton-text>
+      <ion-skeleton-text
+        animated
+        style="width: 150px; height: 16px"
+      ></ion-skeleton-text>
     </div>
-    
+
     <div class="skeleton-main-content">
-      <ion-skeleton-text animated style="width: 100%; height: 120px; border-radius: 16px; margin-bottom: 24px;"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 100%; height: 120px; border-radius: 16px; margin-bottom: 24px;"></ion-skeleton-text>
+      <ion-skeleton-text
+        animated
+        style="
+          width: 100%;
+          height: 120px;
+          border-radius: 16px;
+          margin-bottom: 24px;
+        "
+      ></ion-skeleton-text>
+      <ion-skeleton-text
+        animated
+        style="
+          width: 100%;
+          height: 120px;
+          border-radius: 16px;
+          margin-bottom: 24px;
+        "
+      ></ion-skeleton-text>
     </div>
   </div>
 
@@ -61,38 +90,46 @@
     <div class="quick-services-section">
       <div class="section-header">
         <h3 class="section-title">Quick Services</h3>
-        <ion-button fill="clear" size="small" class="see-all-btn" (click)="viewAllServices()">
+        <ion-button
+          fill="clear"
+          size="small"
+          class="see-all-btn"
+          (click)="viewAllServices()"
+        >
           See All
         </ion-button>
       </div>
-      
+
       <div class="quick-services-grid">
-        <div class="quick-service-card" (click)="gotoRemitstarPage()">
-          <div class="service-icon">
-            <ion-icon name="swap-horizontal-outline"></ion-icon>
-          </div>
-          <span class="service-label">Funds Transfer</span>
-        </div>
-        
-        <div class="quick-service-card" (click)="airtimeConversion()">
-          <div class="service-icon">
-            <ion-icon name="repeat-outline"></ion-icon>
-          </div>
-          <span class="service-label">Airtime Conversion</span>
-        </div>
-        
         <div class="quick-service-card" (click)="gotoAirtimePage()">
           <div class="service-icon">
             <ion-icon name="cellular-outline"></ion-icon>
           </div>
           <span class="service-label">Airtime Purchase</span>
         </div>
+
+        <div class="quick-service-card" (click)="gotoRemitstarPage()">
+          <div class="service-icon">
+            <ion-icon name="swap-horizontal-outline"></ion-icon>
+          </div>
+          <span class="service-label">Funds Transfer</span>
+        </div>
+
+        <div class="quick-service-card" (click)="airtimeConversion()">
+          <div class="service-icon">
+            <ion-icon name="repeat-outline"></ion-icon>
+          </div>
+          <span class="service-label">Airtime Conversion</span>
+        </div>
       </div>
     </div>
 
     <!-- Transaction Summary Section -->
     <div class="transaction-summary-section">
-      <div class="transaction-card pending-card" (click)="viewPendingTransactions()">
+      <div
+        class="transaction-card pending-card"
+        (click)="viewPendingTransactions()"
+      >
         <div class="transaction-icon">
           <ion-icon name="time-outline"></ion-icon>
         </div>
@@ -105,7 +142,10 @@
         </div>
       </div>
 
-      <div class="transaction-card completed-card" (click)="viewCompletedTransactions()">
+      <div
+        class="transaction-card completed-card"
+        (click)="viewCompletedTransactions()"
+      >
         <div class="transaction-icon">
           <ion-icon name="checkmark-circle-outline"></ion-icon>
         </div>

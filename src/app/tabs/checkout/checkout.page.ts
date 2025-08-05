@@ -359,6 +359,9 @@ export class CheckoutPage implements OnInit {
             break;
         }
         
+        // Clear pending transaction after successful processing
+        await this.storage.removeStorage('pendingTransaction');
+        
         // Navigate to receipt with transaction details
         await this.navigateToReceipt({
           ...payRes,
@@ -429,9 +432,42 @@ export class CheckoutPage implements OnInit {
     
     try {
       // Validate required fields
-      if (!data.recipientNumber || typeof data.recipientNumber !== 'string' || !/^0\d{9}$/.test(data.recipientNumber)) {
-        return createErrorResponse('Please provide a valid Ghanaian phone number starting with 0');
+      let recipientNumber = data.recipientNumber;
+      
+      // Handle phone number validation for Ghanaian numbers
+      if (!recipientNumber || typeof recipientNumber !== 'string') {
+        return createErrorResponse('Please provide a valid phone number');
       }
+      
+      // Clean the phone number (remove spaces, dashes, etc.)
+      recipientNumber = recipientNumber.replace(/\D/g, '');
+      
+      // Check if it's a valid Ghanaian phone number
+      // Accept formats: 0244588584, 244588584, 233244588584, +233244588584
+      const isValidGhanaNumber = 
+        (recipientNumber.length === 10 && recipientNumber.startsWith('0')) || // 0244588584
+        (recipientNumber.length === 9) || // 244588584
+        (recipientNumber.length === 12 && recipientNumber.startsWith('233')) || // 233244588584
+        (recipientNumber.length === 13 && recipientNumber.startsWith('233')); // +233244588584
+      
+      if (!isValidGhanaNumber) {
+        return createErrorResponse('Please provide a valid Ghanaian phone number');
+      }
+      
+      // Convert to standard format for API (233 format)
+      if (recipientNumber.length === 10 && recipientNumber.startsWith('0')) {
+        // Convert 0244588584 -> 233244588584
+        recipientNumber = '233' + recipientNumber.slice(1);
+      } else if (recipientNumber.length === 9) {
+        // Convert 244588584 -> 233244588584
+        recipientNumber = '233' + recipientNumber;
+      } else if (recipientNumber.length === 13 && recipientNumber.startsWith('233')) {
+        // Remove + from +233244588584 -> 233244588584
+        recipientNumber = recipientNumber.slice(1);
+      }
+      
+      // Update the data with the formatted phone number
+      data.recipientNumber = recipientNumber;
       
       const amount = Number(data.amount);
       if (isNaN(amount) || amount <= 0) {
@@ -636,6 +672,9 @@ private async navigateToReceipt(transactionData: any): Promise<boolean> {
       console.log('navigateToReceipt: returning false (no transaction data)');
       return false;
     }
+
+    // Clear pending transaction after successful processing
+    await this.storage.removeStorage('pendingTransaction');
 
     // Prepare the navigation state
     const navigationExtras = {

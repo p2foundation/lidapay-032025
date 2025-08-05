@@ -67,8 +67,7 @@ import {
   personCircleOutline,
   shieldCheckmarkOutline,
   lockClosedOutline,
-  informationCircleOutline
-} from 'ionicons/icons';
+  informationCircleOutline, checkmarkCircle, chevronForward, ellipsisHorizontalOutline } from 'ionicons/icons';
 
 interface AppConfig {
   version: string;
@@ -100,7 +99,6 @@ interface ProfileResponse {
     IonItem,
     IonButton,
     IonIcon,
-    IonToggle,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -161,27 +159,7 @@ export class AccountPage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private toastController: ToastController
   ) {
-    addIcons({
-      diamondOutline,
-      receiptOutline,
-      personOutline,
-      giftOutline,
-      settingsOutline,
-      notificationsOutline,
-      languageOutline,
-      helpCircleOutline,
-      shareSocialOutline,
-      mailOutline,
-      documentTextOutline,
-      logOutOutline,
-      arrowBackOutline,
-      sunny,
-      moon,
-      personCircleOutline,
-      shieldCheckmarkOutline,
-      lockClosedOutline,
-      informationCircleOutline
-    });
+    addIcons({checkmarkCircle,shieldCheckmarkOutline,diamondOutline,receiptOutline,personCircleOutline,personOutline,chevronForward,giftOutline,settingsOutline,notificationsOutline,languageOutline,helpCircleOutline,ellipsisHorizontalOutline,shareSocialOutline,mailOutline,documentTextOutline,logOutOutline,arrowBackOutline,sunny,moon,lockClosedOutline,informationCircleOutline});
   }
 
   ngOnInit() {

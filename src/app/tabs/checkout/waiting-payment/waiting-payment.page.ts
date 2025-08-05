@@ -48,13 +48,8 @@ import { App } from '@capacitor/app';
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonCardSubtitle,
     IonSpinner,
-    IonButton,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonIcon
+    IonButton
   ]
 })
 export class WaitingPaymentPage implements OnInit, OnDestroy {

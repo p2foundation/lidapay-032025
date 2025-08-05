@@ -38,8 +38,7 @@ import { chevronForward, moonOutline, camera, qrCodeOutline, cogOutline, languag
     FormsModule,
     TranslateModule,
     ReactiveFormsModule,
-    IonIcon,
-    IonToggle
+    IonIcon
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

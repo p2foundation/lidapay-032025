@@ -41,14 +41,21 @@
   <div class="content-wrapper" [class.animate-in]="!isLoading">
     <!-- Search Section -->
     <div class="search-section">
-      <ion-searchbar
-        placeholder="Search services..."
-        [(ngModel)]="searchTerm"
-        (ionInput)="onSearchChange($event)"
-        class="custom-searchbar"
-        show-clear-button="focus"
-        animated="true">
-      </ion-searchbar>
+      <ion-item class="search-item">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        <ion-input
+          [(ngModel)]="searchTerm"
+          placeholder="Search services..."
+          (ionInput)="onSearchChange($event)"
+          class="search-input">
+        </ion-input>
+        <ion-icon 
+          name="close-circle" 
+          slot="end" 
+          *ngIf="searchTerm"
+          (click)="clearSearch()">
+        </ion-icon>
+      </ion-item>
     </div>
 
     <!-- Category Filters -->
@@ -58,28 +65,28 @@
           [class.active]="selectedCategory === 'all'"
           (click)="onCategoryChange('all')"
           class="filter-chip">
-          <ion-label>All ({{ getCategoryCount('all') }})</ion-label>
+          <ion-label>All {{ getCategoryCount('all') }}</ion-label>
         </ion-chip>
         
         <ion-chip
           [class.active]="selectedCategory === 'primary'"
           (click)="onCategoryChange('primary')"
           class="filter-chip">
-          <ion-label>Core ({{ getCategoryCount('primary') }})</ion-label>
+          <ion-label>Core {{ getCategoryCount('primary') }}</ion-label>
         </ion-chip>
         
         <ion-chip
           [class.active]="selectedCategory === 'secondary'"
           (click)="onCategoryChange('secondary')"
           class="filter-chip">
-          <ion-label>Additional ({{ getCategoryCount('secondary') }})</ion-label>
+          <ion-label>Extra {{ getCategoryCount('secondary') }}</ion-label>
         </ion-chip>
         
         <ion-chip
           [class.active]="selectedCategory === 'tertiary'"
           (click)="onCategoryChange('tertiary')"
           class="filter-chip">
-          <ion-label>Support ({{ getCategoryCount('tertiary') }})</ion-label>
+          <ion-label>Help {{ getCategoryCount('tertiary') }}</ion-label>
         </ion-chip>
       </div>
     </div>
@@ -97,7 +104,7 @@
           <ion-icon name="search-outline" class="no-results-icon"></ion-icon>
           <h3>No services found</h3>
           <p>Try adjusting your search or filter criteria</p>
-          <ion-button fill="clear" size="small" (click)="onCategoryChange('all'); searchTerm = ''">
+          <ion-button fill="clear" size="small" (click)="clearFilters()">
             Clear Filters
           </ion-button>
         </div>

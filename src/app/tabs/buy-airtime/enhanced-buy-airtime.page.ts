@@ -241,13 +241,44 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   onPhoneNumberInput(event: any) {
     const phoneNumber = event.target.value;
     if (this.selectedCountry) {
-      const formatted = this.enhancedAirtimeService.formatPhoneNumber(phoneNumber, this.selectedCountry.isoName);
-      this.airtimeForm.patchValue({ recipientNumber: formatted });
-      
-      // Auto-detect operator for non-Ghanaian countries when phone number is entered
-      if (this.selectedCountry.isoName !== this.GHANA_ISO && formatted.length >= 7) {
-        console.log('Auto-detecting operator for:', this.selectedCountry.name, 'with phone:', formatted);
-        this.autoDetectOperator(formatted);
+      // For Ghanaian numbers, ensure proper formatting
+      if (this.selectedCountry.isoName === this.GHANA_ISO) {
+        // Clean the input and ensure it's in the correct format
+        const cleanNumber = phoneNumber.replace(/\D/g, '');
+        let formattedNumber = '';
+        
+        if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+          // Keep as is: 0244588584
+          formattedNumber = cleanNumber;
+        } else if (cleanNumber.length === 9) {
+          // Add 0 prefix: 244588584 -> 0244588584
+          formattedNumber = '0' + cleanNumber;
+        } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+          // Convert to local format: 233244588584 -> 0244588584
+          formattedNumber = '0' + cleanNumber.slice(3);
+        } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+          // Convert to local format: +233244588584 -> 0244588584
+          formattedNumber = '0' + cleanNumber.slice(3);
+        } else {
+          // For any other format, try to make it valid
+          if (cleanNumber.length >= 9) {
+            formattedNumber = '0' + cleanNumber.slice(-9);
+          } else {
+            formattedNumber = phoneNumber; // Keep original if can't format
+          }
+        }
+        
+        this.airtimeForm.patchValue({ recipientNumber: formattedNumber });
+      } else {
+        // For non-Ghanaian countries, use the enhanced service formatting
+        const formatted = this.enhancedAirtimeService.formatPhoneNumber(phoneNumber, this.selectedCountry.isoName);
+        this.airtimeForm.patchValue({ recipientNumber: formatted });
+        
+        // Auto-detect operator for non-Ghanaian countries when phone number is entered
+        if (formatted.length >= 7) {
+          console.log('Auto-detecting operator for:', this.selectedCountry.name, 'with phone:', formatted);
+          this.autoDetectOperator(formatted);
+        }
       }
     }
   }
@@ -334,10 +365,36 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     const modalResult = await this.presentWaitingModal();
 
     try {
+      // Ensure phone number is in the correct format for API (233 format)
+      let apiPhoneNumber = formData.recipientNumber;
+      const cleanNumber = apiPhoneNumber.replace(/\D/g, '');
+      
+      // Convert to proper 233 format for API
+      if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+        // Convert 0244588584 -> 233244588584
+        apiPhoneNumber = '233' + cleanNumber.slice(1);
+      } else if (cleanNumber.length === 9) {
+        // Convert 244588584 -> 233244588584
+        apiPhoneNumber = '233' + cleanNumber;
+      } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+        // Keep as is: 233244588584
+        apiPhoneNumber = cleanNumber;
+      } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+        // Remove + from +233244588584 -> 233244588584
+        apiPhoneNumber = cleanNumber.slice(1);
+      } else {
+        // For any other format, try to make it valid
+        if (cleanNumber.length >= 9) {
+          apiPhoneNumber = '233' + cleanNumber.slice(-9);
+        } else {
+          throw new Error('Invalid phone number format. Please enter a valid Ghanaian phone number.');
+        }
+      }
+
       // Prepare Ghana airtime parameters (for storage only - not for direct API call)
       this.topupParams = {
-        recipientNumber: formData.recipientNumber,
-        description: `Airtime recharge for ${formData.operatorId}: ${formData.recipientNumber} - GH₵${formData.amount} (${new Date().toLocaleString()})`,
+        recipientNumber: apiPhoneNumber,
+        description: `Airtime recharge for ${formData.operatorId}: ${this.formatPhoneNumberForDisplay(formData.recipientNumber)} - GH₵${formData.amount} (${new Date().toLocaleString()})`,
         amount: this.formatAmount(formData.amount),
         network: formData.operatorId,
         payTransRef: await this.utilService.generateReference(),
@@ -351,7 +408,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         firstName: this.userProfile.firstName || '',
         lastName: this.userProfile.lastName || '',
         email: this.userProfile.email || '',
-        phoneNumber: formData.recipientNumber,
+        phoneNumber: apiPhoneNumber,
         username: this.userProfile?.username || '',
         amount: Number(formData.amount),
         orderDesc: this.topupParams.description,
@@ -437,7 +494,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         amount: Number(formData.amount),
         description: `International airtime recharge for ${formData.recipientNumber} (${operator.name})`,
         recipientEmail: this.userProfile.email || '',
-        recipientNumber: formData.recipientNumber,
+        recipientNumber: this.enhancedAirtimeService.formatPhoneNumberForAPI(formData.recipientNumber, formData.countryIso),
         recipientCountryCode: formData.countryIso,
         senderNumber: this.userProfile.phoneNumber || '',
         payTransRef: await this.utilService.generateReference(),
@@ -452,7 +509,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         firstName: this.userProfile.firstName || '',
         lastName: this.userProfile.lastName || '',
         email: this.userProfile.email || '',
-        phoneNumber: formData.recipientNumber,
+        phoneNumber: this.enhancedAirtimeService.formatPhoneNumberForAPI(formData.recipientNumber, formData.countryIso),
         username: this.userProfile.username || '',
         amount: Number(formData.amount),
         orderDesc: `International airtime recharge for ${formData.recipientNumber} (${operator.name})`,
@@ -548,6 +605,33 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
 
   private formatAmount(amount: number): number {
     return Number(amount) * 100; // Convert to kobo
+  }
+
+  formatPhoneNumberForDisplay(phoneNumber: string): string {
+    if (!phoneNumber) return '';
+    
+    // Clean the phone number
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    
+    // For Ghanaian numbers, convert to local format (starting with 0)
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+        // Convert 233244588584 -> 0244588584
+        return '0' + cleanNumber.slice(3);
+      } else if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+        // Keep as is: 0244588584
+        return cleanNumber;
+      } else if (cleanNumber.length === 9) {
+        // Convert 244588584 -> 0244588584
+        return '0' + cleanNumber;
+      } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+        // Convert +233244588584 -> 0244588584
+        return '0' + cleanNumber.slice(3);
+      }
+    }
+    
+    // For other countries or invalid formats, return as is
+    return phoneNumber;
   }
 
   private async presentWaitingModal(): Promise<{ modal: HTMLIonModalElement; updateStatus: (message: string) => void }> {

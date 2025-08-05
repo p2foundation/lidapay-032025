@@ -5,76 +5,112 @@
     </ion-buttons>
     <ion-title>{{'Receipt' | translate}}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="shareReceipt()" fill="clear">
+      <ion-button (click)="downloadOrShareReceipt('share')" [disabled]="isGeneratingPdf" fill="clear">
         <ion-icon name="share-social-outline" slot="icon-only"></ion-icon>
       </ion-button>
-      <ion-button (click)="downloadReceipt()" fill="clear">
+      <ion-button (click)="downloadOrShareReceipt('download')" [disabled]="isGeneratingPdf" fill="clear">
         <ion-icon name="download-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button (click)="printReceipt()" fill="clear">
-        <ion-icon name="print-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-  <div id="receipt-card" class="receipt-container">
+  <div *ngIf="isGeneratingPdf" class="ion-text-center ion-padding">
+    <ion-spinner></ion-spinner>
+    <p>Generating receipt...</p>
+  </div>
+
+  <div id="receipt-card" class="receipt-container" #receiptContent>
     <div class="receipt-header">
-      <img src="assets/imgs/lidapay-logo-white-red.png" alt="LidaPay Logo" class="receipt-logo" />
-      <h2>{{ 'Transaction Receipt' | translate }}</h2>
+      <ion-icon 
+        [name]="isTransactionSuccessful() ? 'checkmark-circle-outline' : 'close-circle-outline'" 
+        [color]="getStatusColor()" 
+        class="status-icon">
+      </ion-icon>
+      <h2>{{ getHeaderText() | translate }}</h2>
+      <p class="transaction-amount">
+        {{data.currency || 'GHS'}} {{data.amount || data.requestedAmount | number:'1.2-2'}}
+      </p>
       <p class="receipt-date">{{currentDate}}</p>
     </div>
 
-    <div class="receipt-body">
-      <div class="status-badge" [ngClass]="{'success': data.status === 'SUCCESS'}">
-        {{data.status | translate}}
-      </div>
+    <ion-list lines="full" class="receipt-body">
+      <ion-item>
+        <ion-label>{{ 'Status' | translate }}</ion-label>
+        <ion-note slot="end">
+          <ion-text [color]="getStatusColor()">
+            {{ getStatusText() | translate }}
+          </ion-text>
+        </ion-note>
+      </ion-item>
 
-      <div class="receipt-item">
-        <span class="label">{{ 'Transaction ID' | translate }}</span>
-        <span class="value">{{data.trxn || data.transactionId}}</span>
-      </div>
+      <ion-item>
+        <ion-label>{{ 'Transaction ID' | translate }}</ion-label>
+        <ion-note slot="end">{{data.trxn || data.transactionId || 'N/A'}}</ion-note>
+      </ion-item>
 
-      <div class="receipt-item">
-        <span class="label">{{ 'Amount' | translate }}</span>
-        <span class="value">{{data.amount || data.requestedAmount | currency}}</span>
-      </div>
+      <ion-item *ngIf="data.orderId">
+        <ion-label>{{ 'Order ID' | translate }}</ion-label>
+        <ion-note slot="end">{{data.orderId}}</ion-note>
+      </ion-item>
 
-      <div class="receipt-item">
-        <span class="label">{{ 'Network' | translate }}</span>
-        <span class="value">{{data.network || data.operatorName}}</span>
-      </div>
+      <ion-item *ngIf="data.network || data.operatorName">
+        <ion-label>{{ 'Network' | translate }}</ion-label>
+        <ion-note slot="end">{{data.network || data.operatorName}}</ion-note>
+      </ion-item>
 
-      <div class="receipt-item">
-        <span class="label">{{ 'Recipient' | translate }}</span>
-        <span class="value">{{data.network || data.recipientPhone}}</span>
-      </div>
+      <ion-item *ngIf="data.recipientPhone || data.recipientNumber">
+        <ion-label>{{ 'Recipient' | translate }}</ion-label>
+        <ion-note slot="end">{{formatPhoneNumber(data.recipientPhone || data.recipientNumber)}}</ion-note>
+      </ion-item>
 
-      <div class="receipt-item" *ngIf="data.recipientEmail">
-        <span class="label">{{ 'Email' | translate }}</span>
-        <span class="value">{{data.recipientEmail}}</span>
-      </div>
+      <ion-item *ngIf="data.recipientEmail">
+        <ion-label>{{ 'Email' | translate }}</ion-label>
+        <ion-note slot="end">{{data.recipientEmail}}</ion-note>
+      </ion-item>
 
-      <div class="receipt-item" *ngIf="data.message || data.customIdentifier">
-        <span class="label">{{ 'Message' | translate }}</span>
-        <span class="value">{{data.message || data.customIdentifier}}</span>
-      </div>
-    </div>
+      <ion-item *ngIf="data.message || data.customIdentifier">
+        <ion-label>{{ 'Message' | translate }}</ion-label>
+        <ion-note slot="end" class="ion-text-wrap">{{data.message || data.customIdentifier}}</ion-note>
+      </ion-item>
+
+      <ion-item *ngIf="data.timestamp">
+        <ion-label>{{ 'Date & Time' | translate }}</ion-label>
+        <ion-note slot="end">{{formatDate(data.timestamp)}}</ion-note>
+      </ion-item>
+
+      <!-- Show error message if transaction failed -->
+      <ion-item *ngIf="!isTransactionSuccessful() && data.message" class="error-message">
+        <ion-label>{{ 'Error Details' | translate }}</ion-label>
+        <ion-note slot="end" class="ion-text-wrap" color="danger">{{data.message}}</ion-note>
+      </ion-item>
+    </ion-list>
 
     <div class="receipt-footer">
-      <p>{{ 'Thank you for your transaction!' | translate }}</p>
+      <p *ngIf="isTransactionSuccessful()">{{ 'Thank you for your transaction!' | translate }}</p>
+      <p *ngIf="!isTransactionSuccessful()">{{ 'Transaction could not be completed.' | translate }}</p>
       <small>{{ 'This is a computer generated receipt' | translate }}</small>
     </div>
   </div>
 
   <div class="action-buttons">
-    <ion-button expand="block" (click)="goToTransaction()" class="ion-margin-bottom">
+    <ion-button expand="block" (click)="downloadOrShareReceipt('download')" [disabled]="isGeneratingPdf" class="ion-margin-bottom" color="primary">
+      <ion-icon name="download-outline" slot="start"></ion-icon>
+      {{ isGeneratingPdf ? ('Generating...' | translate) : ('Download Receipt' | translate) }}
+    </ion-button>
+
+    <ion-button expand="block" (click)="downloadOrShareReceipt('share')" [disabled]="isGeneratingPdf" class="ion-margin-bottom" color="secondary">
+      <ion-icon name="share-social-outline" slot="start"></ion-icon>
+      {{ isGeneratingPdf ? ('Preparing...' | translate) : ('Share Receipt' | translate) }}
+    </ion-button>
+
+    <ion-button expand="block" (click)="goToTransaction()" fill="outline" class="ion-margin-bottom">
       <ion-icon name="document-text-outline" slot="start"></ion-icon>
       {{ 'View Transaction' | translate }}
     </ion-button>
 
-    <ion-button expand="block" fill="outline" (click)="tabs()">
+    <ion-button expand="block" (click)="tabs()" fill="clear">
       <ion-icon name="home-outline" slot="start"></ion-icon>
       {{ 'Back to Home' | translate }}
     </ion-button>

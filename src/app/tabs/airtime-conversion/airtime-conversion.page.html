@@ -1,0 +1,309 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button 
+        defaultHref="/tabs/home" 
+        (click)="goBack()"
+        icon="arrow-back-outline">
+      </ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <ion-icon name="repeat-outline" class="title-icon"></ion-icon>
+        <span>Airtime Conversion</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="showInfo()">
+        <ion-icon name="information-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="airtime-conversion-content">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading conversion options...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-wrapper" [class.animate-in]="!isLoading">
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <div class="hero-icon">
+          <ion-icon name="repeat-outline"></ion-icon>
+        </div>
+        <h1 class="hero-title">Convert Airtime to Cash</h1>
+        <p class="hero-subtitle">Transform your airtime into cash, wallet credit, or other services instantly</p>
+      </div>
+    </div>
+
+    <!-- Conversion Form -->
+    <div class="conversion-form">
+      <!-- Network Provider Selection -->
+      <ion-card class="form-card">
+        <ion-cardHeader>
+          <ion-cardTitle class="card-title">
+            <ion-icon name="cellular-outline"></ion-icon>
+            Network Provider
+          </ion-cardTitle>
+        </ion-cardHeader>
+        <ion-cardContent>
+          <ion-select 
+            [(ngModel)]="selectedProvider" 
+            (ionChange)="onProviderChange()"
+            placeholder="Select your network provider"
+            class="provider-select">
+            <ion-select-option 
+              *ngFor="let provider of networkProviders" 
+              [value]="provider.id"
+              [disabled]="!provider.isActive">
+              {{ provider.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-cardContent>
+      </ion-card>
+
+      <!-- Phone Number and Amount -->
+      <ion-card class="form-card">
+        <ion-cardHeader>
+          <ion-cardTitle class="card-title">
+            <ion-icon name="call-outline"></ion-icon>
+            Airtime Details
+          </ion-cardTitle>
+        </ion-cardHeader>
+        <ion-cardContent>
+          <ion-item class="form-item">
+            <ion-label position="stacked">Phone Number</ion-label>
+            <ion-input 
+              [(ngModel)]="phoneNumber"
+              type="tel"
+              placeholder="Enter phone number"
+              class="phone-input">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Airtime Amount (₦)</ion-label>
+            <ion-input 
+              [(ngModel)]="airtimeAmount"
+              type="number"
+              (ionInput)="onAmountChange()"
+              placeholder="Enter amount"
+              class="amount-input">
+            </ion-input>
+          </ion-item>
+        </ion-cardContent>
+      </ion-card>
+
+      <!-- Conversion Options -->
+      <ion-card class="form-card">
+        <ion-cardHeader>
+          <ion-cardTitle class="card-title">
+            <ion-icon name="swap-horizontal-outline"></ion-icon>
+            Conversion Options
+          </ion-cardTitle>
+        </ion-cardHeader>
+        <ion-cardContent>
+          <div class="conversion-options">
+            <div 
+              *ngFor="let option of conversionOptions" 
+              class="conversion-option"
+              [class.selected]="selectedConversionOption === option.id"
+              (click)="selectedConversionOption = option.id; onConversionOptionChange()">
+              <div class="option-header">
+                <div class="option-icon">
+                  <ion-icon [name]="option.icon"></ion-icon>
+                </div>
+                <div class="option-info">
+                  <h3 class="option-title">{{ option.name }}</h3>
+                  <p class="option-description">{{ option.description }}</p>
+                </div>
+                <div class="option-badges">
+                  <ion-badge *ngIf="option.isPopular" color="success" class="popular-badge">
+                    Popular
+                  </ion-badge>
+                  <ion-badge *ngIf="option.isRecommended" color="primary" class="recommended-badge">
+                    Recommended
+                  </ion-badge>
+                </div>
+              </div>
+              <div class="option-details">
+                <div class="rate-info">
+                  <span class="rate-label">Rate:</span>
+                  <span class="rate-value">{{ getRatePercentage(option.rate) }}</span>
+                </div>
+                <div class="limits-info">
+                  <span class="limits-label">Limits:</span>
+                  <span class="limits-value">₦{{ option.minAmount.toLocaleString() }} - ₦{{ option.maxAmount.toLocaleString() }}</span>
+                </div>
+                <div class="time-info">
+                  <span class="time-label">Processing:</span>
+                  <span class="time-value">{{ option.processingTime }}</span>
+                </div>
+                <div class="fees-info" *ngIf="option.fees > 0">
+                  <span class="fees-label">Fees:</span>
+                  <span class="fees-value">₦{{ option.fees.toLocaleString() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-cardContent>
+      </ion-card>
+
+      <!-- Conversion Summary -->
+      <ion-card class="form-card summary-card" *ngIf="convertedAmount > 0">
+        <ion-cardHeader>
+          <ion-cardTitle class="card-title">
+            <ion-icon name="calculator-outline"></ion-icon>
+            Conversion Summary
+          </ion-cardTitle>
+        </ion-cardHeader>
+        <ion-cardContent>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="summary-label">Airtime Amount:</span>
+              <span class="summary-value">{{ formatCurrency(airtimeAmount) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Converted Amount:</span>
+              <span class="summary-value converted">{{ formatCurrency(convertedAmount) }}</span>
+            </div>
+            <div class="summary-item" *ngIf="processingFee > 0">
+              <span class="summary-label">Processing Fee:</span>
+              <span class="summary-value fee">-{{ formatCurrency(processingFee) }}</span>
+            </div>
+            <div class="summary-item total">
+              <span class="summary-label">You'll Receive:</span>
+              <span class="summary-value total-amount">{{ formatCurrency(totalAmount) }}</span>
+            </div>
+          </div>
+        </ion-cardContent>
+      </ion-card>
+
+      <!-- Additional Details -->
+      <ion-card class="form-card">
+        <ion-cardHeader>
+          <ion-cardTitle class="card-title">
+            <ion-icon name="person-outline"></ion-icon>
+            Additional Details (Optional)
+          </ion-cardTitle>
+        </ion-cardHeader>
+        <ion-cardContent>
+          <ion-item class="form-item">
+            <ion-label position="stacked">Recipient Phone Number</ion-label>
+            <ion-input 
+              [(ngModel)]="recipientPhoneNumber"
+              type="tel"
+              placeholder="Enter recipient phone number">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Recipient Name</ion-label>
+            <ion-input 
+              [(ngModel)]="recipientName"
+              type="text"
+              placeholder="Enter recipient name">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Notes</ion-label>
+            <ion-textarea 
+              [(ngModel)]="notes"
+              placeholder="Add any additional notes"
+              rows="3">
+            </ion-textarea>
+          </ion-item>
+        </ion-cardContent>
+      </ion-card>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <ion-button 
+          expand="block" 
+          size="large"
+          class="convert-btn"
+          [disabled]="!selectedProvider || !phoneNumber || !airtimeAmount || !selectedConversionOption || isProcessing"
+          (click)="processConversion()">
+          <ion-icon name="repeat-outline" slot="start"></ion-icon>
+          <span *ngIf="!isProcessing">Convert Airtime</span>
+          <span *ngIf="isProcessing">Processing...</span>
+          <ion-spinner *ngIf="isProcessing" name="crescent" slot="end"></ion-spinner>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+      <h3 class="features-title">Why Choose Our Airtime Conversion?</h3>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <h4>Secure & Safe</h4>
+          <p>Bank-grade security for all transactions</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="time-outline"></ion-icon>
+          </div>
+          <h4>Fast Processing</h4>
+          <p>Most conversions completed within minutes</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="trending-up-outline"></ion-icon>
+          </div>
+          <h4>Best Rates</h4>
+          <p>Competitive conversion rates across all networks</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="help-circle-outline"></ion-icon>
+          </div>
+          <h4>24/7 Support</h4>
+          <p>Round-the-clock customer support</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Alerts -->
+<ion-alert
+  [isOpen]="showSuccessAlert"
+  header="Success!"
+  [message]="alertMessage"
+  [buttons]="['OK']"
+  (didDismiss)="showSuccessAlert = false">
+</ion-alert>
+
+<ion-alert
+  [isOpen]="showErrorAlert"
+  header="Error"
+  [message]="errorMessage"
+  [buttons]="['OK']"
+  (didDismiss)="showErrorAlert = false">
+</ion-alert>
+
+<ion-alert
+  [isOpen]="showConfirmAlert"
+  header="Confirm Conversion"
+  [message]="alertMessage"
+  [buttons]="getConfirmButtons()"
+  (didDismiss)="showConfirmAlert = false">
+</ion-alert>
+
+<ion-alert
+  [isOpen]="showInfoAlert"
+  header="Airtime Conversion Info"
+  message="Convert your airtime to cash, wallet credit, or other services. Rates vary by network and conversion type. Processing times range from instant to a few hours depending on the option chosen."
+  [buttons]="['Got it!']"
+  (didDismiss)="showInfoAlert = false">
+</ion-alert> 

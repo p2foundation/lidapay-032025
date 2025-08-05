@@ -371,8 +371,13 @@ export class EnhancedAirtimeService {
     const cleanNumber = phoneNumber.replace(/\D/g, '');
 
     if (countryIso === this.GHANA_ISO) {
-      // Ghana number validation (10 digits, starting with 0, or 9 digits without 0)
-      return cleanNumber.length === 9 || (cleanNumber.length === 10 && cleanNumber.startsWith('0'));
+      // Ghana number validation: 
+      // - 9 digits (244588584)
+      // - 10 digits starting with 0 (0244588584)
+      // - 12 digits starting with 233 (233244588584)
+      return (cleanNumber.length === 9) || 
+             (cleanNumber.length === 10 && cleanNumber.startsWith('0')) ||
+             (cleanNumber.length === 12 && cleanNumber.startsWith('233'));
     } else {
       // International number validation (minimum 7 digits, maximum 15)
       return cleanNumber.length >= 7 && cleanNumber.length <= 15;
@@ -388,15 +393,58 @@ export class EnhancedAirtimeService {
     const cleanNumber = phoneNumber.replace(/\D/g, '');
 
     if (countryIso === this.GHANA_ISO) {
-      // Format Ghana numbers
+      // Format Ghana numbers for display
       if (cleanNumber.length === 9) {
+        // 9 digits: 244588584 -> +233 244 588 584
         return `+233 ${cleanNumber.slice(0, 3)} ${cleanNumber.slice(3, 6)} ${cleanNumber.slice(6)}`;
       } else if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+        // 10 digits starting with 0: 0244588584 -> +233 244 588 584
         return `+233 ${cleanNumber.slice(1, 4)} ${cleanNumber.slice(4, 7)} ${cleanNumber.slice(7)}`;
+      } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+        // 12 digits starting with 233: 233244588584 -> +233 244 588 584
+        return `+233 ${cleanNumber.slice(3, 6)} ${cleanNumber.slice(6, 9)} ${cleanNumber.slice(9)}`;
+      } else if (cleanNumber.length >= 7) {
+        // For any other valid length, format as international
+        return `+${cleanNumber}`;
       }
+      // Return as is for short numbers
+      return phoneNumber;
     }
 
     // Default international formatting
     return `+${cleanNumber}`;
+  }
+
+  /**
+   * Format phone number for API calls (no spaces, proper format)
+   */
+  formatPhoneNumberForAPI(phoneNumber: string, countryIso: string): string {
+    if (!phoneNumber) return '';
+
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+
+    if (countryIso === this.GHANA_ISO) {
+      // For Ghana: convert to 233 format for API calls
+      if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+        // Convert 0244588584 -> 233244588584
+        return `233${cleanNumber.slice(1)}`;
+      } else if (cleanNumber.length === 9) {
+        // Convert 244588584 -> 233244588584
+        return `233${cleanNumber}`;
+      } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+        // Keep as is: 233244588584
+        return cleanNumber;
+      }
+      // Return as is for other cases
+      return cleanNumber;
+    } else {
+      // For international: ensure it has + prefix for Reloadly API
+      if (cleanNumber.startsWith('233')) {
+        return `+${cleanNumber}`;
+      } else if (!cleanNumber.startsWith('+')) {
+        return `+${cleanNumber}`;
+      }
+      return cleanNumber;
+    }
   }
 } 

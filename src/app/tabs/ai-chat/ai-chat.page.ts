@@ -48,14 +48,8 @@ interface ChatMessage {
     IonTitle,
     IonButton,
     IonIcon,
-    IonInput,
-    IonItem,
-    IonList,
     IonAvatar,
-    IonLabel,
     IonTextarea,
-    IonFab,
-    IonFabButton,
     CommonModule,
     FormsModule,
   ],
@@ -95,7 +89,7 @@ export class AiChatPage implements OnInit, AfterViewChecked {
       text: 'Hello! I\'m your Lidapay AI Remitter. I can help you with airtime purchases, money transfers, and all your financial needs. How can I assist you today?',
       isUser: false,
       timestamp: new Date(),
-      avatar: 'assets/imgs/ai-avatar.png'
+      avatar: 'assets/imgs/avatar.png'
     });
   }
 
@@ -130,7 +124,7 @@ export class AiChatPage implements OnInit, AfterViewChecked {
           text: this.generateAIResponse(messageText),
           isUser: false,
           timestamp: new Date(),
-          avatar: 'assets/imgs/ai-avatar.png'
+          avatar: 'assets/imgs/avatar.png'
         };
         this.messages.push(aiResponse);
       }, 1500);
@@ -165,6 +159,11 @@ export class AiChatPage implements OnInit, AfterViewChecked {
   async closeChatHandler() {
     await Haptics.impact({ style: ImpactStyle.Light });
     this.closeChat.emit();
+  }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/imgs/avatar-placeholder.png';
   }
 
   private scrollToBottom() {

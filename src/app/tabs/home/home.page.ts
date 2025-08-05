@@ -206,7 +206,7 @@ export class HomePage implements OnInit {
 
   async airtimeConversion() {
     await Haptics.impact({ style: ImpactStyle.Medium });
-    this.router.navigate(['./airtime-conversion']);
+    this.router.navigate(['/tabs/airtime-conversion']);
   }
 
   async viewPendingTransactions() {

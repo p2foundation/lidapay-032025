@@ -20,12 +20,20 @@ import {
   LoadingController,
   ToastController,
   AlertController,
+  ModalController,
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EnhancedAirtimeService, Country, Operator, AirtimeRequest } from '../../services/enhanced-airtime.service';
 import { NotificationService } from '../../services/notification.service';
+import { AccountService } from '../../services/auth/account.service';
+import { AdvansisPayService } from '../../services/payments/advansis-pay.service';
+import { StorageService } from '../../services/storage.service';
+import { UtilsService } from '../../services/utils.service';
+import { ReloadlyService } from '../../services/reloadly/reloadly.service';
+import { Profile } from '../../interfaces/profile.interface';
+import { WaitingModalComponent } from '../../components/waiting-modal/waiting-modal.component';
 import { addIcons } from 'ionicons';
 import {
   arrowBack,
@@ -40,6 +48,46 @@ import {
   informationCircleOutline,
   chevronForward,
   chevronBack, callOutline, checkmarkCircle, alertCircleOutline, refreshOutline, searchOutline, closeCircle } from 'ionicons/icons';
+
+// Interfaces for better type safety
+interface AirtimeFormData {
+  countryIso: string;
+  operatorId: string | number;
+  recipientNumber: string;
+  amount: number;
+  autoDetect: boolean;
+}
+
+interface PaymentParams {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  username: string;
+  amount: number;
+  orderDesc: string;
+  orderImgUrl: string;
+}
+
+interface TopupParams {
+  recipientNumber: string;
+  description: string;
+  amount: number;
+  network: string | number;
+  payTransRef: string;
+  transType: string;
+  customerEmail: string;
+  operatorId?: number;
+  recipientEmail?: string;
+  recipientCountryCode?: string;
+  senderNumber?: string;
+}
+
+interface ModalResult {
+  modal: HTMLIonModalElement;
+  updateStatus: (message: string) => void;
+}
 
 enum PurchaseStep {
   COUNTRY_SELECTION = 0,
@@ -95,6 +143,7 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   selectedOperator: Operator | null = null;
   detectedOperator: Operator | null = null;
   isDetectingOperator = false;
+  userProfile: Profile = {} as Profile;
   
   // Search
   searchTerm: string = '';
@@ -121,7 +170,13 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private toastController: ToastController,
     private alertController: AlertController,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private accountService: AccountService,
+    private advansisPayService: AdvansisPayService,
+    private storage: StorageService,
+    private utilService: UtilsService,
+    private reloadlyService: ReloadlyService,
+    private modalController: ModalController
   ) {
     addIcons({globeOutline,searchOutline,closeCircle,checkmark,alertCircleOutline,refreshOutline,cellularOutline,callOutline,checkmarkCircle,cardOutline,informationCircleOutline,chevronBack,chevronForward,arrowBack,arrowForward,close,locationOutline,timeOutline,});
     
@@ -129,6 +184,7 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.loadUserProfile();
     this.loadCountries();
     this.setupFormListeners();
   }
@@ -148,6 +204,17 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     });
   }
 
+  private async loadUserProfile() {
+    try {
+      const response = await firstValueFrom(this.accountService.getProfile());
+      if (response) {
+        this.userProfile = response;
+      }
+    } catch (error) {
+      // Profile loading failed - continue with default values
+    }
+  }
+
   private setupFormListeners() {
     // Listen to phone number changes for auto-detection
     this.airtimeForm.get('recipientNumber')?.valueChanges
@@ -163,13 +230,12 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     this.isLoadingCountries = true;
     try {
       this.countries = await firstValueFrom(this.enhancedAirtimeService.getCountries());
-      console.log('Countries loaded:', this.countries.length, this.countries);
+      // Countries loaded successfully
       if (this.countries.length > 0) {
         // Don't auto-select any country, let user choose
         this.filteredCountries = [...this.countries];
       }
     } catch (error) {
-      console.error('Error loading countries:', error);
       this.notificationService.showError('Failed to load countries');
     } finally {
       this.isLoadingCountries = false;
@@ -196,9 +262,7 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   }
 
   async onCountryChange(countryIso: string) {
-    console.log('onCountryChange called with:', countryIso);
     this.selectedCountry = this.countries.find(c => c.isoName === countryIso) || null;
-    console.log('Selected country:', this.selectedCountry);
     
     // Update form value
     this.airtimeForm.patchValue({ countryIso: countryIso });
@@ -218,10 +282,8 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   }
 
   async loadOperators(countryIso: string) {
-    console.log('loadOperators called with:', countryIso);
     // For non-Ghanaian countries, skip operator loading since we'll use auto-detection
     if (countryIso !== this.GHANA_ISO) {
-      console.log('Skipping operator loading for non-Ghanaian country:', countryIso);
       this.operators = [];
       this.selectedOperator = null;
       this.airtimeForm.patchValue({ operatorId: '' });
@@ -242,7 +304,6 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   async autoDetectOperator(phoneNumber: string) {
     if (!phoneNumber || !this.selectedCountry) return;
     
-    console.log('Starting auto-detection for:', this.selectedCountry.name, 'phone:', phoneNumber);
     this.isDetectingOperator = true;
     
     try {
@@ -251,7 +312,7 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
       );
       
       if (this.detectedOperator) {
-        console.log('Auto-detection successful:', this.detectedOperator);
+        // Auto-detection successful
         this.airtimeForm.patchValue({ operatorId: this.detectedOperator.id });
         this.selectedOperator = this.detectedOperator;
         
@@ -261,8 +322,7 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
         }
       }
     } catch (error) {
-      console.error('Auto-detection failed:', error);
-      // For non-Ghanaian countries, show a warning but don't block the flow
+      // Auto-detection failed - user can manually select operator
       if (this.selectedCountry.isoName !== this.GHANA_ISO) {
         this.notificationService.showWarn('Could not auto-detect network. Please ensure the phone number is correct.');
       }
@@ -276,15 +336,16 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     this.airtimeForm.patchValue({ operatorId: operator.id });
   }
 
-  onPhoneNumberInput(event: any) {
-    const phoneNumber = event.target.value;
+  onPhoneNumberInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const phoneNumber = target?.value || '';
     if (this.selectedCountry) {
       const formatted = this.enhancedAirtimeService.formatPhoneNumber(phoneNumber, this.selectedCountry.isoName);
       this.airtimeForm.patchValue({ recipientNumber: formatted });
       
       // Auto-detect operator for non-Ghanaian countries when phone number is entered
       if (this.selectedCountry.isoName !== this.GHANA_ISO && formatted.length >= 7) {
-        console.log('Auto-detecting operator for:', this.selectedCountry.name, 'with phone:', formatted);
+        // Auto-detecting operator
         this.autoDetectOperator(formatted);
       }
     }
@@ -412,37 +473,18 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
       this.notificationService.showError('Please ensure the phone number is correct for network detection');
       return;
     }
-    
-    const request: AirtimeRequest = {
-      countryIso: formValue.countryIso,
-      operatorId: formValue.operatorId || this.detectedOperator?.id,
-      recipientNumber: formValue.recipientNumber,
-      amount: formValue.amount
-    };
 
     this.currentStep = PurchaseStep.PROCESSING;
     this.isProcessing = true;
 
     try {
-      const response = await firstValueFrom(this.enhancedAirtimeService.submitAirtime(request));
-      
-      // Show success message
-      const alert = await this.alertController.create({
-        header: 'Success!',
-        message: `Airtime purchase successful! Transaction ID: ${response.transactionId}`,
-        buttons: [
-          {
-            text: 'OK',
-            handler: () => {
-              this.router.navigate(['/tabs/home']);
-            }
-          }
-        ]
-      });
-      await alert.present();
-      
+      // Use the proper payment flow based on country
+      if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+        await this.processGhanaAirtime(formValue);
+      } else {
+        await this.processInternationalAirtime(formValue);
+      }
     } catch (error) {
-      console.error('Purchase error:', error);
       this.notificationService.showError('Purchase failed. Please try again.');
       this.currentStep = PurchaseStep.TRANSACTION_SUMMARY;
     } finally {
@@ -451,18 +493,201 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   }
 
   getOperatorImage(operator: Operator): string {
-    const operatorName = operator.name.toLowerCase();
-    const imageMap: { [key: string]: string } = {
-      'mtn': 'assets/imgs/operators/mtn.png',
-      'vodafone': 'assets/imgs/operators/vodafone.png',
-      'airteltigo': 'assets/imgs/operators/airteltigo.png',
-      'glo': 'assets/imgs/operators/glo.png',
-      'busy': 'assets/imgs/operators/busy.png',
-      'surfline': 'assets/imgs/operators/surfline.png',
-      'telecel': 'assets/imgs/operators/telecel.png'
+    // Use the operator's logo property directly since it's already correctly set in the service
+    return operator.logo || 'assets/imgs/operators/mtn.png';
+  }
+
+  private async presentWaitingModal(): Promise<ModalResult> {
+    const modal = await this.modalController.create({
+      component: WaitingModalComponent,
+      cssClass: 'waiting-modal',
+      backdropDismiss: false
+    });
+    await modal.present();
+    
+    const updateStatus = (message: string) => {
+      // Update modal content if needed
     };
     
-    return imageMap[operatorName] || 'assets/imgs/operators/default.png';
+    return { modal, updateStatus };
+  }
+
+  private formatAmount(amount: number): number {
+    return Number(amount.toFixed(2));
+  }
+
+  private async processGhanaAirtime(formData: AirtimeFormData) {
+    const modalResult = await this.presentWaitingModal();
+
+    try {
+      // Format phone number for API (no spaces)
+      const formattedPhoneNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(formData.recipientNumber, this.GHANA_ISO);
+      
+      // Prepare Ghana airtime parameters (for storage only - not for direct API call)
+      const topupParams: TopupParams = {
+        recipientNumber: formattedPhoneNumber,
+        description: `Airtime recharge for ${formData.operatorId}: ${formattedPhoneNumber} - GH₵${formData.amount} (${new Date().toLocaleString()})`,
+        amount: this.formatAmount(formData.amount),
+        network: formData.operatorId,
+        payTransRef: await this.utilService.generateReference(),
+        transType: 'AIRTIMETOPUP',
+        customerEmail: 'info@advansistechnologies.com'
+      };
+
+      // Express Pay Parameters
+      const expressPayParams: PaymentParams = {
+        userId: this.userProfile._id,
+        firstName: this.userProfile.firstName || '',
+        lastName: this.userProfile.lastName || '',
+        email: this.userProfile.email || '',
+        phoneNumber: formattedPhoneNumber,
+        username: this.userProfile?.username || '',
+        amount: Number(formData.amount),
+        orderDesc: topupParams.description,
+        orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
+      };
+
+      // Payment parameters prepared
+
+      // Validate profile information
+      if (!expressPayParams.firstName || !expressPayParams.lastName || !expressPayParams.email) {
+        throw new Error('Missing required user profile information. Please update your profile.');
+      }
+
+      // Store transaction details
+      await this.storage.setStorage('pendingTransaction', JSON.stringify({
+        ...topupParams,
+        ...expressPayParams,
+        timestamp: new Date().toISOString(),
+      }));
+
+      // Initiate payment (don't call airtime service directly)
+      const response = await firstValueFrom(
+        this.advansisPayService.expressPayOnline(expressPayParams)
+      );
+
+      // Payment response received
+
+      if (!response || !response.data?.checkoutUrl) {
+        throw new Error('Payment service did not return a checkout URL');
+      }
+
+      // Validate response
+      if (!response.data.token || !response.data['order-id']) {
+        throw new Error('Invalid payment response: Missing required fields');
+      }
+
+      // Store additional transaction details
+      await this.storage.setStorage('pendingTransaction', JSON.stringify({
+        ...topupParams,
+        ...expressPayParams,
+        timestamp: new Date().toISOString(),
+        transactionToken: response.data.token,
+        orderId: response.data['order-id']
+      }));
+
+      // Open checkout URL
+      window.open(response.data.checkoutUrl, '_system');
+
+      // Reset form and go back to first step
+      this.currentStep = PurchaseStep.COUNTRY_SELECTION;
+      this.notificationService.showSuccess('Payment initiated successfully');
+
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Transaction failed';
+      this.notificationService.showError(errorMessage);
+      this.currentStep = PurchaseStep.TRANSACTION_SUMMARY;
+    } finally {
+      if (modalResult.modal) {
+        await modalResult.modal.dismiss();
+      }
+    }
+  }
+
+  private async processInternationalAirtime(formData: AirtimeFormData) {
+    const modalResult = await this.presentWaitingModal();
+
+    try {
+      // Use the already detected operator from the wizard
+      const operator = this.selectedOperator || this.detectedOperator;
+      // Processing international airtime
+      
+      if (!operator) {
+        throw new Error('No operator detected. Please ensure the phone number is correct.');
+      }
+
+      modalResult.updateStatus('Preparing transaction...');
+
+      // Format phone number for API (no spaces)
+      const formattedPhoneNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(formData.recipientNumber, formData.countryIso);
+
+      // Prepare international topup parameters (for storage only - not for direct API call)
+      const topupParams: TopupParams = {
+        operatorId: operator.id,
+        amount: Number(formData.amount),
+        description: `International airtime recharge for ${formattedPhoneNumber} (${operator.name})`,
+        recipientEmail: this.userProfile.email || '',
+        recipientNumber: formattedPhoneNumber,
+        recipientCountryCode: formData.countryIso,
+        senderNumber: this.userProfile.phoneNumber || '',
+        network: operator.id,
+        payTransRef: await this.utilService.generateReference(),
+        transType: 'GLOBALAIRTOPUP',
+        customerEmail: 'info@advansistechnologies.com'
+      };
+
+      // Prepare payment parameters
+      modalResult.updateStatus('Preparing payment...');
+      const expressPayParams: PaymentParams = {
+        userId: this.userProfile._id,
+        firstName: this.userProfile.firstName || '',
+        lastName: this.userProfile.lastName || '',
+        email: this.userProfile.email || '',
+        phoneNumber: formattedPhoneNumber,
+        username: this.userProfile.username || '',
+        amount: Number(formData.amount),
+        orderDesc: `International airtime recharge for ${formattedPhoneNumber} (${operator.name})`,
+        orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
+      };
+
+      // Store transaction details
+      modalResult.updateStatus('Saving transaction details...');
+
+      await this.storage.setStorage('pendingTransaction', JSON.stringify({
+        ...topupParams,
+        ...expressPayParams,
+        timestamp: new Date().toISOString(),
+      }));
+
+      // Initiate payment (don't call airtime service directly)
+      modalResult.updateStatus('Initiating payment...');
+      const response = await firstValueFrom(
+        this.advansisPayService.expressPayOnline(expressPayParams)
+      );
+
+      // Payment response received
+
+      if (response && response.status === 201 && response.data?.checkoutUrl) {
+        modalResult.updateStatus('Redirecting to payment gateway...');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await modalResult.modal.dismiss();
+        window.open(response.data.checkoutUrl, '_system');
+
+        // Reset form and go back to first step
+        this.currentStep = PurchaseStep.COUNTRY_SELECTION;
+        this.notificationService.showSuccess('Payment initiated successfully');
+      } else {
+        throw new Error('Failed to initiate payment');
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Transaction failed';
+      this.notificationService.showError(errorMessage);
+      this.currentStep = PurchaseStep.TRANSACTION_SUMMARY;
+    } finally {
+      if (modalResult.modal) {
+        await modalResult.modal.dismiss();
+      }
+    }
   }
 
   isFlagUrl(flag: string | undefined): boolean {

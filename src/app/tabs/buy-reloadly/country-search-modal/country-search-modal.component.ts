@@ -59,8 +59,7 @@ const addIcons = (icons: { [key: string]: any }) => {
     IonIcon,
     IonButton,
     IonButtons,
-    IonAvatar,
-    IonText
+    IonAvatar
   ],
   providers: [ModalController]
 })

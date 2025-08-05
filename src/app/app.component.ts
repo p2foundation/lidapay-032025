@@ -120,6 +120,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
       App.addListener('resume', () => {
         console.log('App resumed');
+        // Process pending transactions when app resumes
+        this.processPendingTransaction();
       });
 
       App.addListener('pause', () => {
@@ -533,10 +535,28 @@ export class AppComponent implements OnInit, OnDestroy {
 
       let topupParams: any = null;
       try {
-        topupParams = JSON.parse(pendingTransaction);
+        // Check if it's already an object or needs parsing
+        if (typeof pendingTransaction === 'string') {
+          topupParams = JSON.parse(pendingTransaction);
+        } else {
+          topupParams = pendingTransaction;
+        }
       } catch (e) {
         console.error('[Payment Flow] Invalid pendingTransaction JSON:', pendingTransaction, e);
         this.global.showToast('Corrupted transaction data. Please try again.', 'danger', 'bottom', 3000);
+        this.router.navigate(['/tabs/home']);
+        return;
+      }
+
+      // Check if transaction is too old (older than 24 hours)
+      const transactionTime = new Date(topupParams.timestamp || 0);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - transactionTime.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursDiff > 24) {
+        console.warn('Pending transaction is too old, clearing:', hoursDiff, 'hours old');
+        await this.storage.removeStorage('pendingTransaction');
+        this.global.showToast('Transaction expired. Please try again.', 'warning', 'bottom', 3000);
         this.router.navigate(['/tabs/home']);
         return;
       }
@@ -553,7 +573,10 @@ export class AppComponent implements OnInit, OnDestroy {
       };
 
       // Navigate to the appropriate page based on transaction type
-      if (topupParams.transType === 'AIRTIMETOPUP' || topupParams.transType === 'DATABUNDLE') {
+      if (topupParams.transType === 'AIRTIMETOPUP' || 
+          topupParams.transType === 'DATABUNDLE' || 
+          topupParams.transType === 'DATABUNDLELIST' ||
+          topupParams.transType === 'GLOBALAIRTOPUP') {
         this.router.navigate(['/tabs/checkout/waiting-payment'], navigationExtras);
       } else {
         console.warn('Unknown transaction type:', topupParams.transType);
@@ -569,6 +592,9 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Initialization logic if needed
     console.log('App initialized');
+    
+    // Process any pending transactions when app starts
+    this.processPendingTransaction();
   }
 
   ngOnDestroy() {

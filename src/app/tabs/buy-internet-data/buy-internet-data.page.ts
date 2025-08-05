@@ -87,6 +87,22 @@ export class BuyInternetDataPage implements OnInit {
     'Surfline',
     'Busy',
   ];
+
+  // Method to get the correct image path for a provider
+  getProviderImage(provider: string): string {
+    const providerName = provider.toLowerCase();
+    const imageMap: { [key: string]: string } = {
+      'mtn': 'assets/imgs/operators/mtn.png',
+      'telecel': 'assets/imgs/operators/telecel.png',
+      'airteltigo': 'assets/imgs/operators/airteltigo.png',
+      'glo': 'assets/imgs/operators/glo.png',
+      'surfline': 'assets/imgs/operators/surfline.png',
+      'busy': 'assets/imgs/operators/busy.png'
+    };
+    
+    // Return the mapped image if it exists, otherwise use mtn.png as fallback
+    return imageMap[providerName] || 'assets/imgs/operators/mtn.png';
+  }
   constructor(
     private modalController: ModalController,
     private loadingCtrl: LoadingController,
