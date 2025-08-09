@@ -20,6 +20,23 @@
   --brand-accent-rgb: 236, 72, 153;
 }
 
+// Global fix for input text visibility
+ion-input {
+  --color: #000000 !important;
+  --placeholder-color: #666666 !important;
+  
+  input {
+    color: #000000 !important;
+    background: transparent !important;
+    font-weight: 500 !important;
+    
+    &::placeholder {
+      color: #666666 !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
 // Header Styles with Dark Theme
 .header-toolbar {
   --background: linear-gradient(135deg, var(--dark-bg-primary) 0%, var(--dark-bg-secondary) 100%);
@@ -206,10 +223,22 @@
     .search-input {
       font-size: 16px;
       font-weight: 500;
-      color: var(--dark-text-primary);
+      color: #000000 !important;
       
       &::placeholder {
         color: var(--dark-text-muted);
+      }
+      
+      // Ensure the native input element has proper styling
+      input {
+        color: #000000 !important;
+        background: transparent !important;
+        font-weight: 500 !important;
+        
+        &::placeholder {
+          color: #666666 !important;
+          opacity: 1 !important;
+        }
       }
     }
   }
@@ -242,10 +271,22 @@
     ion-input {
       font-size: 18px;
       font-weight: 500;
-      color: var(--dark-text-primary);
+      color: #000000 !important;
       
       &::placeholder {
         color: var(--dark-text-muted);
+      }
+      
+      // Ensure the native input element has proper styling
+      input {
+        color: #000000 !important;
+        background: transparent !important;
+        font-weight: 500 !important;
+        
+        &::placeholder {
+          color: #666666 !important;
+          opacity: 1 !important;
+        }
       }
     }
     
@@ -537,10 +578,22 @@
       }
       
       ion-input {
-        color: var(--dark-text-primary);
+        color: #000000 !important;
         
         &::placeholder {
           color: var(--dark-text-muted);
+        }
+        
+        // Ensure the native input element has proper styling
+        input {
+          color: #000000 !important;
+          background: transparent !important;
+          font-weight: 500 !important;
+          
+          &::placeholder {
+            color: #666666 !important;
+            opacity: 1 !important;
+          }
         }
       }
       

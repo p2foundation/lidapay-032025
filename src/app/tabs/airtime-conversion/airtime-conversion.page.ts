@@ -104,9 +104,6 @@ interface NetworkProvider {
     IonButton,
     IonIcon,
     IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
     IonInput,
     IonSelect,
     IonSelectOption,
@@ -114,20 +111,10 @@ interface NetworkProvider {
     IonLabel,
     IonTextarea,
     IonAlert,
-    IonLoading,
-    IonToast,
     IonBackButton,
     IonButtons,
-    IonList,
-    IonListHeader,
     IonBadge,
-    IonChip,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonProgressBar,
     IonSpinner,
-    IonRippleEffect,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -351,12 +338,12 @@ export class AirtimeConversionPage implements OnInit {
     }
 
     if (this.airtimeAmount < option.minAmount) {
-      this.showError(`Minimum amount for ${option.name} is ₦${option.minAmount.toLocaleString()}`);
+              this.showError(`Minimum amount for ${option.name} is ₵${option.minAmount.toLocaleString()}`);
       return false;
     }
 
     if (this.airtimeAmount > option.maxAmount) {
-      this.showError(`Maximum amount for ${option.name} is ₦${option.maxAmount.toLocaleString()}`);
+              this.showError(`Maximum amount for ${option.name} is ₵${option.maxAmount.toLocaleString()}`);
       return false;
     }
 
@@ -368,7 +355,7 @@ export class AirtimeConversionPage implements OnInit {
 
     await Haptics.impact({ style: ImpactStyle.Medium });
     
-    this.alertMessage = `Are you sure you want to convert ₦${this.airtimeAmount.toLocaleString()} airtime to ${this.getSelectedOptionName()}?`;
+            this.alertMessage = `Are you sure you want to convert ₵${this.airtimeAmount.toLocaleString()} airtime to ${this.getSelectedOptionName()}?`;
     this.showConfirmAlert = true;
   }
 
@@ -455,7 +442,7 @@ export class AirtimeConversionPage implements OnInit {
   }
 
   formatCurrency(amount: number): string {
-    return `₦${amount.toLocaleString()}`;
+    return `₵${amount.toLocaleString()}`;
   }
 
   getRatePercentage(rate: number): string {

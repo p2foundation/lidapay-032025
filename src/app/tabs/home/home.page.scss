@@ -18,6 +18,11 @@
   --color: var(--text-white);
   padding: 0;
   
+  ion-back-button {
+    --color: var(--text-white);
+    --icon-font-size: 24px;
+  }
+  
   .header-content {
     display: flex;
     justify-content: space-between;
@@ -79,7 +84,7 @@
 
 // Content Styles
 .home-content {
-  --background: linear-gradient(135deg, var(--primary-purple) 0%, #7c3aed 50%, var(--primary-pink) 100%);
+  --background: var(--ion-background-color);
   
   .content-wrapper {
     padding: 0;
@@ -92,23 +97,105 @@
 
 // Hero Section
 .hero-section {
-  padding: 40px var(--page-padding) 32px;
+  padding: 32px var(--page-padding) 24px;
   text-align: center;
+  background: linear-gradient(135deg, var(--primary-purple) 0%, #7c3aed 50%, var(--primary-pink) 100%);
   
   .hero-content {
     .welcome-message {
       .welcome-title {
-        margin: 0 0 8px;
+        margin: 0 0 8px 0;
         font-size: 28px;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--text-white);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       }
       
       .welcome-subtitle {
         margin: 0;
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         font-weight: 400;
+      }
+    }
+  }
+}
+
+// Quick Services Section
+.quick-services-section {
+  background: var(--ion-background-color);
+  padding: 24px var(--page-padding);
+  margin: 0;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    
+    .section-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ion-text-color);
+    }
+    
+    .see-all-btn {
+      --color: var(--primary-pink);
+      --background: rgba(236, 72, 153, 0.1);
+      --border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+      padding: 8px 16px;
+    }
+  }
+  
+  .quick-services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    
+    .quick-service-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 12px;
+      background: var(--ion-card-background);
+      color: var(--ion-text-color);
+      border: 1px solid var(--ion-border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow-light);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      
+      &:active {
+        transform: scale(0.95);
+        box-shadow: var(--shadow-medium);
+      }
+      
+      .service-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--primary-purple);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        ion-icon {
+          font-size: 24px;
+          color: var(--text-white);
+        }
+      }
+      
+      .service-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ion-text-color);
+        text-align: center;
+        line-height: 1.2;
       }
     }
   }
@@ -116,13 +203,15 @@
 
 // Main Action Cards
 .main-actions {
-  padding: 0 var(--page-padding) 32px;
+  padding: 0 var(--page-padding) 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   
   .action-card {
-    background: var(--text-white);
+    background: var(--ion-card-background);
+    color: var(--ion-text-color);
+    border: 1px solid var(--ion-border-color);
     border-radius: var(--card-border-radius);
     padding: 24px;
     box-shadow: var(--shadow-medium);
@@ -163,13 +252,13 @@
           margin: 0 0 4px;
           font-size: 20px;
           font-weight: 600;
-          color: var(--text-dark);
+          color: var(--ion-text-color);
         }
         
         p {
           margin: 0;
           font-size: 14px;
-          color: var(--text-gray);
+          color: var(--ion-color-step-600);
           line-height: 1.4;
         }
       }
@@ -185,96 +274,86 @@
   }
 }
 
-// Services Section
-.services-section {
-  background: var(--bg-light);
-  padding: 32px var(--page-padding);
-  margin: 0 calc(-1 * var(--page-padding));
+// Transaction Summary Section
+.transaction-summary-section {
+  padding: 0 var(--page-padding) 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--ion-background-color);
   
-  .section-title {
-    margin: 0 0 24px;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-dark);
-    text-align: center;
-  }
-  
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    
-    .service-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 20px 12px;
-      background: var(--text-white);
-      border-radius: 12px;
-      box-shadow: var(--shadow-light);
-      transition: all 0.2s ease;
-      cursor: pointer;
-      
-      &:active {
-        transform: scale(0.95);
-        box-shadow: var(--shadow-medium);
-      }
-      
-      .service-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: var(--primary-purple);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        
-        ion-icon {
-          font-size: 24px;
-          color: var(--text-white);
-        }
-      }
-      
-      .service-label {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text-dark);
-        text-align: center;
-      }
-    }
-  }
-}
-
-// Stats Section
-.stats-section {
-  padding: 24px var(--page-padding);
-  
-  .stats-grid {
+  .transaction-card {
     display: flex;
-    justify-content: center;
-    gap: 32px;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--shadow-medium);
+    transition: all 0.2s ease;
+    cursor: pointer;
     
-    .stat-item {
-      text-align: center;
+    &:active {
+      transform: scale(0.98);
+    }
+    
+    .transaction-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
       
-      .stat-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 4px;
+      ion-icon {
+        font-size: 24px;
+        color: var(--text-white);
+      }
+    }
+    
+    .transaction-content {
+      flex: 1;
+      
+      .transaction-title {
+        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-white);
       }
       
-      .stat-label {
-        font-size: 14px;
-        color: var(--text-gray);
-        font-weight: 500;
+      .transaction-count {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-white);
+      }
+    }
+    
+    .transaction-arrow {
+      ion-icon {
+        font-size: 20px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+    
+    &.pending-card {
+      background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+      
+      .transaction-icon {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+    
+    &.completed-card {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      
+      .transaction-icon {
+        background: rgba(255, 255, 255, 0.2);
       }
     }
   }
 }
 
-// Promo Section
+// Promotional Banner
 .promo-section {
   padding: 0 var(--page-padding) 24px;
   
@@ -483,7 +562,7 @@
     }
   }
   
-  .services-grid {
+  .quick-services-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
   }
@@ -497,191 +576,111 @@
   .hero-section {
     padding: 60px var(--page-padding) 40px;
     
-    .hero-content .hero-brand .hero-title {
+    .hero-content .welcome-message .welcome-title {
       font-size: 48px;
     }
   }
 }
 
-// Dark Mode Support
+// Dark mode specific overrides
 @media (prefers-color-scheme: dark) {
-  :host {
-    --bg-light: #1f2937;
-    --text-dark: #f9fafb;
-    --text-gray: #9ca3af;
+  .home-content {
+    --background: var(--ion-background-color);
   }
   
-  .services-section {
-    background: var(--bg-light);
-  }
-  
-  .action-card,
-  .service-item {
-    background: #374151;
-    border: 1px solid #4b5563;
-  }
-  
-  .action-text h3,
-  .service-label {
-    color: var(--text-dark);
-  }
-  
-  .action-text p {
-    color: var(--text-gray);
-  }
-}
-
-// Quick Services Section
-.quick-services-section {
-  padding: 0 var(--page-padding) 24px;
-  
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  .quick-services-section {
+    background: var(--ion-background-color);
     
-    .section-title {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-white);
-    }
-    
-    .see-all-btn {
-      --color: var(--primary-pink);
-      --background: rgba(236, 72, 153, 0.1);
-      --border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      margin: 0;
-      padding: 8px 16px;
-    }
-  }
-  
-  .quick-services-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    
-    .quick-service-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 20px 12px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      box-shadow: var(--shadow-light);
-      transition: all 0.2s ease;
-      cursor: pointer;
-      
-      &:active {
-        transform: scale(0.95);
-        box-shadow: var(--shadow-medium);
+    .section-header {
+      .section-title {
+        color: var(--ion-text-color);
       }
-      
-      .service-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: var(--primary-purple);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    }
+    
+    .quick-services-grid {
+      .quick-service-card {
+        background: var(--ion-card-background);
+        color: var(--ion-text-color);
+        border-color: var(--ion-border-color);
         
-        ion-icon {
-          font-size: 24px;
-          color: var(--text-white);
+        .service-label {
+          color: var(--ion-text-color);
         }
       }
+    }
+  }
+  
+  .main-actions {
+    .action-card {
+      background: var(--ion-card-background);
+      color: var(--ion-text-color);
+      border-color: var(--ion-border-color);
       
-      .service-label {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--text-dark);
-        text-align: center;
-        line-height: 1.2;
+      .action-text {
+        h3 {
+          color: var(--ion-text-color);
+        }
+        
+        p {
+          color: var(--ion-color-step-600);
+        }
       }
     }
   }
+  
+  .transaction-summary-section {
+    background: var(--ion-background-color);
+  }
 }
 
-// Transaction Summary Section
-.transaction-summary-section {
-  padding: 0 var(--page-padding) 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+// Manual dark mode override
+body.dark {
+  .home-content {
+    --background: var(--ion-background-color);
+  }
   
-  .transaction-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    border-radius: var(--card-border-radius);
-    box-shadow: var(--shadow-medium);
-    transition: all 0.2s ease;
-    cursor: pointer;
+  .quick-services-section {
+    background: var(--ion-background-color);
     
-    &:active {
-      transform: scale(0.98);
+    .section-header {
+      .section-title {
+        color: var(--ion-text-color);
+      }
     }
     
-    .transaction-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+    .quick-services-grid {
+      .quick-service-card {
+        background: var(--ion-card-background);
+        color: var(--ion-text-color);
+        border-color: var(--ion-border-color);
+        
+        .service-label {
+          color: var(--ion-text-color);
+        }
+      }
+    }
+  }
+  
+  .main-actions {
+    .action-card {
+      background: var(--ion-card-background);
+      color: var(--ion-text-color);
+      border-color: var(--ion-border-color);
       
-      ion-icon {
-        font-size: 24px;
-        color: var(--text-white);
+      .action-text {
+        h3 {
+          color: var(--ion-text-color);
+        }
+        
+        p {
+          color: var(--ion-color-step-600);
+        }
       }
     }
-    
-    .transaction-content {
-      flex: 1;
-      
-      .transaction-title {
-        margin: 0 0 4px;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--text-white);
-      }
-      
-      .transaction-count {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--text-white);
-      }
-    }
-    
-    .transaction-arrow {
-      ion-icon {
-        font-size: 20px;
-        color: rgba(255, 255, 255, 0.8);
-      }
-    }
-    
-    &.pending-card {
-      background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
-      
-      .transaction-icon {
-        background: rgba(255, 255, 255, 0.2);
-      }
-    }
-    
-    &.completed-card {
-      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-      
-      .transaction-icon {
-        background: rgba(255, 255, 255, 0.2);
-      }
-    }
+  }
+  
+  .transaction-summary-section {
+    background: var(--ion-background-color);
   }
 }
   

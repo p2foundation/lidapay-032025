@@ -424,16 +424,16 @@ export class EnhancedAirtimeService {
     const cleanNumber = phoneNumber.replace(/\D/g, '');
 
     if (countryIso === this.GHANA_ISO) {
-      // For Ghana: convert to 233 format for API calls
+      // For Ghana: use local format (like 0240000000) for Prymo API
       if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
-        // Convert 0244588584 -> 233244588584
-        return `233${cleanNumber.slice(1)}`;
-      } else if (cleanNumber.length === 9) {
-        // Convert 244588584 -> 233244588584
-        return `233${cleanNumber}`;
-      } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
-        // Keep as is: 233244588584
+        // Keep as is: 0244588584 (perfect for Prymo API)
         return cleanNumber;
+      } else if (cleanNumber.length === 9) {
+        // Convert 244588584 -> 0244588584 (for Prymo API)
+        return `0${cleanNumber}`;
+      } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+        // Convert 233244588584 -> 0244588584 (for Prymo API)
+        return `0${cleanNumber.slice(3)}`;
       }
       // Return as is for other cases
       return cleanNumber;

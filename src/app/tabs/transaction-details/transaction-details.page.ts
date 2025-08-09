@@ -102,24 +102,13 @@ interface TransactionDetails {
     IonButton,
     IonIcon,
     IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
     IonItem,
     IonLabel,
     IonBadge,
-    IonChip,
-    IonGrid,
-    IonRow,
-    IonCol,
     IonSpinner,
-    IonRippleEffect,
     IonBackButton,
     IonButtons,
     IonList,
-    IonListHeader,
-    IonAvatar,
-    IonSkeletonText,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -186,7 +175,7 @@ export class TransactionDetailsPage implements OnInit {
         type: 'airtime',
         status: 'completed',
         amount: 1000,
-        currency: 'NGN',
+        currency: 'GHS',
         description: 'Airtime Purchase - MTN',
         timestamp: new Date('2024-03-25T10:30:00Z'),
         reference: 'REF-2024-03-25-001',
@@ -206,7 +195,7 @@ export class TransactionDetailsPage implements OnInit {
         type: 'conversion',
         status: 'pending',
         amount: 500,
-        currency: 'NGN',
+        currency: 'GHS',
         description: 'Airtime to Cash Conversion',
         timestamp: new Date('2024-03-25T09:15:00Z'),
         reference: 'REF-2024-03-25-002',
@@ -271,7 +260,7 @@ export class TransactionDetailsPage implements OnInit {
   }
 
   formatCurrency(amount: number): string {
-    return `₦${amount.toLocaleString()}`;
+    return `₵${amount.toLocaleString()}`;
   }
 
   formatDate(date: Date): string {

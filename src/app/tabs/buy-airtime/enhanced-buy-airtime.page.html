@@ -120,7 +120,7 @@
           <ion-input
             formControlName="recipientNumber"
             type="tel"
-            placeholder="Enter phone number"
+            placeholder="Enter phone number (e.g., 0240000000)"
             class="modern-input"
             (ionInput)="onPhoneNumberInput($event)">
           </ion-input>
@@ -236,7 +236,7 @@
           
           <div class="detail-row">
             <span class="label text-body-small text-gray-600">Phone Number:</span>
-            <span class="value text-body">{{ formatPhoneNumberForDisplay(airtimeForm.get('recipientNumber')?.value) }}</span>
+            <span class="value text-body">{{ getFormattedPhoneNumber() }}</span>
           </div>
           
           <div class="detail-row">

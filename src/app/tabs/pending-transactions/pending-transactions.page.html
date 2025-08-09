@@ -1,0 +1,156 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Pending Transactions</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshTransactions()" [disabled]="isLoading">
+        <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading pending transactions...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && filteredTransactions.length === 0" class="empty-state">
+    <ion-icon name="checkmark-circle-outline" color="success" size="large"></ion-icon>
+    <h2>No Pending Transactions</h2>
+    <p>All your transactions have been processed successfully!</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && filteredTransactions.length > 0">
+    <!-- Search and Filter Section -->
+    <ion-card class="filter-card">
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="8">
+              <ion-item>
+                <ion-label position="stacked">Search Transactions</ion-label>
+                <ion-input 
+                  [(ngModel)]="searchTerm" 
+                  placeholder="Search by phone number, description, or network"
+                  clearInput="true">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col size="12" size-md="4">
+              <ion-item>
+                <ion-label position="stacked">Status Filter</ion-label>
+                <ion-select [(ngModel)]="filterStatus">
+                  <ion-select-option value="ALL">All Status</ion-select-option>
+                  <ion-select-option value="PENDING">Pending</ion-select-option>
+                  <ion-select-option value="FAILED">Failed</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+      <p>Showing {{ filteredTransactions.length }} of {{ pendingTransactions.length }} transactions</p>
+    </div>
+
+    <!-- Transactions List -->
+    <ion-list>
+      <ion-card *ngFor="let transaction of filteredTransactions" class="transaction-card">
+        <ion-card-content>
+          <!-- Transaction Header -->
+          <div class="transaction-header">
+            <div class="transaction-type">
+              <ion-chip [color]="getStatusColor(transaction.status)" outline>
+                <ion-label>{{ getTransactionTypeLabel(transaction.transType) }}</ion-label>
+              </ion-chip>
+            </div>
+            <div class="transaction-status">
+              <ion-badge [color]="getStatusColor(transaction.status)">
+                {{ transaction.status }}
+              </ion-badge>
+            </div>
+          </div>
+
+          <!-- Transaction Details -->
+          <div class="transaction-details">
+            <div class="detail-row">
+              <span class="label">Amount:</span>
+              <span class="value amount">{{ transaction.currency }} {{ formatAmount(transaction.amount) }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span class="label">Recipient:</span>
+              <span class="value phone">{{ formatPhoneNumber(transaction.recipientNumber) }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaction.network">
+              <span class="label">Network:</span>
+              <span class="value">{{ transaction.network }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span class="label">Date:</span>
+              <span class="value">{{ formatDate(transaction.timestamp) }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaction.orderId">
+              <span class="label">Order ID:</span>
+              <span class="value order-id">{{ transaction.orderId }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="transaction.retryCount && transaction.retryCount > 0">
+              <span class="label">Retry Count:</span>
+              <span class="value">{{ transaction.retryCount }}</span>
+            </div>
+          </div>
+
+          <!-- Transaction Description -->
+          <div class="transaction-description" *ngIf="transaction.description">
+            <p class="description-text">{{ transaction.description }}</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="transaction-actions">
+            <ion-button 
+              expand="block" 
+              color="primary" 
+              (click)="initiateCrediting(transaction)"
+              [disabled]="isProcessing && processingTransactionId === transaction.id">
+              <ion-icon name="refresh-outline" slot="start" *ngIf="isProcessing && processingTransactionId === transaction.id"></ion-icon>
+              <ion-spinner name="dots" slot="start" *ngIf="isProcessing && processingTransactionId === transaction.id"></ion-spinner>
+              <ion-icon name="checkmark-circle-outline" slot="start" *ngIf="!(isProcessing && processingTransactionId === transaction.id)"></ion-icon>
+              {{ (isProcessing && processingTransactionId === transaction.id) ? 'Processing...' : 'Initiate Crediting' }}
+            </ion-button>
+            
+            <ion-button 
+              expand="block" 
+              fill="outline" 
+              color="danger" 
+              (click)="deleteTransaction(transaction)"
+              [disabled]="isProcessing">
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Delete Transaction
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+  </div>
+
+  <!-- Floating Action Button for Refresh -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isLoading">
+    <ion-fab-button (click)="refreshTransactions()" [disabled]="isLoading">
+      <ion-icon name="refresh-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

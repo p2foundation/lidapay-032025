@@ -1202,3 +1202,567 @@ swiper-slide {
     width: auto;
     height: auto;
 }
+
+// Dark Theme Support for All Components
+@media (prefers-color-scheme: dark) {
+  // Global dark theme overrides
+  ion-content {
+    --background: var(--ion-background-color);
+  }
+  
+  ion-header {
+    ion-toolbar {
+      --background: var(--ion-toolbar-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+      
+      ion-back-button {
+        --color: var(--ion-text-color);
+      }
+      
+      ion-title {
+        color: var(--ion-text-color);
+      }
+    }
+  }
+  
+  ion-card {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-item {
+    --background: var(--ion-item-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    
+    ion-label {
+      color: var(--ion-text-color);
+    }
+    
+    ion-input {
+      --background: var(--ion-item-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+      --placeholder-color: var(--ion-color-step-500);
+    }
+    
+    ion-select {
+      --background: var(--ion-item-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-button {
+    --color: var(--ion-text-color);
+    
+    &.button-outline {
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-chip {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-badge {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+  }
+  
+  ion-toggle {
+    --background: var(--ion-color-step-300);
+    --background-checked: var(--ion-color-primary);
+    --handle-background: var(--ion-color-step-100);
+    --handle-background-checked: var(--ion-color-primary-contrast);
+  }
+  
+  ion-segment {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+    
+    ion-segment-button {
+      --background: var(--ion-card-background);
+      --color: var(--ion-color-step-600);
+      --color-checked: var(--ion-color-primary);
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-list {
+    --background: var(--ion-background-color);
+  }
+  
+  ion-modal {
+    --background: var(--ion-background-color);
+    
+    ion-header {
+      --background: var(--ion-toolbar-background);
+      --color: var(--ion-text-color);
+    }
+    
+    ion-content {
+      --background: var(--ion-background-color);
+    }
+  }
+  
+  ion-popover {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+  }
+  
+  ion-alert {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    
+    .alert-wrapper {
+      --background: var(--ion-card-background);
+    }
+  }
+  
+  ion-toast {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-loading {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+  }
+  
+  ion-skeleton-text {
+    --background: var(--ion-color-step-200);
+  }
+  
+  // Text color overrides
+  .text-primary {
+    color: var(--ion-text-color) !important;
+  }
+  
+  .text-secondary {
+    color: var(--ion-color-step-600) !important;
+  }
+  
+  .text-muted {
+    color: var(--ion-color-step-500) !important;
+  }
+  
+  // Background overrides
+  .bg-light {
+    background: var(--ion-card-background) !important;
+  }
+  
+  .bg-white {
+    background: var(--ion-card-background) !important;
+  }
+  
+  // Border overrides
+  .border {
+    border-color: var(--ion-border-color) !important;
+  }
+  
+  .border-light {
+    border-color: var(--ion-border-color) !important;
+  }
+}
+
+// Manual dark mode override (when user explicitly chooses dark mode)
+body.dark {
+  // Global dark theme overrides
+  ion-content {
+    --background: var(--ion-background-color);
+  }
+  
+  ion-header {
+    ion-toolbar {
+      --background: var(--ion-toolbar-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+      
+      ion-back-button {
+        --color: var(--ion-text-color);
+      }
+      
+      ion-title {
+        color: var(--ion-text-color);
+      }
+    }
+  }
+  
+  ion-card {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-item {
+    --background: var(--ion-item-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    
+    ion-label {
+      color: var(--ion-text-color);
+    }
+    
+    ion-input {
+      --background: var(--ion-item-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+      --placeholder-color: var(--ion-color-step-500);
+    }
+    
+    ion-select {
+      --background: var(--ion-item-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-button {
+    --color: var(--ion-text-color);
+    
+    &.button-outline {
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-chip {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-badge {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+  }
+  
+  ion-toggle {
+    --background: var(--ion-color-step-300);
+    --background-checked: var(--ion-color-primary);
+    --handle-background: var(--ion-color-step-100);
+    --handle-background-checked: var(--ion-color-primary-contrast);
+  }
+  
+  ion-segment {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+    
+    ion-segment-button {
+      --background: var(--ion-card-background);
+      --color: var(--ion-color-step-600);
+      --color-checked: var(--ion-color-primary);
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-list {
+    --background: var(--ion-background-color);
+  }
+  
+  ion-modal {
+    --background: var(--ion-background-color);
+    
+    ion-header {
+      --background: var(--ion-toolbar-background);
+      --color: var(--ion-text-color);
+    }
+    
+    ion-content {
+      --background: var(--ion-background-color);
+    }
+  }
+  
+  ion-popover {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+  }
+  
+  ion-alert {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    
+    .alert-wrapper {
+      --background: var(--ion-card-background);
+    }
+  }
+  
+  ion-toast {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-loading {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+  }
+  
+  ion-skeleton-text {
+    --background: var(--ion-color-step-200);
+  }
+  
+  // Text color overrides
+  .text-primary {
+    color: var(--ion-text-color) !important;
+  }
+  
+  .text-secondary {
+    color: var(--ion-color-step-600) !important;
+  }
+  
+  .text-muted {
+    color: var(--ion-color-step-500) !important;
+  }
+  
+  // Background overrides
+  .bg-light {
+    background: var(--ion-card-background) !important;
+  }
+  
+  .bg-white {
+    background: var(--ion-card-background) !important;
+  }
+  
+  // Border overrides
+  .border {
+    border-color: var(--ion-border-color) !important;
+  }
+  
+  .border-light {
+    border-color: var(--ion-border-color) !important;
+  }
+}
+
+// Manual light mode override (when user explicitly chooses light mode)
+body.light {
+  // Global light theme overrides
+  ion-content {
+    --background: var(--ion-background-color);
+  }
+  
+  ion-header {
+    ion-toolbar {
+      --background: var(--ion-toolbar-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+      
+      ion-back-button {
+        --color: var(--ion-text-color);
+      }
+      
+      ion-title {
+        color: var(--ion-text-color);
+      }
+    }
+  }
+  
+  ion-card {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-item {
+    --background: var(--ion-item-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    
+    ion-label {
+      color: var(--ion-text-color);
+    }
+    
+    ion-input {
+      --background: var(--ion-item-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+      --placeholder-color: var(--ion-color-step-500);
+    }
+    
+    ion-select {
+      --background: var(--ion-item-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-button {
+    --color: var(--ion-text-color);
+    
+    &.button-outline {
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-chip {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-badge {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+  }
+  
+  ion-toggle {
+    --background: var(--ion-color-step-300);
+    --background-checked: var(--ion-color-primary);
+    --handle-background: var(--ion-color-step-100);
+    --handle-background-checked: var(--ion-color-primary-contrast);
+  }
+  
+  ion-segment {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+    
+    ion-segment-button {
+      --background: var(--ion-card-background);
+      --color: var(--ion-color-step-600);
+      --color-checked: var(--ion-color-primary);
+      --border-color: var(--ion-border-color);
+    }
+  }
+  
+  ion-list {
+    --background: var(--ion-background-color);
+  }
+  
+  ion-modal {
+    --background: var(--ion-background-color);
+    
+    ion-header {
+      --background: var(--ion-toolbar-background);
+      --color: var(--ion-text-color);
+    }
+    
+    ion-content {
+      --background: var(--ion-background-color);
+    }
+  }
+  
+  ion-popover {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+  }
+  
+  ion-alert {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    
+    .alert-wrapper {
+      --background: var(--ion-card-background);
+    }
+  }
+  
+  ion-toast {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+  }
+  
+  ion-loading {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+  }
+  
+  ion-skeleton-text {
+    --background: var(--ion-color-step-200);
+  }
+  
+  // Text color overrides
+  .text-primary {
+    color: var(--ion-text-color) !important;
+  }
+  
+  .text-secondary {
+    color: var(--ion-color-step-600) !important;
+  }
+  
+  .text-muted {
+    color: var(--ion-color-step-500) !important;
+  }
+  
+  // Background overrides
+  .bg-light {
+    background: var(--ion-card-background) !important;
+  }
+  
+  .bg-white {
+    background: var(--ion-card-background) !important;
+  }
+  
+  // Border overrides
+  .border {
+    border-color: var(--ion-border-color) !important;
+  }
+  
+  .border-light {
+    border-color: var(--ion-border-color) !important;
+  }
+}
+
+// Enhanced back button styling for better visibility
+ion-back-button {
+  --color: var(--ion-text-color);
+  --icon-color: var(--ion-text-color);
+  
+  &::part(native) {
+    color: var(--ion-text-color) !important;
+  }
+  
+  ion-icon {
+    color: var(--ion-text-color) !important;
+  }
+}
+
+// Dark mode specific back button styling
+@media (prefers-color-scheme: dark) {
+  ion-back-button {
+    --color: #ffffff;
+    --icon-color: #ffffff;
+    
+    &::part(native) {
+      color: #ffffff !important;
+    }
+    
+    ion-icon {
+      color: #ffffff !important;
+    }
+  }
+}
+
+body.dark {
+  ion-back-button {
+    --color: #ffffff;
+    --icon-color: #ffffff;
+    
+    &::part(native) {
+      color: #ffffff !important;
+    }
+    
+    ion-icon {
+      color: #ffffff !important;
+    }
+  }
+}
+
+body.light {
+  ion-back-button {
+    --color: #ffffff;
+    --icon-color: #ffffff;
+    
+    &::part(native) {
+      color: #ffffff !important;
+    }
+    
+    ion-icon {
+      color: #ffffff !important;
+    }
+  }
+}

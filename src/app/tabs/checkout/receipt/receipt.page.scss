@@ -1,125 +1,291 @@
-/* Custom styles for the receipt page */
+/* Modern Receipt Page Styles */
+
 ion-toolbar {
   --color: white;
   
   ion-title {
     color: white;
+    font-weight: 600;
   }
 }
 
 .receipt-container {
   max-width: 100%;
-  padding: 16px;
+  padding: 0;
   background: var(--ion-background-color);
   color: var(--ion-text-color);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.transaction-amount {
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 16px 0;
-  color: var(--ion-color-primary);
-}
-
-ion-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
-  --min-height: 48px;
-  --background: var(--ion-item-background, var(--ion-background-color));
-  --color: var(--ion-text-color);
-  --border-color: var(--ion-color-step-200, #ccc);
-  margin-bottom: 8px;
+/* Success Header */
+.success-header {
+  background: linear-gradient(135deg, var(--ion-color-success) 0%, var(--ion-color-success-shade) 100%);
+  color: white;
+  padding: 32px 16px;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
   
-  ion-label {
-    color: var(--ion-text-color);
-    font-size: 0.9rem;
-    opacity: 0.8;
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
   }
+}
+
+.success-icon {
+  margin-bottom: 16px;
   
-  ion-note {
-    color: var(--ion-text-color);
-    font-size: 0.95rem;
+  ion-icon {
+    font-size: 80px;
+    animation: scaleIn 0.6s ease-out;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  }
+}
+
+.success-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.amount-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  
+  .currency {
+    font-size: 18px;
     font-weight: 500;
-    opacity: 1;
+    opacity: 0.9;
+  }
+  
+  .amount {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
   }
 }
 
-ion-button {
-  --border-radius: 8px;
-  --padding-top: 20px;
-  --padding-bottom: 20px;
-  --box-shadow: none;
-  margin-top: 24px;
-  text-transform: none;
+/* Transaction Details */
+.transaction-details {
+  padding: 0 16px;
+  margin-bottom: 32px;
+}
+
+.details-title {
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  color: var(--ion-text-color);
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ion-color-primary);
+  display: inline-block;
+}
+
+.details-list {
+  background: var(--ion-card-background, var(--ion-background-color));
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  margin: 0;
   
-  &[fill="outline"] {
-    --border-color: var(--ion-color-step-400, #999);
+  ion-item {
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --inner-padding-end: 0;
+    --min-height: 56px;
+    --background: transparent;
+    --border-color: var(--ion-color-step-150, #f0f0f0);
     --color: var(--ion-text-color);
+    margin: 0;
     
-    &:hover, &:focus {
-      --background: rgba(var(--ion-color-primary-rgb), 0.1);
+    &:last-child {
+      --border-color: transparent;
+    }
+    
+    ion-label {
+      color: var(--ion-text-color);
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.7;
+      margin: 0;
+    }
+    
+    ion-note {
+      color: var(--ion-text-color);
+      font-size: 15px;
+      font-weight: 600;
+      opacity: 1;
+      margin: 0;
+    }
+    
+    &.transaction-id ion-note {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    
+    &.phone-number ion-note {
+      font-weight: 700;
+      color: var(--ion-color-success);
     }
   }
 }
 
-ion-icon {
-  margin-bottom: 16px;
-  color: var(--ion-color-primary);
+/* Action Buttons */
+.action-buttons {
+  padding: 0 16px 32px 16px;
+  
+  ion-button {
+    --border-radius: 12px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-bottom: 12px;
+    text-transform: none;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      --box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+    }
+    
+    &[color="primary"] {
+      --background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+    }
+    
+    &[color="secondary"] {
+      --background: linear-gradient(135deg, var(--ion-color-secondary) 0%, var(--ion-color-secondary-shade) 100%);
+    }
+    
+    &[fill="clear"] {
+      --color: var(--ion-color-medium);
+      --box-shadow: none;
+      font-weight: 500;
+      
+      &:hover {
+        --color: var(--ion-color-primary);
+        transform: none;
+      }
+    }
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
 }
 
-ion-title {
-  text-align: center;
-  font-weight: 600;
-  color: var(--ion-text-color);
+/* Animations */
+@keyframes scaleIn {
+  from { 
+    transform: scale(0.8); 
+    opacity: 0; 
+  }
+  to { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
 }
 
-/* Responsive adjustments */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+/* Responsive Design */
 @media (min-width: 768px) {
   .receipt-container {
     max-width: 600px;
     margin: 0 auto;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px var(--ion-color-step-150, rgba(0, 0, 0, 0.1));
-    margin-top: 24px;
-    margin-bottom: 24px;
-    background: var(--ion-card-background, var(--ion-background-color));
+    padding: 0;
+  }
+  
+  .success-header {
+    border-radius: 24px;
+    margin: 24px 24px 32px 24px;
+  }
+  
+  .transaction-details {
+    padding: 0 24px;
+  }
+  
+  .action-buttons {
+    padding: 0 24px 32px 24px;
   }
   
   ion-content {
-    --padding-start: 24px;
-    --padding-end: 24px;
-    --padding-top: 24px;
-    --padding-bottom: 24px;
-    --background: var(--ion-background-color);
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
   }
 }
 
-/* Animation for the success icon */
-@keyframes scaleIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-ion-icon[name="checkmark-circle"] {
-  animation: scaleIn 0.5s ease-out;
-  color: var(--ion-color-success);
-  font-size: 64px;
-}
-
-/* Dark mode specific adjustments */
+/* Dark Mode Adjustments */
 @media (prefers-color-scheme: dark) {
-  .receipt-container {
-    --ion-border-color: var(--ion-color-step-400, #333);
+  .details-list {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
   }
   
   ion-item {
-    --border-color: var(--ion-color-step-400, #333);
-    
-    ion-label {
-      opacity: 0.7;
-    }
+    --border-color: var(--ion-color-step-300, #333);
+  }
+  
+  .action-buttons ion-button {
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+}
+
+/* Loading and Error States */
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  
+  ion-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    font-size: 16px;
+    opacity: 0.7;
+    margin: 0;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .action-buttons {
+    display: none;
+  }
+  
+  .receipt-container {
+    box-shadow: none;
+    border: 1px solid #ccc;
   }
 }

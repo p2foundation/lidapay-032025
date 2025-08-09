@@ -3,14 +3,20 @@
   --card-border-radius: 16px;
 }
 
-// Header Styles
+// Header Styles with Dark Theme Support
 .header_bg {
   background: var(--ion-color-primary);
   
   ion-toolbar {
     --background: transparent;
     --border-width: 0;
+    --color: var(--ion-color-primary-contrast);
     padding: 8px 0;
+
+    ion-back-button {
+      --color: var(--ion-color-primary-contrast);
+      --icon-font-size: 24px;
+    }
 
     .header-content {
       padding: 0 16px;
@@ -18,7 +24,7 @@
       .page_title {
         font-size: 24px;
         font-weight: 700;
-        color: white;
+        color: var(--ion-color-primary-contrast);
       }
     }
   }
@@ -27,6 +33,7 @@
 // Content Styles
 .content-wrapper {
   padding: var(--page-padding);
+  --background: var(--ion-background-color);
 }
 
 // Transaction Item Styles
@@ -34,6 +41,7 @@
   --background: var(--ion-card-background);
   --color: var(--ion-text-color);
   --border-radius: var(--card-border-radius);
+  --border-color: var(--ion-border-color);
   margin: 8px 0;
 
   .transaction-content {
@@ -63,8 +71,8 @@
       }
 
       &.globalairtopup {
-        background: rgba(var(--ion-color-tertiary-rgb), 0.1);
-        ion-icon { color: var(--ion-color-tertiary); }
+        background: rgba(var(--ion-color-secondary-rgb), 0.1);
+        ion-icon { color: var(--ion-color-secondary); }
       }
     }
 
@@ -75,13 +83,13 @@
         margin: 0;
         font-size: 16px;
         font-weight: 600;
-        color: var(--ion-color-dark);
+        color: var(--ion-text-color);
       }
 
       .recipient {
         margin: 4px 0;
         font-size: 14px;
-        color: var(--ion-color-medium);
+        color: var(--ion-color-step-600);
       }
 
       .transaction-meta {
@@ -97,7 +105,7 @@
 
         .date {
           font-size: 12px;
-          color: var(--ion-color-medium);
+          color: var(--ion-color-step-500);
         }
       }
     }
@@ -107,20 +115,21 @@
         padding: 4px 8px;
         border-radius: 12px;
         text-transform: capitalize;
-      }
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    --background: rgba(var(--ion-color-light-rgb), 0.05);
-    
-    .transaction-details {
-      h3 {
-        color: var(--ion-text-color);
-      }
-      
-      p {
-        color: rgba(var(--ion-text-color-rgb), 0.6);
+        
+        &.pending {
+          --background: rgba(var(--ion-color-warning-rgb), 0.1);
+          --color: var(--ion-color-warning);
+        }
+        
+        &.completed {
+          --background: rgba(var(--ion-color-success-rgb), 0.1);
+          --color: var(--ion-color-success);
+        }
+        
+        &.failed {
+          --background: rgba(var(--ion-color-danger-rgb), 0.1);
+          --color: var(--ion-color-danger);
+        }
       }
     }
   }
@@ -136,12 +145,15 @@
 
   .page-info {
     font-size: 14px;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-step-600);
   }
 
   ion-button {
     --padding-start: 8px;
     --padding-end: 8px;
+    --color: var(--ion-text-color);
+    --background: var(--ion-item-background);
+    --border-color: var(--ion-border-color);
   }
 }
 
@@ -152,7 +164,7 @@
 
   ion-icon {
     font-size: 48px;
-    color: var(--ion-color-medium);
+    color: var(--ion-color-step-500);
     margin-bottom: 16px;
   }
 
@@ -160,40 +172,29 @@
     margin: 0;
     font-size: 20px;
     font-weight: 600;
-    color: var(--ion-color-dark);
+    color: var(--ion-text-color);
   }
 
   p {
     margin: 8px 0 0;
     font-size: 14px;
-    color: var(--ion-color-medium);
-  }
-}
-
-// Dark mode adjustments
-@media (prefers-color-scheme: dark) {
-  .transaction-item {
-    --background: rgba(var(--ion-color-light-rgb), 0.05);
-  }
-
-  .transaction-details h3 {
-    color: var(--ion-color-light);
+    color: var(--ion-color-step-600);
   }
 }
 
 // Skeleton Styles
 .skeleton-wrapper {
   ion-skeleton-text {
-    @media (prefers-color-scheme: dark) {
-      --background: rgba(var(--ion-color-light-rgb), 0.1);
-    }
+    --background: var(--ion-color-step-200);
+    --border-radius: 4px;
   }
 }
 
 // Filter Section Styles
 .filter-section {
   padding: 12px var(--page-padding);
-  background: rgba(var(--ion-color-light-rgb), 0.1);
+  background: var(--ion-item-background);
+  border-bottom: 1px solid var(--ion-border-color);
 
   .filter-chips {
     display: flex;
@@ -209,8 +210,9 @@
 
     ion-chip {
       min-width: auto;
-      --background: rgba(var(--ion-color-light-rgb), 0.1);
-      --color: var(--ion-color-light);
+      --background: var(--ion-card-background);
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
       transition: all 0.3s ease;
 
       &.selected {
@@ -229,16 +231,59 @@
     display: flex;
     justify-content: space-between;
     margin-top: 8px;
-    border-top: 1px solid rgba(var(--ion-color-light-rgb), 0.1);
+    border-top: 1px solid var(--ion-border-color);
     padding-top: 8px;
 
     ion-button {
-      --color: var(--ion-color-light);
+      --color: var(--ion-text-color);
+      --background: transparent;
       font-size: 14px;
 
       ion-icon {
         margin-right: 4px;
       }
     }
+  }
+}
+
+// Dark mode specific overrides
+@media (prefers-color-scheme: dark) {
+  .transaction-item {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+  }
+
+  .transaction-details h3 {
+    color: var(--ion-text-color);
+  }
+  
+  .transaction-details p {
+    color: var(--ion-color-step-600);
+  }
+  
+  .filter-section {
+    background: var(--ion-item-background);
+    border-bottom-color: var(--ion-border-color);
+  }
+}
+
+// Manual dark mode override
+body.dark {
+  .transaction-item {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+  }
+
+  .transaction-details h3 {
+    color: var(--ion-text-color);
+  }
+  
+  .transaction-details p {
+    color: var(--ion-color-step-600);
+  }
+  
+  .filter-section {
+    background: var(--ion-item-background);
+    border-bottom-color: var(--ion-border-color);
   }
 }

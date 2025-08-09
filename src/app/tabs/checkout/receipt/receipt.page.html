@@ -2,7 +2,7 @@
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-button (click)="goToHome()">
-        <ion-icon slot="icon-only" name="close"></ion-icon>
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>Transaction Receipt</ion-title>
@@ -23,15 +23,22 @@
   </div>
 
   <div *ngIf="!isLoading && !error && transaction" class="receipt-container" #receiptContent>
-    <div class="ion-text-center ion-padding">
-      <ion-icon name="checkmark-circle" color="success" style="font-size: 64px;"></ion-icon>
-      <h2>Payment Successful</h2>
-      <p class="transaction-amount">
-        {{ transaction.currency || 'GHS' }} {{ transaction.amount | number:'1.2-2' }}
-      </p>
+    <!-- Success Header -->
+    <div class="success-header ion-text-center ion-padding">
+      <div class="success-icon">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+      </div>
+      <h2 class="success-title">Payment Successful</h2>
+      <div class="amount-display">
+        <span class="currency">{{ transaction.currency || 'GHS' }}</span>
+        <span class="amount">{{ transaction.amount | number:'1.2-2' }}</span>
+      </div>
     </div>
 
-    <ion-list lines="full" class="ion-margin-top">
+    <!-- Transaction Details -->
+    <div class="transaction-details">
+      <h3 class="details-title">Transaction Details</h3>
+      <ion-list lines="full" class="details-list">
       <ion-item>
         <ion-label>Status</ion-label>
         <ion-note slot="end" color="success">
@@ -47,9 +54,9 @@
         </ion-note>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="transaction-id">
         <ion-label>Transaction ID</ion-label>
-        <ion-note slot="end">{{ transaction.transactionId || transaction.trxn || 'N/A' }}</ion-note>
+        <ion-note slot="end">{{ formatTransactionId(transaction.transactionId || transaction.trxn) }}</ion-note>
       </ion-item>
 
       <ion-item *ngIf="transaction.orderId">
@@ -57,9 +64,9 @@
         <ion-note slot="end">{{ transaction.orderId }}</ion-note>
       </ion-item>
 
-      <ion-item *ngIf="transaction.recipientNumber">
+      <ion-item *ngIf="transaction.recipientNumber" class="phone-number">
         <ion-label>Recipient</ion-label>
-        <ion-note slot="end">{{ transaction.recipientNumber }}</ion-note>
+        <ion-note slot="end">{{ formatPhoneNumber(transaction.recipientNumber) }}</ion-note>
       </ion-item>
 
       <ion-item *ngIf="transaction.network">
@@ -77,54 +84,24 @@
         <ion-note slot="end" class="ion-text-wrap">{{ transaction.message }}</ion-note>
       </ion-item>
     </ion-list>
+    </div>
 
-    <div class="ion-padding action-buttons">
+    <!-- Action Buttons -->
+    <div class="action-buttons ion-padding">
       <ion-button expand="block" (click)="downloadOrShareReceipt('download')" [disabled]="isGeneratingPdf" class="ion-margin-bottom" color="primary">
-        <ion-icon name="download" slot="start"></ion-icon>
+        <ion-icon name="download-outline" slot="start"></ion-icon>
         {{ isGeneratingPdf ? 'Generating...' : 'Download Receipt' }}
       </ion-button>
       
       <ion-button expand="block" (click)="downloadOrShareReceipt('share')" [disabled]="isGeneratingPdf" class="ion-margin-bottom" color="secondary">
-        <ion-icon name="share-social" slot="start"></ion-icon>
+        <ion-icon name="share-social-outline" slot="start"></ion-icon>
         {{ isGeneratingPdf ? 'Preparing...' : 'Share Receipt' }}
       </ion-button>
       
       <ion-button expand="block" (click)="goToHome()" fill="clear" class="ion-margin-top">
-        <ion-icon name="home" slot="start"></ion-icon>
+        <ion-icon name="home-outline" slot="start"></ion-icon>
         Back to Home
       </ion-button>
     </div>
   </div>
 </ion-content>
-
-<style>
-  .receipt-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 16px;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .action-buttons {
-    margin-top: 24px;
-    border-top: 1px solid var(--ion-color-light);
-    padding-top: 16px;
-  }
-  
-  .transaction-amount {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 16px 0;
-  }
-  
-  ion-note {
-    text-align: right;
-  }
-  
-  ion-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
-  }
-</style>

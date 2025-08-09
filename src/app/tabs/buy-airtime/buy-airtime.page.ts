@@ -260,10 +260,26 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
         if (!this.userProfile?._id) {
           await this.getUserProfile();
         }
+        // Format phone number for Ghana (remove +233 prefix if present)
+        let formattedPhoneNumber = form.recipientNumber;
+        const cleanNumber = formattedPhoneNumber.replace(/\D/g, '');
+        
+        // Convert Ghanaian phone numbers to local format (0240000000)
+        if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+          // Convert 233244000000 -> 0244000000
+          formattedPhoneNumber = '0' + cleanNumber.slice(3);
+        } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+          // Convert +233244000000 -> 0244000000
+          formattedPhoneNumber = '0' + cleanNumber.slice(3);
+        } else if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+          // Keep as is: 0240000000
+          formattedPhoneNumber = cleanNumber;
+        }
+
         // Airtime Topup Parameters to Prymo
-        this.topupParams.recipientNumber = form.recipientNumber;
+        this.topupParams.recipientNumber = formattedPhoneNumber;
         const timestamp = new Date().toLocaleString();
-        this.topupParams.description = `Airtime recharge for ${form.network}: ${form.recipientNumber} - GH₵${form.amount} (${timestamp})`;
+        this.topupParams.description = `Airtime recharge for ${form.network}: ${formattedPhoneNumber} - GH₵${form.amount} (${timestamp})`;
         this.topupParams.amount = this.formatAmount(form.amount);
         this.topupParams.network = form.network;
         this.topupParams.payTransRef =
@@ -274,7 +290,7 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
           firstName: this.userProfile.firstName || '',
           lastName: this.userProfile.lastName || '',
           email: this.userProfile.email || '',
-          phoneNumber: form.recipientNumber,
+          phoneNumber: formattedPhoneNumber,
           username: this.userProfile?.username || '',
           amount: Number(form.amount),
           orderDesc: this.topupParams.description,

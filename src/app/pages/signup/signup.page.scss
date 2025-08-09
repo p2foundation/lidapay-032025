@@ -81,9 +81,12 @@
       position: relative;
       display: flex;
       align-items: center;
-      background-color: #ffffff;
+      background-color: var(--ion-item-background, #ffffff);
       border-radius: var(--card-border-radius);
       padding: 8px 12px;
+      border: 1px solid var(--ion-border-color, #e0e0e0);
+      min-height: 56px;
+      box-sizing: border-box;
 
       ion-icon {
         margin-right: 8px;
@@ -94,6 +97,36 @@
         flex: 1;
         padding-left: 8px; // Space for icon
         font-size: 16px;
+        --color: var(--ion-text-color);
+        --placeholder-color: var(--ion-color-medium);
+        --background: transparent;
+        --padding-top: 12px;
+        --padding-bottom: 12px;
+        --min-height: 48px;
+      }
+
+      ion-select {
+        flex: 1;
+        padding-left: 8px;
+        --color: var(--ion-text-color);
+        --placeholder-color: var(--ion-color-medium);
+        --background: transparent;
+        --padding-top: 12px;
+        --padding-bottom: 12px;
+        --min-height: 48px;
+        font-size: 16px;
+      }
+      
+      .toggle-password {
+        color: var(--ion-color-medium);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: color 0.3s ease;
+        
+        &:hover {
+          color: var(--ion-color-primary);
+        }
       }
     }
 
@@ -168,20 +201,75 @@
 // Dark mode adjustments
 @media (prefers-color-scheme: dark) {
   .input-wrapper {
-    ion-icon {
-      color: var(--ion-color-light);
+    background-color: var(--ion-item-background);
+    border-color: var(--ion-border-color);
+    
+    ion-input {
+      --color: var(--ion-text-color);
+      --placeholder-color: var(--ion-color-medium);
     }
-
-    .error-message {
-      color: var(--ion-color-danger);
+    
+    ion-select {
+      --color: var(--ion-text-color);
+      --placeholder-color: var(--ion-color-medium);
+    }
+    
+    ion-icon {
+      color: var(--ion-color-medium);
     }
   }
 
   .welcome-text {
-    color: var(--ion-color-light);
+    color: var(--ion-text-color);
   }
 
   .subtitle {
-    color: var(--ion-color-light);
+    color: var(--ion-color-medium);
+  }
+}
+
+body.dark {
+  .input-wrapper {
+    background-color: var(--ion-item-background);
+    border-color: var(--ion-border-color);
+    
+    ion-input {
+      --color: var(--ion-text-color);
+      --placeholder-color: var(--ion-color-medium);
+    }
+    
+    ion-select {
+      --color: var(--ion-text-color);
+      --placeholder-color: var(--ion-color-medium);
+    }
+    
+    ion-icon {
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .welcome-text {
+    color: var(--ion-text-color);
+  }
+  
+  .subtitle {
+    color: var(--ion-color-medium);
+  }
+}
+
+body.light {
+  .input-wrapper {
+    background-color: var(--ion-item-background);
+    border-color: var(--ion-border-color);
+    
+    ion-input {
+      --color: var(--ion-text-color);
+      --placeholder-color: var(--ion-color-medium);
+    }
+    
+    ion-select {
+      --color: var(--ion-text-color);
+      --placeholder-color: var(--ion-color-medium);
+    }
   }
 }

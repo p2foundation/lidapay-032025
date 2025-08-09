@@ -12,6 +12,7 @@ import {
   IonToolbar,
   IonRefresher,
   IonRefresherContent,
+  ToastController,
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
@@ -34,6 +35,8 @@ import {
   receiptOutline,
   settingsOutline, swapHorizontalOutline, repeatOutline, timeOutline, chevronForwardOutline, checkmarkCircleOutline, 
   chevronDownCircleOutline} from 'ionicons/icons';
+import { StorageService } from '../../services/storage.service';
+import { HistoryService } from '../../services/transactions/history.service';
 
 @Component({
   selector: 'app-home',
@@ -68,7 +71,10 @@ export class HomePage implements OnInit {
 
   constructor(
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private historyService: HistoryService,
+    private storage: StorageService,
+    private toastCtrl: ToastController
   ) {
     addIcons({searchOutline,notificationsOutline,swapHorizontalOutline,repeatOutline,cellularOutline,timeOutline,chevronForwardOutline,checkmarkCircleOutline,wifiOutline,arrowForwardOutline,cashOutline,addCircleOutline,cogOutline,globeOutline,locationOutline,infiniteOutline,cardOutline,walletOutline,receiptOutline,settingsOutline,chevronDownCircleOutline});
     this.translate.setDefaultLang('en');
@@ -118,19 +124,54 @@ export class HomePage implements OnInit {
   }
 
   private async loadTransactionStats() {
-    // TODO: Replace with real API call to your transaction service
-    // Example:
-    // try {
-    //   const stats = await this.transactionService.getStats().toPromise();
-    //   this.pendingTransactions = stats.pending;
-    //   this.totalTransactions = stats.total;
-    // } catch (error) {
-    //   console.error('Error loading transaction stats:', error);
-    // }
-    
-    // For now, using mock data
-    this.pendingTransactions = 2;
-    this.totalTransactions = 15;
+    try {
+      // Get user ID from storage
+      const user = await this.storage.getStorage('user');
+      if (!user || !user._id) {
+        console.error('User not found in storage');
+        return;
+      }
+
+      // First, check local storage for pending transactions
+      const allKeys = await (await this.storage.getAllKeys()) || [];
+      const pendingLocalTransactions = allKeys.filter(key => 
+        key.startsWith('pendingTransaction_')
+      );
+
+      // Then fetch from API
+      const response: any = await this.historyService
+        .getTransactionByUserId(user._id, 1, 100) // Fetch first 100 transactions
+        .toPromise();
+
+      let pendingCount = 0;
+      let totalCount = 0;
+
+      // Count pending transactions from API
+      if (response && response.data) {
+        const pendingApiTransactions = response.data.filter((txn: any) => 
+          txn.status && txn.status.transaction === 'pending'
+        );
+        pendingCount = pendingApiTransactions.length;
+        totalCount = response.pagination?.total || response.data.length;
+      }
+
+      // Add local pending transactions
+      pendingCount += pendingLocalTransactions.length;
+
+      // Update the UI
+      this.pendingTransactions = pendingCount;
+      this.totalTransactions = totalCount;
+
+    } catch (error) {
+      console.error('Error loading transaction stats:', error);
+      const toast = await this.toastCtrl.create({
+        message: 'Failed to load transaction stats. Please try again.',
+        duration: 3000,
+        position: 'bottom',
+        color: 'danger'
+      });
+      await toast.present();
+    }
   }
 
   private async loadUserPreferences() {
@@ -211,7 +252,7 @@ export class HomePage implements OnInit {
 
   async viewPendingTransactions() {
     await Haptics.impact({ style: ImpactStyle.Medium });
-    this.router.navigate(['./transactions', { status: 'pending' }]);
+    this.router.navigate(['/tabs/pending-transactions']);
   }
 
   async viewCompletedTransactions() {

@@ -1,17 +1,49 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem, 
-  IonLabel, IonInput, IonSelect, IonSelectOption, IonCard, IonCardContent,
-  IonButtons, IonBackButton, IonIcon, IonGrid, IonRow, IonCol, IonChip,
-  IonSpinner, IonAlert, IonToast, IonModal, IonList, IonAvatar, IonBadge,
-  ModalController
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButton,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonCard,
+  IonCardContent,
+  IonButtons,
+  IonBackButton,
+  IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonChip,
+  IonSpinner,
+  IonAlert,
+  IonToast,
+  IonModal,
+  IonList,
+  IonAvatar,
+  IonBadge,
+  ModalController,
 } from '@ionic/angular/standalone';
 
-import { EnhancedAirtimeService, Country, Operator, AirtimeRequest } from 'src/app/services/enhanced-airtime.service';
+import {
+  EnhancedAirtimeService,
+  Country,
+  Operator,
+  AirtimeRequest,
+} from 'src/app/services/enhanced-airtime.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { AccountService } from 'src/app/services/auth/account.service';
 import { AdvansisPayService } from 'src/app/services/payments/advansis-pay.service';
@@ -26,7 +58,7 @@ enum WizardStep {
   PHONE_NUMBER = 2,
   AMOUNT_SELECTION = 3,
   CONFIRMATION = 4,
-  PROCESSING = 5
+  PROCESSING = 5,
 }
 
 @Component({
@@ -38,19 +70,41 @@ enum WizardStep {
     CommonModule,
     ReactiveFormsModule,
     TranslateModule,
-    IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonItem,
-    IonLabel, IonInput, IonSelect, IonSelectOption, IonCard, IonCardContent,
-    IonButtons, IonBackButton, IonIcon, IonGrid, IonRow, IonCol, IonChip,
-    IonSpinner, IonAlert, IonToast, IonModal, IonList, IonAvatar, IonBadge
-  ]
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButton,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonCard,
+    IonCardContent,
+    IonButtons,
+    IonBackButton,
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonChip,
+    IonSpinner,
+    IonAlert,
+    IonToast,
+    IonModal,
+    IonList,
+    IonAvatar,
+    IonBadge,
+  ],
 })
 export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   currentStep = WizardStep.COUNTRY_SELECTION;
   wizardSteps = WizardStep;
-  
+
   // Form data
   airtimeForm: FormGroup;
-  
+
   // Data
   countries: Country[] = [];
   operators: Operator[] = [];
@@ -58,19 +112,19 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   selectedOperator: Operator | null = null;
   detectedOperator: Operator | null = null;
   userProfile: Profile = {} as Profile;
-  
+
   // UI States
   isLoading = false;
   isDetectingOperator = false;
   showOperatorModal = false;
-  
+
   // Quick amounts
-  quickAmounts = [5, 10, 20, 50, 100, 200, 500];
-  
+  quickAmounts = [1, 5, 10, 20, 50, 100, 200];
+
   // Payment and transaction properties
   private readonly GHANA_ISO = 'GH';
   topupParams: any = {};
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -89,7 +143,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       operatorId: ['', Validators.required],
       recipientNumber: ['', [Validators.required, Validators.minLength(7)]],
       amount: ['', [Validators.required, Validators.min(1)]],
-      autoDetect: [true]
+      autoDetect: [true],
     });
   }
 
@@ -117,7 +171,8 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
 
   private loadCountries() {
     this.isLoading = true;
-    this.enhancedAirtimeService.getCountries()
+    this.enhancedAirtimeService
+      .getCountries()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (countries) => {
@@ -130,17 +185,33 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         },
         complete: () => {
           this.isLoading = false;
-        }
+        },
       });
   }
 
   private setupFormListeners() {
-    // Listen to phone number changes for auto-detection
-    this.airtimeForm.get('recipientNumber')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(phoneNumber => {
-        if (phoneNumber && this.airtimeForm.get('autoDetect')?.value) {
-          this.autoDetectOperator(phoneNumber);
+    // Listen to phone number changes for auto-detection and formatting
+    this.airtimeForm
+      .get('recipientNumber')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((phoneNumber) => {
+        if (phoneNumber) {
+          let formattedNumber = phoneNumber;
+          
+          // Format phone number for Ghana
+          if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+            formattedNumber = this.formatPhoneNumberForGhana(phoneNumber);
+            if (formattedNumber !== phoneNumber) {
+              // Update the form with formatted number (without triggering valueChanges again)
+              this.airtimeForm.get('recipientNumber')?.setValue(formattedNumber, { emitEvent: false });
+              console.log('Phone number formatted:', phoneNumber, '->', formattedNumber);
+            }
+          }
+          
+          // Auto-detect operator
+          if (this.airtimeForm.get('autoDetect')?.value) {
+            this.autoDetectOperator(formattedNumber);
+          }
         }
       });
   }
@@ -155,7 +226,8 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    this.enhancedAirtimeService.getOperators(countryIso)
+    this.enhancedAirtimeService
+      .getOperators(countryIso)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (operators) => {
@@ -169,17 +241,23 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         },
         complete: () => {
           this.isLoading = false;
-        }
+        },
       });
   }
 
   private autoDetectOperator(phoneNumber: string) {
     if (!phoneNumber || !this.selectedCountry) return;
 
-    console.log('Starting auto-detection for:', this.selectedCountry.name, 'phone:', phoneNumber);
+    console.log(
+      'Starting auto-detection for:',
+      this.selectedCountry.name,
+      'phone:',
+      phoneNumber
+    );
     this.isDetectingOperator = true;
-    
-    this.enhancedAirtimeService.autoDetectOperator(phoneNumber, this.selectedCountry.isoName)
+
+    this.enhancedAirtimeService
+      .autoDetectOperator(phoneNumber, this.selectedCountry.isoName)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (operator) => {
@@ -187,22 +265,26 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
           this.detectedOperator = operator;
           this.airtimeForm.patchValue({ operatorId: operator.id });
           this.selectedOperator = operator;
-          
+
           // For non-Ghanaian countries, show a notification that operator was detected
           if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
-            this.notificationService.showSuccess(`Network detected: ${operator.name}`);
+            this.notificationService.showSuccess(
+              `Network detected: ${operator.name}`
+            );
           }
         },
         error: (error) => {
           console.error('Auto-detection failed:', error);
           // For non-Ghanaian countries, show a warning but don't block the flow
           if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
-            this.notificationService.showWarn('Could not auto-detect network. Please ensure the phone number is correct.');
+            this.notificationService.showWarn(
+              'Could not auto-detect network. Please ensure the phone number is correct.'
+            );
           }
         },
         complete: () => {
           this.isDetectingOperator = false;
-        }
+        },
       });
   }
 
@@ -210,12 +292,12 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     console.log('Selected country:', country);
     this.selectedCountry = country;
     this.airtimeForm.patchValue({ countryIso: country.isoName });
-    
+
     // Clear any previous operator selection
     this.selectedOperator = null;
     this.detectedOperator = null;
     this.airtimeForm.patchValue({ operatorId: '' });
-    
+
     // Load operators only for Ghana
     if (country.isoName === this.GHANA_ISO) {
       this.loadOperators(country.isoName);
@@ -223,8 +305,22 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       // For non-Ghanaian countries, clear operators array
       this.operators = [];
     }
-    
+
     this.nextStep();
+  }
+
+  // Method to ensure phone number is formatted for Ghana
+  private ensurePhoneNumberFormatted(): void {
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
+      if (phoneNumber) {
+        const formattedNumber = this.formatPhoneNumberForGhana(phoneNumber);
+        if (formattedNumber !== phoneNumber) {
+          this.airtimeForm.patchValue({ recipientNumber: formattedNumber });
+          console.log('Phone number formatted in ensurePhoneNumberFormatted:', phoneNumber, '->', formattedNumber);
+        }
+      }
+    }
   }
 
   selectOperator(operator: Operator) {
@@ -239,72 +335,51 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   onPhoneNumberInput(event: any) {
-    const phoneNumber = event.target.value;
-    if (this.selectedCountry) {
-      // For Ghanaian numbers, ensure proper formatting
-      if (this.selectedCountry.isoName === this.GHANA_ISO) {
-        // Clean the input and ensure it's in the correct format
-        const cleanNumber = phoneNumber.replace(/\D/g, '');
-        let formattedNumber = '';
-        
-        if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
-          // Keep as is: 0244588584
-          formattedNumber = cleanNumber;
-        } else if (cleanNumber.length === 9) {
-          // Add 0 prefix: 244588584 -> 0244588584
-          formattedNumber = '0' + cleanNumber;
-        } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
-          // Convert to local format: 233244588584 -> 0244588584
-          formattedNumber = '0' + cleanNumber.slice(3);
-        } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
-          // Convert to local format: +233244588584 -> 0244588584
-          formattedNumber = '0' + cleanNumber.slice(3);
-        } else {
-          // For any other format, try to make it valid
-          if (cleanNumber.length >= 9) {
-            formattedNumber = '0' + cleanNumber.slice(-9);
-          } else {
-            formattedNumber = phoneNumber; // Keep original if can't format
-          }
-        }
-        
-        this.airtimeForm.patchValue({ recipientNumber: formattedNumber });
-      } else {
-        // For non-Ghanaian countries, use the enhanced service formatting
-        const formatted = this.enhancedAirtimeService.formatPhoneNumber(phoneNumber, this.selectedCountry.isoName);
-        this.airtimeForm.patchValue({ recipientNumber: formatted });
-        
-        // Auto-detect operator for non-Ghanaian countries when phone number is entered
-        if (formatted.length >= 7) {
-          console.log('Auto-detecting operator for:', this.selectedCountry.name, 'with phone:', formatted);
-          this.autoDetectOperator(formatted);
-        }
+    let phoneNumber = event.target.value;
+    
+    // For Ghana, format the phone number immediately
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      const formattedNumber = this.formatPhoneNumberForGhana(phoneNumber);
+      if (formattedNumber !== phoneNumber) {
+        phoneNumber = formattedNumber;
+        // Update the input field directly
+        event.target.value = formattedNumber;
       }
     }
+    
+    // Update the form
+    this.airtimeForm.patchValue({ recipientNumber: phoneNumber });
   }
 
   validatePhoneNumber(): boolean {
     const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
     const countryIso = this.airtimeForm.get('countryIso')?.value;
-    
+
     if (!phoneNumber || !countryIso) return false;
+
+    // Allow any reasonable phone number format (7+ digits)
+    // This allows users to enter numbers like 0240000000, +233244000000, etc.
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
     
-    // For non-Ghanaian countries, basic validation is sufficient since operator will be auto-detected
-    if (countryIso !== this.GHANA_ISO) {
-      return phoneNumber.length >= 7;
-    }
-    
-    return this.enhancedAirtimeService.validatePhoneNumber(phoneNumber, countryIso);
+    // Basic validation: must have at least 7 digits
+    return cleanNumber.length >= 7;
   }
 
   nextStep() {
     if (this.currentStep < WizardStep.CONFIRMATION) {
       this.currentStep++;
-      
+
       // For non-Ghanaian countries, skip operator selection step
-      if (this.currentStep === WizardStep.OPERATOR_SELECTION && 
-          this.selectedCountry?.isoName !== this.GHANA_ISO) {
+      if (
+        this.currentStep === WizardStep.OPERATOR_SELECTION &&
+        this.selectedCountry?.isoName !== this.GHANA_ISO
+      ) {
         this.currentStep = WizardStep.PHONE_NUMBER;
+      }
+      
+      // When reaching confirmation step, ensure phone number is formatted for Ghana
+      if (this.currentStep === WizardStep.CONFIRMATION) {
+        this.ensurePhoneNumberFormatted();
       }
     }
   }
@@ -312,10 +387,12 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   previousStep() {
     if (this.currentStep > WizardStep.COUNTRY_SELECTION) {
       this.currentStep--;
-      
+
       // For non-Ghanaian countries, skip operator selection step when going back
-      if (this.currentStep === WizardStep.OPERATOR_SELECTION && 
-          this.selectedCountry?.isoName !== this.GHANA_ISO) {
+      if (
+        this.currentStep === WizardStep.OPERATOR_SELECTION &&
+        this.selectedCountry?.isoName !== this.GHANA_ISO
+      ) {
         this.currentStep = WizardStep.COUNTRY_SELECTION;
       }
     }
@@ -323,6 +400,11 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
 
   goToStep(step: WizardStep) {
     this.currentStep = step;
+    
+    // When going to confirmation step, ensure phone number is formatted for Ghana
+    if (step === WizardStep.CONFIRMATION) {
+      this.ensurePhoneNumberFormatted();
+    }
   }
 
   async submitAirtime() {
@@ -331,13 +413,18 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       return;
     }
 
+    // Ensure phone number is formatted before submission
+    this.ensurePhoneNumberFormatted();
+
     const formData = this.airtimeForm.value;
     const countryIso = formData.countryIso;
     const isGhana = countryIso === this.GHANA_ISO;
 
     // For non-Ghanaian countries, ensure we have operator information from auto-detection
     if (!isGhana && !this.selectedOperator && !this.detectedOperator) {
-      this.notificationService.showWarn('Please enter a valid phone number to auto-detect the network');
+      this.notificationService.showWarn(
+        'Please enter a valid phone number to auto-detect the network'
+      );
       return;
     }
 
@@ -365,41 +452,23 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     const modalResult = await this.presentWaitingModal();
 
     try {
-      // Ensure phone number is in the correct format for API (233 format)
-      let apiPhoneNumber = formData.recipientNumber;
-      const cleanNumber = apiPhoneNumber.replace(/\D/g, '');
-      
-      // Convert to proper 233 format for API
-      if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
-        // Convert 0244588584 -> 233244588584
-        apiPhoneNumber = '233' + cleanNumber.slice(1);
-      } else if (cleanNumber.length === 9) {
-        // Convert 244588584 -> 233244588584
-        apiPhoneNumber = '233' + cleanNumber;
-      } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
-        // Keep as is: 233244588584
-        apiPhoneNumber = cleanNumber;
-      } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
-        // Remove + from +233244588584 -> 233244588584
-        apiPhoneNumber = cleanNumber.slice(1);
-      } else {
-        // For any other format, try to make it valid
-        if (cleanNumber.length >= 9) {
-          apiPhoneNumber = '233' + cleanNumber.slice(-9);
-        } else {
-          throw new Error('Invalid phone number format. Please enter a valid Ghanaian phone number.');
-        }
-      }
+      // The phone number is already formatted correctly in onPhoneNumberInput
+      // Just use it as is for the API
+      const apiPhoneNumber = formData.recipientNumber;
 
       // Prepare Ghana airtime parameters (for storage only - not for direct API call)
       this.topupParams = {
-        recipientNumber: apiPhoneNumber,
-        description: `Airtime recharge for ${formData.operatorId}: ${this.formatPhoneNumberForDisplay(formData.recipientNumber)} - GH₵${formData.amount} (${new Date().toLocaleString()})`,
+        recipientNumber: apiPhoneNumber, // Use the formatted number (like 0240000000) for API
+        description: `Airtime recharge for ${
+          formData.operatorId
+        }: ${this.formatPhoneNumberForDisplay(formData.recipientNumber)} - GH₵${
+          formData.amount
+        } (${new Date().toLocaleString()})`,
         amount: this.formatAmount(formData.amount),
         network: formData.operatorId,
         payTransRef: await this.utilService.generateReference(),
         transType: 'AIRTIMETOPUP',
-        customerEmail: 'info@advansistechnologies.com'
+        customerEmail: this.userProfile.email || '',
       };
 
       // Express Pay Parameters
@@ -408,7 +477,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         firstName: this.userProfile.firstName || '',
         lastName: this.userProfile.lastName || '',
         email: this.userProfile.email || '',
-        phoneNumber: apiPhoneNumber,
+        phoneNumber: apiPhoneNumber, // Use the formatted number (like 0240000000)
         username: this.userProfile?.username || '',
         amount: Number(formData.amount),
         orderDesc: this.topupParams.description,
@@ -419,23 +488,35 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       console.log('[Ghana Airtime] => Airtime params:', this.topupParams);
 
       // Validate profile information
-      if (!expressPayParams.firstName || !expressPayParams.lastName || !expressPayParams.email) {
-        throw new Error('Missing required user profile information. Please update your profile.');
+      if (
+        !expressPayParams.firstName ||
+        !expressPayParams.lastName ||
+        !expressPayParams.email
+      ) {
+        throw new Error(
+          'Missing required user profile information. Please update your profile.'
+        );
       }
 
       // Store transaction details
-      await this.storage.setStorage('pendingTransaction', JSON.stringify({
-        ...this.topupParams,
-        ...expressPayParams,
-        timestamp: new Date().toISOString(),
-      }));
+      await this.storage.setStorage(
+        'pendingTransaction',
+        JSON.stringify({
+          ...this.topupParams,
+          ...expressPayParams,
+          timestamp: new Date().toISOString(),
+        })
+      );
 
       // Initiate payment (don't call airtime service directly)
       const response = await firstValueFrom(
         this.advansisPayService.expressPayOnline(expressPayParams)
       );
 
-      console.log('[Ghana Payment response]=>', JSON.stringify(response, null, 2));
+      console.log(
+        '[Ghana Payment response]=>',
+        JSON.stringify(response, null, 2)
+      );
 
       if (!response || !response.data?.checkoutUrl) {
         throw new Error('Payment service did not return a checkout URL');
@@ -447,13 +528,16 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       }
 
       // Store additional transaction details
-      await this.storage.setStorage('pendingTransaction', JSON.stringify({
-        ...this.topupParams,
-        ...expressPayParams,
-        timestamp: new Date().toISOString(),
-        transactionToken: response.data.token,
-        orderId: response.data['order-id']
-      }));
+      await this.storage.setStorage(
+        'pendingTransaction',
+        JSON.stringify({
+          ...this.topupParams,
+          ...expressPayParams,
+          timestamp: new Date().toISOString(),
+          transactionToken: response.data.token,
+          orderId: response.data['order-id'],
+        })
+      );
 
       // Open checkout URL
       window.open(response.data.checkoutUrl, '_system');
@@ -462,7 +546,6 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       this.resetForm();
       this.currentStep = WizardStep.COUNTRY_SELECTION;
       this.notificationService.showSuccess('Payment initiated successfully');
-
     } catch (error: any) {
       console.error('Ghana airtime processing error:', error);
       this.notificationService.showError(error.message || 'Transaction failed');
@@ -481,9 +564,11 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       // Use the already detected operator from the wizard
       const operator = this.selectedOperator || this.detectedOperator;
       console.log('Processing international airtime with operator:', operator);
-      
+
       if (!operator) {
-        throw new Error('No operator detected. Please ensure the phone number is correct.');
+        throw new Error(
+          'No operator detected. Please ensure the phone number is correct.'
+        );
       }
 
       modalResult.updateStatus('Preparing transaction...');
@@ -494,12 +579,15 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         amount: Number(formData.amount),
         description: `International airtime recharge for ${formData.recipientNumber} (${operator.name})`,
         recipientEmail: this.userProfile.email || '',
-        recipientNumber: this.enhancedAirtimeService.formatPhoneNumberForAPI(formData.recipientNumber, formData.countryIso),
+        recipientNumber: this.enhancedAirtimeService.formatPhoneNumberForAPI(
+          formData.recipientNumber,
+          formData.countryIso
+        ),
         recipientCountryCode: formData.countryIso,
         senderNumber: this.userProfile.phoneNumber || '',
         payTransRef: await this.utilService.generateReference(),
         transType: 'GLOBALAIRTOPUP',
-        customerEmail: 'info@advansistechnologies.com'
+        customerEmail: this.userProfile.email || '',
       };
 
       // Prepare payment parameters
@@ -509,7 +597,10 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         firstName: this.userProfile.firstName || '',
         lastName: this.userProfile.lastName || '',
         email: this.userProfile.email || '',
-        phoneNumber: this.enhancedAirtimeService.formatPhoneNumberForAPI(formData.recipientNumber, formData.countryIso),
+        phoneNumber: this.enhancedAirtimeService.formatPhoneNumberForAPI(
+          formData.recipientNumber,
+          formData.countryIso
+        ),
         username: this.userProfile.username || '',
         amount: Number(formData.amount),
         orderDesc: `International airtime recharge for ${formData.recipientNumber} (${operator.name})`,
@@ -519,13 +610,19 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       // Store transaction details
       modalResult.updateStatus('Saving transaction details...');
       console.log('[International Airtime] => topupParams', this.topupParams);
-      console.log('[International Airtime] => expressPayParams', expressPayParams);
+      console.log(
+        '[International Airtime] => expressPayParams',
+        expressPayParams
+      );
 
-      await this.storage.setStorage('pendingTransaction', JSON.stringify({
-        ...this.topupParams,
-        ...expressPayParams,
-        timestamp: new Date().toISOString(),
-      }));
+      await this.storage.setStorage(
+        'pendingTransaction',
+        JSON.stringify({
+          ...this.topupParams,
+          ...expressPayParams,
+          timestamp: new Date().toISOString(),
+        })
+      );
 
       // Initiate payment (don't call airtime service directly)
       modalResult.updateStatus('Initiating payment...');
@@ -559,7 +656,10 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     }
   }
 
-  private async detectOperator(params: { phone: string; countryIsoCode: string }) {
+  private async detectOperator(params: {
+    phone: string;
+    countryIsoCode: string;
+  }) {
     console.log('Calling autoDetectOperator with:', {
       phone: params.phone,
       countryIsoCode: params.countryIsoCode,
@@ -607,40 +707,63 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     return Number(amount) * 100; // Convert to kobo
   }
 
-  formatPhoneNumberForDisplay(phoneNumber: string): string {
+  formatPhoneNumberForGhana(phoneNumber: string): string {
     if (!phoneNumber) return '';
+
+    console.log('Formatting Ghana phone number:', phoneNumber);
     
-    // Clean the phone number
     const cleanNumber = phoneNumber.replace(/\D/g, '');
+    console.log('Clean number:', cleanNumber);
     
-    // For Ghanaian numbers, convert to local format (starting with 0)
-    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
-      if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
-        // Convert 233244588584 -> 0244588584
-        return '0' + cleanNumber.slice(3);
-      } else if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
-        // Keep as is: 0244588584
-        return cleanNumber;
-      } else if (cleanNumber.length === 9) {
-        // Convert 244588584 -> 0244588584
-        return '0' + cleanNumber;
-      } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
-        // Convert +233244588584 -> 0244588584
-        return '0' + cleanNumber.slice(3);
-      }
+    // Convert Ghanaian phone numbers to local format (0240000000)
+    if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+      // Convert 2330244588584 -> 0244588584 (remove 233 prefix and keep the rest)
+      const result = cleanNumber.slice(3);
+      console.log('12-digit format converted:', result);
+      return result;
+    } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+      // Convert +2330244588584 -> 0244588584 (remove 233 prefix and keep the rest)
+      const result = cleanNumber.slice(3);
+      console.log('13-digit format converted:', result);
+      return result;
+    } else if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+      // Keep as is: 0244588584
+      console.log('10-digit format kept as is:', cleanNumber);
+      return cleanNumber;
+    } else if (cleanNumber.length === 11 && cleanNumber.startsWith('233')) {
+      // Convert 233244000000 -> 0244000000 (remove 233 prefix and add 0)
+      const result = '0' + cleanNumber.slice(3);
+      console.log('11-digit format converted:', result);
+      return result;
     }
     
-    // For other countries or invalid formats, return as is
+    // For any other format, try to make it work
+    console.log('Other format, returning as is:', phoneNumber);
     return phoneNumber;
   }
 
-  private async presentWaitingModal(): Promise<{ modal: HTMLIonModalElement; updateStatus: (message: string) => void }> {
+  formatPhoneNumberForDisplay(phoneNumber: string): string {
+    if (!phoneNumber) return '';
+
+    // For Ghana, ensure the phone number is in the correct format (0240000000)
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      return this.formatPhoneNumberForGhana(phoneNumber);
+    }
+
+    // For other countries, return as is
+    return phoneNumber;
+  }
+
+  private async presentWaitingModal(): Promise<{
+    modal: HTMLIonModalElement;
+    updateStatus: (message: string) => void;
+  }> {
     const modal = await this.modalController.create({
       component: 'ion-loading',
       componentProps: {
         message: 'Processing...',
-        spinner: 'crescent'
-      }
+        spinner: 'crescent',
+      },
     });
     await modal.present();
 
@@ -653,7 +776,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
 
   private resetForm() {
     this.airtimeForm.reset({
-      autoDetect: true
+      autoDetect: true,
     });
     this.selectedCountry = null;
     this.selectedOperator = null;
@@ -664,13 +787,16 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     // Calculate total steps, accounting for skipped operator selection for non-Ghanaian countries
     const totalSteps = this.selectedCountry?.isoName !== this.GHANA_ISO ? 5 : 6;
     const currentStepIndex = this.currentStep;
-    
+
     // Adjust step index if we're past operator selection for non-Ghanaian countries
     let adjustedStepIndex = currentStepIndex;
-    if (this.selectedCountry?.isoName !== this.GHANA_ISO && currentStepIndex > WizardStep.OPERATOR_SELECTION) {
+    if (
+      this.selectedCountry?.isoName !== this.GHANA_ISO &&
+      currentStepIndex > WizardStep.OPERATOR_SELECTION
+    ) {
       adjustedStepIndex = currentStepIndex - 1;
     }
-    
+
     return ((adjustedStepIndex + 1) / totalSteps) * 100;
   }
 
@@ -718,6 +844,31 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     }
   }
 
+  getFormattedPhoneNumber(): string {
+    const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
+    if (!phoneNumber) return '';
+    
+    console.log('Getting formatted phone number for display:', phoneNumber);
+    
+    // For Ghana, ensure the phone number is in the correct format (0240000000)
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      const formatted = this.formatPhoneNumberForGhana(phoneNumber);
+      console.log('Formatted for Ghana:', formatted);
+      
+      // If the formatted number is different, update the form
+      if (formatted !== phoneNumber) {
+        this.airtimeForm.patchValue({ recipientNumber: formatted });
+        console.log('Updated form with formatted number:', formatted);
+      }
+      
+      return formatted;
+    }
+    
+    // For other countries, return as is
+    console.log('Returning as is for non-Ghana:', phoneNumber);
+    return phoneNumber;
+  }
+
   canProceed(): boolean {
     switch (this.currentStep) {
       case WizardStep.COUNTRY_SELECTION:
@@ -738,4 +889,4 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         return false;
     }
   }
-} 
+}

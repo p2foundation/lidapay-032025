@@ -1,10 +1,16 @@
 // Account Page Styles
 .account-content {
-  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --background: var(--ion-background-color);
   
   .header-toolbar {
-    --background: transparent;
-    --border-style: none;
+    --background: var(--ion-toolbar-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    
+    ion-back-button {
+      --color: var(--ion-text-color);
+      --icon-font-size: 24px;
+    }
     
     .header-title {
       .title-content {
@@ -12,13 +18,13 @@
           margin: 0;
           font-size: 1.5rem;
           font-weight: 700;
-          color: var(--ion-color-dark);
+          color: var(--ion-text-color);
         }
         
         p {
           margin: 4px 0 0 0;
           font-size: 0.875rem;
-          color: var(--ion-color-medium);
+          color: var(--ion-color-step-600);
         }
       }
     }
@@ -38,18 +44,21 @@
       height: 100px;
       border-radius: 50%;
       margin: 0 auto 16px;
+      --background: var(--ion-color-step-200);
     }
 
     .name-skeleton {
       width: 60%;
       height: 24px;
       margin: 0 auto 8px;
+      --background: var(--ion-color-step-200);
     }
 
     .email-skeleton {
       width: 40%;
       height: 16px;
       margin: 0 auto;
+      --background: var(--ion-color-step-200);
     }
   }
 
@@ -62,6 +71,7 @@
       flex: 1;
       height: 80px;
       border-radius: 16px;
+      --background: var(--ion-color-step-200);
     }
   }
 }
@@ -90,13 +100,14 @@
         position: absolute;
         bottom: -2px;
         right: -2px;
-        background: white;
+        background: var(--ion-item-background);
         border-radius: 50%;
         padding: 2px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         
         ion-icon {
           font-size: 1.2rem;
+          color: var(--ion-color-primary);
         }
       }
     }
@@ -108,26 +119,13 @@
         margin: 0 0 4px 0;
         font-size: 1.25rem;
         font-weight: 600;
-        color: var(--ion-color-dark);
+        color: var(--ion-text-color);
       }
       
       .profile-email {
-        margin: 0 0 8px 0;
+        margin: 0;
         font-size: 0.875rem;
-        color: var(--ion-color-medium);
-      }
-      
-      .profile-status {
-        .status-badge {
-          font-size: 0.75rem;
-          padding: 4px 8px;
-          border-radius: 12px;
-          
-          ion-icon {
-            margin-right: 4px;
-            font-size: 0.875rem;
-          }
-        }
+        color: var(--ion-color-step-600);
       }
     }
   }
@@ -136,18 +134,17 @@
 // Stats Container
 .stats-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
   
   .stat-card {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 16px;
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
     padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease;
     
     &:active {
@@ -157,32 +154,31 @@
     .stat-icon {
       width: 40px;
       height: 40px;
-      background: var(--ion-color-primary);
       border-radius: 12px;
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-bottom: 12px;
       
       ion-icon {
         font-size: 1.25rem;
-        color: white;
+        color: var(--ion-color-primary);
       }
     }
     
     .stat-content {
-      flex: 1;
-      
       .stat-value {
-        display: block;
+        margin: 0 0 4px 0;
         font-size: 1.125rem;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-        margin-bottom: 2px;
+        font-weight: 700;
+        color: var(--ion-text-color);
       }
       
       .stat-label {
+        margin: 0;
         font-size: 0.75rem;
-        color: var(--ion-color-medium);
+        color: var(--ion-color-step-600);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -195,148 +191,109 @@
   margin-bottom: 24px;
   
   .theme-toggle {
-    --background: rgba(255, 255, 255, 0.9);
-    --border-radius: 16px;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    --min-height: 56px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     
-    .theme-icon {
-      font-size: 1.25rem;
-      color: var(--ion-color-primary);
-    }
-    
-    ion-label {
-      h4 {
-        margin: 0 0 2px 0;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--ion-color-dark);
+    .toggle-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      
+      .toggle-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        
+        ion-icon {
+          font-size: 1.25rem;
+          color: var(--ion-color-primary);
+        }
+        
+        .toggle-label {
+          font-weight: 600;
+          color: var(--ion-text-color);
+        }
       }
       
-      p {
-        margin: 0;
-        font-size: 0.75rem;
-        color: var(--ion-color-medium);
+      ion-toggle {
+        --background: var(--ion-color-step-300);
+        --background-checked: var(--ion-color-primary);
+        --handle-background: var(--ion-color-step-100);
+        --handle-background-checked: var(--ion-color-primary-contrast);
       }
-    }
-    
-    .theme-label {
-      font-size: 0.75rem;
-      color: var(--ion-color-primary);
-      font-weight: 500;
     }
   }
 }
 
 // Menu Sections
 .menu-sections {
-  padding: 0 20px;
+  margin-bottom: 24px;
   
-  .menu-section {
-    margin-bottom: 24px;
+  .menu-item {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    margin-bottom: 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0 0 12px 0;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--ion-color-medium);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      
-      ion-icon {
-        font-size: 1rem;
-        color: var(--ion-color-primary);
-      }
+    ion-icon {
+      color: var(--ion-color-primary);
+      font-size: 1.25rem;
     }
     
-    .menu-list {
-      background: transparent;
-      padding: 0;
-      
-      .menu-item {
-        --background: rgba(255, 255, 255, 0.9);
-        --border-radius: 12px;
-        --padding-start: 16px;
-        --padding-end: 16px;
-        --min-height: 56px;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease;
-        
-        &:active {
-          transform: scale(0.98);
-        }
-        
-        .menu-icon {
-          font-size: 1.25rem;
-          color: var(--ion-color-primary);
-        }
-        
-        ion-label {
-          font-size: 0.9rem;
-          font-weight: 500;
-          color: var(--ion-color-dark);
-        }
-        
-        .arrow-icon {
-          font-size: 1rem;
-          color: var(--ion-color-medium);
-        }
-        
-        .reward-badge {
-          font-size: 0.75rem;
-          padding: 2px 6px;
-          border-radius: 8px;
-        }
-      }
+    .menu-label {
+      font-weight: 600;
+      color: var(--ion-text-color);
+    }
+    
+    .menu-description {
+      color: var(--ion-color-step-600);
+      font-size: 0.875rem;
     }
   }
 }
 
 // Logout Section
 .logout-section {
-  padding: 0 20px;
-  margin: 32px 0;
+  padding: 20px;
   
   .logout-button {
-    --border-radius: 16px;
-    --min-height: 56px;
+    --background: var(--ion-color-danger);
+    --color: var(--ion-color-danger-contrast);
+    --border-radius: 12px;
     font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    width: 100%;
     
     ion-icon {
-      font-size: 1.25rem;
+      margin-right: 8px;
     }
   }
-}
-
-// Version Info
-.version-info {
-  text-align: center;
-  padding: 16px 20px;
-  margin-bottom: 16px;
   
-  .version-text {
-    margin: 0 0 4px 0;
-    font-size: 0.75rem;
-    color: var(--ion-color-medium);
-  }
-  
-  .developed-by {
-    margin: 0;
-    font-size: 0.75rem;
-    color: var(--ion-color-primary);
-    cursor: pointer;
-    transition: opacity 0.2s ease;
+  .app-info {
+    text-align: center;
+    margin-top: 24px;
     
-    &:active {
-      opacity: 0.7;
+    .app-version {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--ion-color-step-500);
+    }
+    
+    .developed-by {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--ion-color-primary);
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      
+      &:active {
+        opacity: 0.7;
+      }
     }
   }
 }
@@ -394,33 +351,70 @@
   }
 }
 
-// Dark Mode Support
+// Dark mode specific overrides
 @media (prefers-color-scheme: dark) {
   .account-content {
-    --background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+    --background: var(--ion-background-color);
   }
   
   .stats-container .stat-card {
-    --background: rgba(255, 255, 255, 0.1);
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
   }
   
   .quick-settings .theme-toggle {
-    --background: rgba(255, 255, 255, 0.1);
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
   }
   
   .menu-sections .menu-item {
-    --background: rgba(255, 255, 255, 0.1);
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
   }
   
   .profile-name {
-    color: white !important;
+    color: var(--ion-text-color) !important;
   }
   
   .stat-value {
-    color: white !important;
+    color: var(--ion-text-color) !important;
   }
   
   .menu-label {
-    color: white !important;
+    color: var(--ion-text-color) !important;
+  }
+}
+
+// Manual dark mode override
+body.dark {
+  .account-content {
+    --background: var(--ion-background-color);
+  }
+  
+  .stats-container .stat-card {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+  }
+  
+  .quick-settings .theme-toggle {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+  }
+  
+  .menu-sections .menu-item {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+  }
+  
+  .profile-name {
+    color: var(--ion-text-color) !important;
+  }
+  
+  .stat-value {
+    color: var(--ion-text-color) !important;
+  }
+  
+  .menu-label {
+    color: var(--ion-text-color) !important;
   }
 }

@@ -17,7 +17,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { documentTextOutline, downloadOutline, homeOutline, printOutline, shareSocialOutline } from 'ionicons/icons';
+import { documentTextOutline, downloadOutline, homeOutline, printOutline, shareSocialOutline, closeOutline, alertCircle, checkmarkCircle } from 'ionicons/icons';
 import { addIcons } from 'ionicons';
 
 declare let window: any; // For cordova plugins
@@ -56,7 +56,7 @@ export class ReceiptPage implements OnInit {
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
   ) {
-    addIcons({downloadOutline,printOutline,shareSocialOutline,documentTextOutline,homeOutline});
+    addIcons({closeOutline,alertCircle,checkmarkCircle,downloadOutline,shareSocialOutline,homeOutline,printOutline,documentTextOutline});
   }
 
   ngOnInit() {
@@ -85,6 +85,39 @@ export class ReceiptPage implements OnInit {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleString();
+  }
+
+  formatPhoneNumber(phoneNumber: string): string {
+    if (!phoneNumber) return '';
+    
+    // Remove all non-digit characters
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    
+    // For Ghanaian numbers (233 prefix), convert to local format
+    if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+      // Convert 2330244588584 -> 0244588584
+      return cleanNumber.slice(3);
+    } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+      // Convert +2330244588584 -> 0244588584
+      return cleanNumber.slice(3);
+    } else if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+      // Keep as is: 0244588584
+      return cleanNumber;
+    }
+    
+    // For any other format, return as is
+    return phoneNumber;
+  }
+
+  formatTransactionId(transactionId: string): string {
+    if (!transactionId) return 'N/A';
+    
+    // If transaction ID is longer than 16 characters, truncate it
+    if (transactionId.length > 16) {
+      return transactionId.substring(0, 8) + '...' + transactionId.substring(transactionId.length - 8);
+    }
+    
+    return transactionId;
   }
 
   async downloadOrShareReceipt(action: 'download' | 'share') {

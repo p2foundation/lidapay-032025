@@ -1,6 +1,82 @@
 // Enhanced Buy Airtime Page Styles
 ion-content {
-  --background: var(--bg-secondary);
+  --background: var(--ion-background-color);
+}
+
+// Header Styles with Dark Theme Support
+ion-header {
+  ion-toolbar {
+    --background: var(--ion-toolbar-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    
+    ion-back-button {
+      --color: var(--ion-text-color);
+      --icon-font-size: 24px;
+    }
+    
+    ion-title {
+      color: var(--ion-text-color);
+      
+      .page_title {
+        color: var(--ion-text-color);
+      }
+    }
+  }
+  
+  &.header_bg {
+    ion-toolbar {
+      --background: var(--ion-color-primary);
+      --color: var(--ion-color-primary-contrast);
+      
+      ion-back-button {
+        --color: var(--ion-color-primary-contrast);
+      }
+      
+      ion-title {
+        color: var(--ion-color-primary-contrast);
+        
+        .page_title {
+          color: var(--ion-color-primary-contrast);
+        }
+      }
+    }
+  }
+}
+
+// CRITICAL FIX: Input text visibility
+ion-input {
+  --color: #000000 !important;
+  --placeholder-color: #666666 !important;
+  
+  input {
+    color: #000000 !important;
+    background: transparent !important;
+    font-weight: 500 !important;
+    
+    &::placeholder {
+      color: #666666 !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+.modern-input {
+  ion-input {
+    --color: #000000 !important;
+    --placeholder-color: #666666 !important;
+    
+    input {
+      color: #000000 !important;
+      background: transparent !important;
+      font-weight: 500 !important;
+      
+      &::placeholder {
+        color: #666666 !important;
+        opacity: 1 !important;
+      }
+    }
+  }
 }
 
 // Progress Bar
@@ -9,14 +85,14 @@ ion-content {
   
   .progress-bar {
     height: 4px;
-    background: var(--gray-200);
+    background: var(--ion-color-step-200);
     border-radius: var(--radius-full);
     overflow: hidden;
     margin-bottom: var(--space-4);
     
     .progress-fill {
       height: 100%;
-      background: var(--primary);
+      background: var(--ion-color-primary);
       border-radius: var(--radius-full);
       transition: width var(--transition-normal);
     }
@@ -38,8 +114,8 @@ ion-content {
         width: 32px;
         height: 32px;
         border-radius: var(--radius-full);
-        background: var(--gray-200);
-        color: var(--gray-600);
+        background: var(--ion-color-step-200);
+        color: var(--ion-color-step-600);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -51,32 +127,32 @@ ion-content {
       
       .step-label {
         font-size: 0.75rem;
-        color: var(--gray-500);
+        color: var(--ion-color-step-500);
         text-align: center;
         transition: var(--transition-normal);
       }
       
       &.active {
         .step-number {
-          background: var(--primary);
-          color: var(--white);
+          background: var(--ion-color-primary);
+          color: var(--ion-color-primary-contrast);
           box-shadow: var(--shadow-md);
         }
         
         .step-label {
-          color: var(--primary);
+          color: var(--ion-color-primary);
           font-weight: 600;
         }
       }
       
       &.completed {
         .step-number {
-          background: var(--success);
-          color: var(--white);
+          background: var(--ion-color-success);
+          color: var(--ion-color-success-contrast);
         }
         
         .step-label {
-          color: var(--success);
+          color: var(--ion-color-success);
         }
       }
       
@@ -91,6 +167,10 @@ ion-content {
 .step-description {
   margin-bottom: var(--space-6);
   text-align: center;
+  
+  p {
+    color: var(--ion-color-step-600);
+  }
 }
 
 // Loading Container
@@ -103,6 +183,10 @@ ion-content {
   
   ion-spinner {
     margin-bottom: var(--space-4);
+  }
+  
+  p {
+    color: var(--ion-color-step-600);
   }
 }
 
@@ -119,6 +203,9 @@ ion-content {
 .country-card {
   cursor: pointer;
   transition: var(--transition-normal);
+  --background: var(--ion-card-background);
+  --color: var(--ion-text-color);
+  --border-color: var(--ion-border-color);
   
   &:hover {
     transform: translateY(-4px);
@@ -141,17 +228,17 @@ ion-content {
       
       h3 {
         margin: 0 0 var(--space-1) 0;
-        color: var(--text-primary);
+        color: var(--ion-text-color);
       }
       
       p {
         margin: 0;
-        color: var(--text-secondary);
+        color: var(--ion-color-step-600);
       }
     }
     
     .arrow-icon {
-      color: var(--gray-400);
+      color: var(--ion-color-step-400);
       font-size: 1.25rem;
     }
   }
@@ -161,6 +248,9 @@ ion-content {
 .operator-card {
   cursor: pointer;
   transition: var(--transition-normal);
+  --background: var(--ion-card-background);
+  --color: var(--ion-text-color);
+  --border-color: var(--ion-border-color);
   
   &:hover {
     transform: translateY(-4px);
@@ -176,7 +266,7 @@ ion-content {
       width: 48px;
       height: 48px;
       border-radius: var(--radius-lg);
-      background: var(--gray-100);
+      background: var(--ion-color-step-100);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -190,7 +280,7 @@ ion-content {
       
       ion-icon {
         font-size: 1.5rem;
-        color: var(--gray-500);
+        color: var(--ion-color-step-500);
       }
     }
     
@@ -199,17 +289,17 @@ ion-content {
       
       h3 {
         margin: 0 0 var(--space-1) 0;
-        color: var(--text-primary);
+        color: var(--ion-text-color);
       }
       
       p {
         margin: 0;
-        color: var(--text-secondary);
+        color: var(--ion-color-step-600);
       }
     }
     
     .arrow-icon {
-      color: var(--gray-400);
+      color: var(--ion-color-step-400);
       font-size: 1.25rem;
     }
   }
@@ -221,7 +311,7 @@ ion-content {
   
   ion-label {
     margin-bottom: var(--space-2);
-    color: var(--text-primary);
+    color: var(--ion-text-color);
     font-weight: 600;
   }
   
@@ -232,14 +322,29 @@ ion-content {
     --padding-bottom: var(--space-3);
     --border-radius: var(--radius-lg);
     --border-width: 2px;
-    --border-color: var(--border-light);
-    --background: var(--bg-primary);
-    --color: var(--text-primary);
-    --placeholder-color: var(--text-tertiary);
+    --border-color: var(--ion-border-color);
+    --background: var(--ion-item-background);
+    --color: var(--ion-text-color);
+    --placeholder-color: var(--ion-color-step-500);
+    --placeholder-opacity: 1;
+    --placeholder-font-weight: 500;
+    font-size: 16px;
+    min-height: 48px;
     
     &:focus-within {
-      --border-color: var(--primary);
-      --box-shadow: 0 0 0 3px var(--primary-100);
+      --border-color: var(--ion-color-primary);
+      --box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+    
+    // Ensure the native input element has proper styling
+    input {
+      color: var(--ion-text-color) !important;
+      background: transparent !important;
+      
+      &::placeholder {
+        color: var(--ion-color-step-500) !important;
+        opacity: 1 !important;
+      }
     }
   }
 }
@@ -251,9 +356,13 @@ ion-content {
   gap: var(--space-2);
   margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  background: var(--primary-50);
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
   border-radius: var(--radius-md);
-  border: 1px solid var(--primary-100);
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.2);
+  
+  span {
+    color: var(--ion-color-step-600);
+  }
 }
 
 // Detected Operator
@@ -261,9 +370,9 @@ ion-content {
   margin-top: var(--space-3);
   
   ion-chip {
-    --background: var(--success-50);
-    --color: var(--success);
-    --border-color: var(--success);
+    --background: rgba(var(--ion-color-success-rgb), 0.1);
+    --color: var(--ion-color-success);
+    --border-color: var(--ion-color-success);
   }
 }
 
@@ -272,6 +381,10 @@ ion-content {
   margin-top: var(--space-4);
   
   ion-chip {
+    --background: rgba(var(--ion-color-secondary-rgb), 0.1);
+    --color: var(--ion-color-secondary);
+    --border-color: var(--ion-color-secondary);
+    
     .flag-emoji {
       font-size: 1.25rem;
       margin-right: var(--space-2);
@@ -285,13 +398,16 @@ ion-content {
   
   h4 {
     margin-bottom: var(--space-4);
-    color: var(--text-primary);
+    color: var(--ion-text-color);
   }
   
   .amount-chip {
     cursor: pointer;
     transition: var(--transition-normal);
     margin-bottom: var(--space-2);
+    --background: var(--ion-item-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
     
     &:hover {
       transform: translateY(-2px);
@@ -299,8 +415,8 @@ ion-content {
     }
     
     &.selected {
-      --background: var(--primary);
-      --color: var(--white);
+      --background: var(--ion-color-primary);
+      --color: var(--ion-color-primary-contrast);
       transform: scale(1.05);
     }
   }
@@ -311,6 +427,10 @@ ion-content {
   margin-top: var(--space-4);
   
   ion-chip {
+    --background: rgba(var(--ion-color-primary-rgb), 0.1);
+    --color: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary);
+    
     img {
       width: 20px;
       height: 20px;
@@ -331,7 +451,7 @@ ion-content {
   
   h3 {
     margin: 0;
-    color: var(--text-primary);
+    color: var(--ion-text-color);
   }
 }
 
@@ -343,18 +463,18 @@ ion-content {
     justify-content: space-between;
     align-items: center;
     padding: var(--space-3) 0;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--ion-border-color);
     
     &:last-child {
       border-bottom: none;
     }
     
     .label {
-      color: var(--text-secondary);
+      color: var(--ion-color-step-600);
     }
     
     .value {
-      color: var(--text-primary);
+      color: var(--ion-text-color);
       font-weight: 500;
       
       .flag-emoji {
@@ -388,11 +508,11 @@ ion-content {
   
   h3 {
     margin-bottom: var(--space-3);
-    color: var(--text-primary);
+    color: var(--ion-text-color);
   }
   
   p {
-    color: var(--text-secondary);
+    color: var(--ion-color-step-600);
     max-width: 300px;
   }
 }
@@ -410,6 +530,38 @@ ion-content {
     --padding-top: var(--space-3);
     --padding-bottom: var(--space-3);
     font-weight: 600;
+    
+    &.btn-secondary {
+      --background: transparent;
+      --color: var(--ion-text-color);
+      --border-color: var(--ion-border-color);
+      --border-width: 1px;
+      --border-style: solid;
+    }
+    
+    &.btn-primary {
+      --background: var(--ion-color-primary);
+      --color: var(--ion-color-primary-contrast);
+    }
+  }
+}
+
+// Auto-detection Message
+.auto-detection-message {
+  ion-card {
+    --background: var(--ion-card-background);
+    --color: var(--ion-text-color);
+    --border-color: var(--ion-border-color);
+    
+    .text-center {
+      h3 {
+        color: var(--ion-text-color);
+      }
+      
+      p {
+        color: var(--ion-color-step-600);
+      }
+    }
   }
 }
 
@@ -468,20 +620,145 @@ ion-content {
   text-align: center;
 }
 
-// Dark mode support
+// Modern Card Styles
+.modern-card {
+  --background: var(--ion-card-background);
+  --color: var(--ion-text-color);
+  --border-color: var(--ion-border-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-light);
+  transition: var(--transition-normal);
+  
+  &:hover {
+    box-shadow: var(--shadow-medium);
+  }
+}
+
+// Modern Input Styles
+.modern-input {
+  --background: var(--ion-item-background);
+  --color: var(--ion-text-color);
+  --border-color: var(--ion-border-color);
+  --placeholder-color: var(--ion-color-step-500);
+  --placeholder-opacity: 1;
+  --placeholder-font-weight: 500;
+  --padding-start: var(--space-4);
+  --padding-end: var(--space-4);
+  --padding-top: var(--space-3);
+  --padding-bottom: var(--space-3);
+  --border-radius: var(--radius-lg);
+  --border-width: 2px;
+  font-size: 16px;
+  min-height: 48px;
+  
+  &:focus-within {
+    --border-color: var(--ion-color-primary);
+    --box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
+  }
+  
+  // Ensure the actual input element has proper styling
+  input {
+    color: var(--ion-text-color) !important;
+    background: transparent !important;
+    
+    &::placeholder {
+      color: var(--ion-color-step-500) !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+// Modern Button Styles
+.modern-button {
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-primary-contrast);
+  --border-radius: var(--radius-lg);
+  font-weight: 600;
+}
+
+// Dark mode specific overrides
 @media (prefers-color-scheme: dark) {
   ion-content {
-    --background: var(--gray-900);
+    --background: var(--ion-background-color);
   }
   
   .country-card,
-  .operator-card {
-    --background: var(--gray-800);
-    --border-color: var(--gray-700);
+  .operator-card,
+  .modern-card {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
   }
   
-  .form-group ion-input {
-    --background: var(--gray-800);
-    --border-color: var(--gray-700);
+  .form-group ion-input,
+  .modern-input {
+    --background: var(--ion-item-background);
+    --border-color: var(--ion-border-color);
+    --color: var(--ion-text-color);
+    --placeholder-color: var(--ion-color-step-500);
+    --placeholder-opacity: 1;
+    
+    input {
+      color: var(--ion-text-color) !important;
+      background: transparent !important;
+      
+      &::placeholder {
+        color: var(--ion-color-step-500) !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+}
+
+// Manual dark mode override
+body.dark {
+  ion-content {
+    --background: var(--ion-background-color);
+  }
+  
+  .country-card,
+  .operator-card,
+  .modern-card {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+  }
+  
+  .form-group ion-input,
+  .modern-input {
+    --background: var(--ion-item-background);
+    --border-color: var(--ion-border-color);
+    --color: var(--ion-text-color);
+    --placeholder-color: var(--ion-color-step-500);
+    --placeholder-opacity: 1;
+    
+    input {
+      color: var(--ion-text-color) !important;
+      background: transparent !important;
+      
+      &::placeholder {
+        color: var(--ion-color-step-500) !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+}
+
+body.light {
+  .form-group ion-input,
+  .modern-input {
+    --background: var(--ion-item-background);
+    --border-color: var(--ion-border-color);
+    --color: var(--ion-text-color);
+    --placeholder-color: var(--ion-color-step-500);
+    --placeholder-opacity: 1;
+    
+    input {
+      color: var(--ion-text-color) !important;
+      background: transparent !important;
+      
+      &::placeholder {
+        color: var(--ion-color-step-500) !important;
+        opacity: 1 !important;
+      }
+    }
   }
 } 

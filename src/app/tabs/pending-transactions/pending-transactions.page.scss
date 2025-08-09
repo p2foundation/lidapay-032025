@@ -1,0 +1,294 @@
+/* Pending Transactions Page Styles */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 32px;
+  
+  ion-icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+  }
+  
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 16px 0;
+    color: var(--ion-text-color);
+  }
+  
+  p {
+    font-size: 16px;
+    color: var(--ion-color-medium);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.filter-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  ion-cardContent {
+    padding: 16px;
+  }
+  
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    --background: transparent;
+    --border-color: var(--ion-color-step-200);
+    
+    ion-label {
+      font-weight: 500;
+      color: var(--ion-text-color);
+    }
+    
+    ion-input, ion-select {
+      --padding-start: 12px;
+      --padding-end: 12px;
+      border-radius: 8px;
+      background: var(--ion-color-step-50);
+    }
+  }
+}
+
+.results-summary {
+  margin-bottom: 16px;
+  padding: 0 4px;
+  
+  p {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.transaction-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  
+  ion-cardContent {
+    padding: 20px;
+  }
+}
+
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ion-color-step-200);
+  
+  .transaction-type {
+    ion-chip {
+      font-weight: 500;
+    }
+  }
+  
+  .transaction-status {
+    ion-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 16px;
+    }
+  }
+}
+
+.transaction-details {
+  margin-bottom: 16px;
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .label {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      font-weight: 500;
+    }
+    
+    .value {
+      font-size: 14px;
+      color: var(--ion-text-color);
+      font-weight: 600;
+      text-align: right;
+      
+      &.amount {
+        color: var(--ion-color-primary);
+        font-size: 16px;
+      }
+      
+      &.phone {
+        font-family: 'Courier New', monospace;
+        color: var(--ion-color-success);
+      }
+      
+      &.order-id {
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: var(--ion-color-primary);
+        background: rgba(var(--ion-color-primary-rgb), 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+.transaction-description {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: var(--ion-color-step-50);
+  border-radius: 8px;
+  border-left: 4px solid var(--ion-color-primary);
+  
+  .description-text {
+    font-size: 14px;
+    color: var(--ion-text-color);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+.transaction-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  ion-button {
+    --border-radius: 8px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    font-weight: 600;
+    text-transform: none;
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+    
+    ion-spinner {
+      margin-right: 8px;
+    }
+  }
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .filter-card ion-cardContent {
+    padding: 24px;
+  }
+  
+  .transaction-card ion-cardContent {
+    padding: 24px;
+  }
+  
+  .transaction-actions {
+    flex-direction: row;
+    gap: 16px;
+    
+    ion-button {
+      flex: 1;
+    }
+  }
+}
+
+/* Dark Mode Adjustments */
+@media (prefers-color-scheme: dark) {
+  .filter-card,
+  .transaction-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .transaction-description {
+    background: var(--ion-color-step-100);
+  }
+  
+  ion-input, ion-select {
+    background: var(--ion-color-step-100) !important;
+  }
+}
+
+/* Animation for loading states */
+.transaction-card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Status-specific styling */
+ion-badge[color="warning"] {
+  --ion-color-base: var(--ion-color-warning);
+  --ion-color-contrast: var(--ion-color-warning-contrast);
+}
+
+ion-badge[color="danger"] {
+  --ion-color-base: var(--ion-color-danger);
+  --ion-color-contrast: var(--ion-color-danger-contrast);
+}
+
+/* Floating Action Button */
+ion-fab-button {
+  --background: var(--ion-color-primary);
+  --color: white;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  
+  &:hover {
+    --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Loading spinner animation */
+ion-spinner {
+  --color: var(--ion-color-primary);
+}
+
+/* Chip styling */
+ion-chip {
+  --background: transparent;
+  --color: var(--ion-color-primary);
+  --border-color: var(--ion-color-primary);
+  font-weight: 500;
+}
+
+/* Badge styling */
+ion-badge {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

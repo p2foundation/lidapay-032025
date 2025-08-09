@@ -51,4 +51,9 @@ export class StorageService {
   async clearStorage(): Promise<void> {
     await Preferences.clear();
   }
+
+  async getAllKeys(): Promise<string[]> {
+    const { keys } = await Preferences.keys();
+    return keys;
+  }
 }

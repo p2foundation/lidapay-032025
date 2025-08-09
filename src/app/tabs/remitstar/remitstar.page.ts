@@ -190,7 +190,7 @@ export class RemitstarPage implements OnInit, OnDestroy {
     { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸', exchangeRate: 0.12 },
     { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺', exchangeRate: 0.11 },
     { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧', exchangeRate: 0.095 },
-    { code: 'NGN', name: 'Nigerian Naira', symbol: '₦', flag: '🇳🇬', exchangeRate: 18.5 },
+          { code: 'GHS', name: 'Ghana Cedis', symbol: '₵', flag: '🇬🇭', exchangeRate: 18.5 },
     { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh', flag: '🇰🇪', exchangeRate: 15.2 }
   ];
   
