@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -13,10 +13,38 @@ import {
   IonRefresher,
   IonRefresherContent,
   ToastController,
+  AlertController,
+  ModalController,
+  IonButtons,
+  IonBackButton,
+  IonTitle,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonCard,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonCardContent,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonThumbnail,
+  IonAvatar,
+  IonChip,
+  IonSpinner,
+  IonFab,
+  IonFabButton,
+  IonSegment,
+  IonSegmentButton,
+  IonSearchbar,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import { addIcons } from 'ionicons';
 import {
   searchOutline,
@@ -33,10 +61,76 @@ import {
   cardOutline,
   walletOutline,
   receiptOutline,
-  settingsOutline, swapHorizontalOutline, repeatOutline, timeOutline, chevronForwardOutline, checkmarkCircleOutline, 
-  chevronDownCircleOutline} from 'ionicons/icons';
+  settingsOutline,
+  swapHorizontalOutline,
+  repeatOutline,
+  timeOutline,
+  checkmarkCircleOutline,
+  chevronDownCircleOutline,
+  arrowUpCircleOutline,
+  arrowDownCircleOutline,
+  cashSharp,
+  phonePortraitOutline,
+  laptopOutline,
+  ticketOutline,
+  giftOutline,
+  schoolOutline,
+  storefrontOutline,
+  restaurantOutline,
+  busOutline,
+  carSportOutline,
+  medicalOutline,
+  homeOutline,
+  waterOutline,
+  tvOutline,
+  wifiSharp,
+  cardSharp,
+  walletSharp,
+  receiptSharp,
+  settingsSharp,
+  personCircleOutline,
+  logOutOutline,
+  helpCircleOutline,
+  informationCircleOutline,
+  documentTextOutline,
+  shieldCheckmarkOutline,
+  shareSocialOutline,
+  refreshOutline,
+  ellipsisHorizontalOutline,
+  ellipsisVerticalOutline,
+  closeOutline,
+  checkmarkOutline,
+  alertCircleOutline,
+  trashOutline,
+  pencilOutline,
+  addOutline,
+  removeOutline,
+  closeCircleOutline,
+  checkmarkCircle,
+  checkmarkDoneOutline,
+  chevronDownOutline,
+  chevronForwardOutline,
+  chevronBackOutline,
+  chevronUpOutline,
+  menuOutline,
+  filterOutline,
+  optionsOutline,
+  appsOutline,
+  gridOutline,
+  listOutline,
+  reorderThreeOutline,
+  reorderTwoOutline,
+  reorderFourOutline,
+  star,
+  starHalf,
+  starOutline,
+  starSharp,
+  starHalfSharp,
+  starHalfOutline
+} from 'ionicons/icons';
 import { StorageService } from '../../services/storage.service';
 import { HistoryService } from '../../services/transactions/history.service';
+import { PendingTransactionsService } from '../../services/transactions/pending-transactions.service';
 
 @Component({
   selector: 'app-home',
@@ -44,45 +138,169 @@ import { HistoryService } from '../../services/transactions/history.service';
   styleUrls: ['./home.page.scss'],
   standalone: true,
   imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
     IonContent,
     IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonBackButton,
     IonButton,
     IonIcon,
     IonBadge,
     IonRippleEffect,
     IonSkeletonText,
-    IonToolbar,
     IonRefresher,
     IonRefresherContent,
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCard,
+    IonCardHeader,
+    IonCardSubtitle,
+    IonCardTitle,
+    IonCardContent,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonThumbnail,
+    IonAvatar,
+    IonChip,
+    IonSpinner,
+    IonFab,
+    IonFabButton,
+    IonSegment,
+    IonSegmentButton,
+    IonSearchbar,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent
+  ]
 })
 export class HomePage implements OnInit {
-  isLoading: boolean = true;
-  hasNotifications: boolean = false;
-  pendingTransactions: number = 2;
-  totalTransactions: number = 15;
-  showStats: boolean = true;
-  showPromo: boolean = true;
+  isLoading = true;
+  hasNotifications = false;
+  pendingTransactionCount = 0;
+  totalTransactions = 0;
+  showStats = true;
+  showPromo = true;
+  pendingTransactions: number = 0;
+  
   private loadingTimeout: any;
+  
+  // Import NotificationType from @capacitor/haptics
+  private readonly NotificationType = {
+    SUCCESS: 'success' as const,
+    ERROR: 'error' as const,
+    WARNING: 'warning' as const,
+    INFO: 'info' as const
+  } as const;
 
   constructor(
     private router: Router,
     private translate: TranslateService,
     private historyService: HistoryService,
+    private pendingTxService: PendingTransactionsService,
     private storage: StorageService,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private modalCtrl: ModalController,
+    private alertCtrl: AlertController
   ) {
-    addIcons({searchOutline,notificationsOutline,swapHorizontalOutline,repeatOutline,cellularOutline,timeOutline,chevronForwardOutline,checkmarkCircleOutline,wifiOutline,arrowForwardOutline,cashOutline,addCircleOutline,cogOutline,globeOutline,locationOutline,infiniteOutline,cardOutline,walletOutline,receiptOutline,settingsOutline,chevronDownCircleOutline});
+    // Register all icons
+    addIcons({
+      searchOutline,
+      notificationsOutline,
+      swapHorizontalOutline,
+      repeatOutline,
+      cellularOutline,
+      timeOutline,
+      checkmarkCircleOutline,
+      wifiOutline,
+      arrowForwardOutline,
+      cashOutline,
+      addCircleOutline,
+      cogOutline,
+      globeOutline,
+      locationOutline,
+      infiniteOutline,
+      cardOutline,
+      walletOutline,
+      receiptOutline,
+      settingsOutline,
+      chevronDownCircleOutline,
+      arrowUpCircleOutline,
+      arrowDownCircleOutline,
+      cashSharp,
+      phonePortraitOutline,
+      laptopOutline,
+      ticketOutline,
+      giftOutline,
+      schoolOutline,
+      storefrontOutline,
+      restaurantOutline,
+      busOutline,
+      carSportOutline,
+      medicalOutline,
+      homeOutline,
+      waterOutline,
+      tvOutline,
+      wifiSharp,
+      cardSharp,
+      walletSharp,
+      receiptSharp,
+      settingsSharp,
+      personCircleOutline,
+      logOutOutline,
+      helpCircleOutline,
+      informationCircleOutline,
+      documentTextOutline,
+      shieldCheckmarkOutline,
+      shareSocialOutline,
+      refreshOutline,
+      ellipsisHorizontalOutline,
+      ellipsisVerticalOutline,
+      closeOutline,
+      checkmarkOutline,
+      alertCircleOutline,
+      trashOutline,
+      pencilOutline,
+      addOutline,
+      removeOutline,
+      closeCircleOutline,
+      checkmarkCircle,
+      checkmarkDoneOutline,
+      chevronDownOutline,
+      chevronForwardOutline,
+      chevronBackOutline,
+      chevronUpOutline,
+      menuOutline,
+      filterOutline,
+      optionsOutline,
+      appsOutline,
+      gridOutline,
+      listOutline,
+      reorderThreeOutline,
+      reorderTwoOutline,
+      reorderFourOutline,
+      starHalfOutline,
+      starSharp,
+      starHalfSharp,
+      starOutline,
+      star,
+      starHalf
+    });
+    
     this.translate.setDefaultLang('en');
     this.translate.use('en');
   }
 
   ngOnInit() {
     this.loadData();
+  }
+  
+  ionViewWillEnter() {
+    this.checkPendingTransactions();
   }
 
   async loadData() {
@@ -93,34 +311,77 @@ export class HomePage implements OnInit {
 
     this.isLoading = true;
     try {
+      // Load user data
+      const user = await this.storage.getStorage('user');
+      if (user && user._id) {
+        // Load and check pending transactions
+        await this.checkPendingTransactions();
+      }
+      
       // Show skeleton for minimum time to avoid flashing
       const minimumLoadingTime = 800;
       const loadingStartTime = Date.now();
-
-      // Load your actual data here
-      await this.loadActualData();
-
-      // Calculate remaining time to meet minimum loading duration
-      const elapsedTime = Date.now() - loadingStartTime;
-      const remainingTime = Math.max(0, minimumLoadingTime - elapsedTime);
-
-      // Use timeout to ensure smooth transition
-      this.loadingTimeout = setTimeout(() => {
-        this.isLoading = false;
-      }, remainingTime);
+      
+      // Simulate loading time
+      const timeElapsed = Date.now() - loadingStartTime;
+      const timeRemaining = Math.max(0, minimumLoadingTime - timeElapsed);
+      
+      await new Promise(resolve => setTimeout(resolve, timeRemaining));
+      
+      this.isLoading = false;
     } catch (error) {
       console.error('Error loading data:', error);
       this.isLoading = false;
     }
   }
+  
+  async checkPendingTransactions() {
+    try {
+      const user = await this.storage.getStorage('user');
+      if (user?._id) {
+        const pendingTxs = await this.pendingTxService.loadPendingTransactions(user._id);
+        this.pendingTransactionCount = pendingTxs.length;
+        
+        // Show notification if there are pending transactions
+        if (this.pendingTransactionCount > 0) {
+          await this.showPendingTransactionsNotification();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking pending transactions:', error);
+    }
+  }
+  
+  async showPendingTransactionsNotification() {
+    const alert = await this.alertCtrl.create({
+      header: 'Pending Transactions',
+      message: `You have ${this.pendingTransactionCount} pending transaction${this.pendingTransactionCount !== 1 ? 's' : ''}.`,
+      buttons: [
+        {
+          text: 'View Details',
+          handler: () => {
+            this.router.navigate(['/tabs/pending-transactions']);
+          }
+        },
+        {
+          text: 'Dismiss',
+          role: 'cancel'
+        }
+      ]
+    });
+    
+    await alert.present();
+  }
 
   private async loadActualData() {
+    console.log('Loading actual data...');
     // Simulate API calls
     await Promise.all([
       this.checkNotifications(),
       this.loadTransactionStats(),
       this.loadUserPreferences(),
     ]);
+    console.log('All data loaded successfully');
   }
 
   private async loadTransactionStats() {
@@ -134,14 +395,19 @@ export class HomePage implements OnInit {
 
       // First, check local storage for pending transactions
       const allKeys = await (await this.storage.getAllKeys()) || [];
+      console.log('All storage keys:', allKeys);
+      
+      // Look for both patterns: 'pendingTransaction' and 'pendingTransaction_*'
       const pendingLocalTransactions = allKeys.filter(key => 
-        key.startsWith('pendingTransaction_')
+        key === 'pendingTransaction' || key.startsWith('pendingTransaction_')
       );
+      
+      console.log('Found pending transaction keys:', pendingLocalTransactions);
 
-      // Then fetch from API
-      const response: any = await this.historyService
-        .getTransactionByUserId(user._id, 1, 100) // Fetch first 100 transactions
-        .toPromise();
+      // Then fetch from API using firstValueFrom instead of deprecated toPromise()
+      const response: any = await firstValueFrom(
+        this.historyService.getTransactionByUserId(user._id, 1, 100) // Fetch first 100 transactions
+      );
 
       let pendingCount = 0;
       let totalCount = 0;
@@ -153,17 +419,34 @@ export class HomePage implements OnInit {
         );
         pendingCount = pendingApiTransactions.length;
         totalCount = response.pagination?.total || response.data.length;
+        
+        console.log('API transactions loaded:', response.data.length);
+        console.log('Pending API transactions:', pendingCount);
+        console.log('Total API transactions:', totalCount);
       }
 
       // Add local pending transactions
       pendingCount += pendingLocalTransactions.length;
+      console.log('Local pending transactions:', pendingLocalTransactions.length);
+      console.log('Total pending count:', pendingCount);
 
       // Update the UI
       this.pendingTransactions = pendingCount;
-      this.totalTransactions = totalCount;
+      // Calculate completed transactions by subtracting pending from total
+      const completedTransactions = Math.max(0, totalCount - pendingCount);
+      this.totalTransactions = completedTransactions;
+      
+      console.log('Updated pendingTransactions to:', this.pendingTransactions);
+      console.log('Updated completedTransactions to:', this.totalTransactions);
 
     } catch (error) {
       console.error('Error loading transaction stats:', error);
+      
+      // Set default values on error
+      this.pendingTransactions = 0;
+      this.totalTransactions = 0;
+      
+      // Show error toast
       const toast = await this.toastCtrl.create({
         message: 'Failed to load transaction stats. Please try again.',
         duration: 3000,
@@ -198,6 +481,36 @@ export class HomePage implements OnInit {
     }
   }
 
+  // Method to manually refresh transaction stats
+  async refreshTransactionStats() {
+    console.log('Manually refreshing transaction stats...');
+    await this.loadTransactionStats();
+  }
+
+  // Method to test storage and show current values
+  async debugStorage() {
+    console.log('=== DEBUG STORAGE ===');
+    console.log('Current pendingTransactions:', this.pendingTransactions);
+    console.log('Current totalTransactions:', this.totalTransactions);
+    
+    try {
+      const allKeys = await this.storage.getAllKeys();
+      console.log('All storage keys:', allKeys);
+      
+      const pendingKeys = allKeys.filter(key => 
+        key === 'pendingTransaction' || key.startsWith('pendingTransaction_')
+      );
+      console.log('Pending transaction keys:', pendingKeys);
+      
+      for (const key of pendingKeys) {
+        const value = await this.storage.getStorage(key);
+        console.log(`Key: ${key}, Value:`, value);
+      }
+    } catch (error) {
+      console.error('Error debugging storage:', error);
+    }
+  }
+
   // Navigation methods with haptic feedback
   async gotoAirtimePage() {
     await Haptics.impact({ style: ImpactStyle.Medium });
@@ -206,7 +519,7 @@ export class HomePage implements OnInit {
 
   async gotoInternetPage() {
     await Haptics.impact({ style: ImpactStyle.Medium });
-    this.router.navigate(['tabs/recharge/internet']);
+    this.router.navigate(['/tabs/enhanced-buy-internet-data']);
   }
 
   async gotoRemitstarPage() {
@@ -260,44 +573,10 @@ export class HomePage implements OnInit {
     this.router.navigate(['./transactions', { status: 'completed' }]);
   }
 
-  // Legacy methods (keeping for compatibility)
-  gotoRecharegePage() {
-    this.router.navigate(['tabs/recharge']);
-  }
-
-  gotoInternational() {
-    this.router.navigate(['tabs/recharge/reloadly']);
-  }
-
-  addmoney() {
-    this.router.navigate(['./addmoney']);
-  }
-
-  getpayment() {
-    this.router.navigate(['./getpayment']);
-  }
-
-  phonerecharge() {
-    this.router.navigate(['./phonerecharge']);
-  }
-
-  book_ticket() {
-    this.router.navigate(['./book-ticket']);
-  }
-
-  item_info() {
-    this.router.navigate(['./item-info']);
-  }
-
-  categories() {
-    this.router.navigate(['./categories']);
-  }
-
-  goToUserSettings() {
-    this.router.navigate(['./settings']);
-  }
-
-  newFunction() {
-    this.router.navigate(['./new-feature']);
+  async showPendingTransactions() {
+    if (this.pendingTransactionCount > 0) {
+      await Haptics.impact({ style: ImpactStyle.Medium });
+      this.router.navigate(['/tabs/pending-transactions']);
+    }
   }
 }

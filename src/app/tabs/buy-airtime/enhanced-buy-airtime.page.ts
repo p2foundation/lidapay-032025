@@ -198,9 +198,25 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         if (phoneNumber) {
           let formattedNumber = phoneNumber;
           
-          // Format phone number for Ghana
+          // For Ghana, ensure we format to local format without any country code prefix
           if (this.selectedCountry?.isoName === this.GHANA_ISO) {
-            formattedNumber = this.formatPhoneNumberForGhana(phoneNumber);
+            formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+              phoneNumber,
+              this.GHANA_ISO
+            );
+            
+            if (formattedNumber !== phoneNumber) {
+              // Update the form with formatted number (without triggering valueChanges again)
+              this.airtimeForm.get('recipientNumber')?.setValue(formattedNumber, { emitEvent: false });
+              console.log('setupFormListeners - Ghana formatted:', phoneNumber, '->', formattedNumber);
+            }
+          } else {
+            // For other countries, use the enhanced airtime service
+            formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+              phoneNumber,
+              this.selectedCountry?.isoName || ''
+            );
+            
             if (formattedNumber !== phoneNumber) {
               // Update the form with formatted number (without triggering valueChanges again)
               this.airtimeForm.get('recipientNumber')?.setValue(formattedNumber, { emitEvent: false });
@@ -289,7 +305,11 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   selectCountry(country: Country) {
+    console.log('=== COUNTRY SELECTION ===');
     console.log('Selected country:', country);
+    console.log('Country ISO:', country.isoName);
+    console.log('Is Ghana?', country.isoName === this.GHANA_ISO);
+    
     this.selectedCountry = country;
     this.airtimeForm.patchValue({ countryIso: country.isoName });
 
@@ -300,24 +320,39 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
 
     // Load operators only for Ghana
     if (country.isoName === this.GHANA_ISO) {
+      console.log('Loading Ghana operators...');
       this.loadOperators(country.isoName);
     } else {
       // For non-Ghanaian countries, clear operators array
+      console.log('Clearing operators for international country');
       this.operators = [];
     }
 
     this.nextStep();
   }
 
-  // Method to ensure phone number is formatted for Ghana
+  // Method to ensure phone number is formatted correctly
   private ensurePhoneNumberFormatted(): void {
-    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
-      const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
-      if (phoneNumber) {
-        const formattedNumber = this.formatPhoneNumberForGhana(phoneNumber);
+    const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
+    if (phoneNumber && this.selectedCountry?.isoName) {
+      // For Ghana, ensure we use the local format without any country code prefix
+      if (this.selectedCountry.isoName === this.GHANA_ISO) {
+        const formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+          phoneNumber,
+          this.GHANA_ISO
+        );
         if (formattedNumber !== phoneNumber) {
           this.airtimeForm.patchValue({ recipientNumber: formattedNumber });
-          console.log('Phone number formatted in ensurePhoneNumberFormatted:', phoneNumber, '->', formattedNumber);
+          console.log('Phone number formatted in ensurePhoneNumberFormatted - Ghana:', phoneNumber, '->', formattedNumber);
+        }
+      } else {
+        const formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+          phoneNumber,
+          this.selectedCountry.isoName
+        );
+        if (formattedNumber !== phoneNumber) {
+          this.airtimeForm.patchValue({ recipientNumber: formattedNumber });
+          console.log('Phone number formatted in ensurePhoneNumberFormatted - International:', phoneNumber, '->', formattedNumber);
         }
       }
     }
@@ -331,15 +366,47 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   selectAmount(amount: number) {
+    console.log('=== AMOUNT SELECTION ===');
+    console.log('Selected amount:', amount);
+    console.log('Currency:', this.selectedCountry?.currencyCode);
     this.airtimeForm.patchValue({ amount });
+    console.log('Form amount updated to:', amount);
   }
 
   onPhoneNumberInput(event: any) {
     let phoneNumber = event.target.value;
     
-    // For Ghana, format the phone number immediately
+    console.log('=== PHONE NUMBER INPUT ===');
+    console.log('Raw input:', phoneNumber);
+    console.log('Selected country:', this.selectedCountry?.isoName);
+    console.log('Is Ghana?', this.selectedCountry?.isoName === this.GHANA_ISO);
+    
+    // For Ghana, ensure we format to local format without any country code prefix
     if (this.selectedCountry?.isoName === this.GHANA_ISO) {
-      const formattedNumber = this.formatPhoneNumberForGhana(phoneNumber);
+      console.log('Processing Ghana phone number...');
+      const formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+        phoneNumber,
+        this.GHANA_ISO
+      );
+      
+      console.log('Ghana formatting result:', phoneNumber, '->', formattedNumber);
+      
+      if (formattedNumber !== phoneNumber) {
+        phoneNumber = formattedNumber;
+        // Update the input field directly
+        event.target.value = formattedNumber;
+        console.log('Input field updated to:', formattedNumber);
+      }
+    } else {
+      console.log('Processing international phone number...');
+      // For other countries, use the enhanced airtime service
+      const formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+        phoneNumber,
+        this.selectedCountry?.isoName || ''
+      );
+      
+      console.log('International formatting result:', phoneNumber, '->', formattedNumber);
+      
       if (formattedNumber !== phoneNumber) {
         phoneNumber = formattedNumber;
         // Update the input field directly
@@ -349,6 +416,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     
     // Update the form
     this.airtimeForm.patchValue({ recipientNumber: phoneNumber });
+    console.log('Form updated with phone number:', phoneNumber);
   }
 
   validatePhoneNumber(): boolean {
@@ -408,17 +476,30 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   async submitAirtime() {
+    console.log('=== SUBMIT AIRTIME ===');
+    console.log('Form valid:', this.airtimeForm.valid);
+    
     if (!this.airtimeForm.valid) {
       this.notificationService.showWarn('Please fill all required fields');
       return;
     }
 
     // Ensure phone number is formatted before submission
+    console.log('Ensuring phone number is formatted...');
     this.ensurePhoneNumberFormatted();
 
     const formData = this.airtimeForm.value;
     const countryIso = formData.countryIso;
     const isGhana = countryIso === this.GHANA_ISO;
+    
+    console.log('=== SUBMISSION SUMMARY ===');
+    console.log('Country ISO:', countryIso);
+    console.log('Is Ghana?', isGhana);
+    console.log('Phone Number:', formData.recipientNumber);
+    console.log('Amount:', formData.amount);
+    console.log('Operator ID:', formData.operatorId);
+    console.log('Selected Operator:', this.selectedOperator?.name);
+    console.log('Detected Operator:', this.detectedOperator?.name);
 
     // For non-Ghanaian countries, ensure we have operator information from auto-detection
     if (!isGhana && !this.selectedOperator && !this.detectedOperator) {
@@ -437,8 +518,10 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       }
 
       if (isGhana) {
+        console.log('Processing Ghana airtime...');
         await this.processGhanaAirtime(formData);
       } else {
+        console.log('Processing international airtime...');
         await this.processInternationalAirtime(formData);
       }
     } catch (error: any) {
@@ -449,19 +532,30 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   private async processGhanaAirtime(formData: any) {
+    console.log('=== PROCESS GHANA AIRTIME ===');
+    console.log('Form data received:', formData);
+    
     const modalResult = await this.presentWaitingModal();
 
     try {
-      // The phone number is already formatted correctly in onPhoneNumberInput
-      // Just use it as is for the API
-      const apiPhoneNumber = formData.recipientNumber;
+      // Format the phone number for the API (ensure it's in local Ghanaian format)
+      console.log('Formatting phone number for Ghana API...');
+      console.log('Original phone number:', formData.recipientNumber);
+      console.log('Country ISO:', formData.countryIso);
+      
+      const apiPhoneNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+        formData.recipientNumber,
+        formData.countryIso
+      );
+      
+      console.log('API phone number formatted:', formData.recipientNumber, '->', apiPhoneNumber);
 
       // Prepare Ghana airtime parameters (for storage only - not for direct API call)
       this.topupParams = {
         recipientNumber: apiPhoneNumber, // Use the formatted number (like 0240000000) for API
         description: `Airtime recharge for ${
           formData.operatorId
-        }: ${this.formatPhoneNumberForDisplay(formData.recipientNumber)} - GH₵${
+        }: ${apiPhoneNumber} - GH₵${
           formData.amount
         } (${new Date().toLocaleString()})`,
         amount: this.formatAmount(formData.amount),
@@ -484,8 +578,11 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
       };
 
-      console.log('[Ghana Airtime] => Payment params:', expressPayParams);
-      console.log('[Ghana Airtime] => Airtime params:', this.topupParams);
+      console.log('=== GHANA AIRTIME PARAMS ===');
+      console.log('Topup params:', this.topupParams);
+      console.log('Express pay params:', expressPayParams);
+      console.log('Phone number in topup params:', this.topupParams.recipientNumber);
+      console.log('Phone number in express pay params:', expressPayParams.phoneNumber);
 
       // Validate profile information
       if (
@@ -603,7 +700,10 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         ),
         username: this.userProfile.username || '',
         amount: Number(formData.amount),
-        orderDesc: `International airtime recharge for ${formData.recipientNumber} (${operator.name})`,
+        orderDesc: `International airtime recharge for ${this.enhancedAirtimeService.formatPhoneNumberForAPI(
+          formData.recipientNumber,
+          formData.countryIso
+        )} (${operator.name})`,
         orderImgUrl: 'https://gravatar.com/dinosaursuperb49b1159b93',
       };
 
@@ -735,6 +835,11 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
       const result = '0' + cleanNumber.slice(3);
       console.log('11-digit format converted:', result);
       return result;
+    } else if (cleanNumber.length === 9 && !cleanNumber.startsWith('0')) {
+      // Convert 244000000 -> 0244000000 (add 0 prefix)
+      const result = '0' + cleanNumber;
+      console.log('9-digit format converted:', result);
+      return result;
     }
     
     // For any other format, try to make it work
@@ -745,13 +850,21 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   formatPhoneNumberForDisplay(phoneNumber: string): string {
     if (!phoneNumber) return '';
 
-    // For Ghana, ensure the phone number is in the correct format (0240000000)
+    // For Ghana, ensure we show the local format without any country code prefix
     if (this.selectedCountry?.isoName === this.GHANA_ISO) {
-      return this.formatPhoneNumberForGhana(phoneNumber);
+      const formatted = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+        phoneNumber,
+        this.GHANA_ISO
+      );
+      console.log('formatPhoneNumberForDisplay - Ghana:', phoneNumber, '->', formatted);
+      return formatted;
     }
 
-    // For other countries, return as is
-    return phoneNumber;
+    // For other countries, use the enhanced airtime service
+    return this.enhancedAirtimeService.formatPhoneNumberForAPI(
+      phoneNumber,
+      this.selectedCountry?.isoName || ''
+    );
   }
 
   private async presentWaitingModal(): Promise<{
@@ -848,25 +961,46 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
     if (!phoneNumber) return '';
     
-    console.log('Getting formatted phone number for display:', phoneNumber);
+    console.log('=== GET FORMATTED PHONE NUMBER ===');
+    console.log('Current form phone number:', phoneNumber);
+    console.log('Selected country:', this.selectedCountry?.isoName);
+    console.log('Is Ghana?', this.selectedCountry?.isoName === this.GHANA_ISO);
     
-    // For Ghana, ensure the phone number is in the correct format (0240000000)
+    // For Ghana, ensure we show the local format without any country code prefix
     if (this.selectedCountry?.isoName === this.GHANA_ISO) {
-      const formatted = this.formatPhoneNumberForGhana(phoneNumber);
-      console.log('Formatted for Ghana:', formatted);
+      console.log('Formatting Ghana phone number for display...');
+      const formatted = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+        phoneNumber,
+        this.GHANA_ISO
+      );
+      
+      console.log('Ghana display formatting result:', phoneNumber, '->', formatted);
       
       // If the formatted number is different, update the form
       if (formatted !== phoneNumber) {
         this.airtimeForm.patchValue({ recipientNumber: formatted });
-        console.log('Updated form with formatted number:', formatted);
+        console.log('Form updated with formatted number:', formatted);
       }
       
       return formatted;
     }
     
-    // For other countries, return as is
-    console.log('Returning as is for non-Ghana:', phoneNumber);
-    return phoneNumber;
+    // For other countries, use the enhanced airtime service
+    console.log('Formatting international phone number for display...');
+    const formatted = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+      phoneNumber,
+      this.selectedCountry?.isoName || ''
+    );
+    
+    console.log('International display formatting result:', phoneNumber, '->', formatted);
+    
+    // If the formatted number is different, update the form
+    if (formatted !== phoneNumber) {
+      this.airtimeForm.patchValue({ recipientNumber: formatted });
+      console.log('Form updated with formatted number:', formatted);
+    }
+    
+    return formatted;
   }
 
   canProceed(): boolean {

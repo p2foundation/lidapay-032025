@@ -108,7 +108,7 @@ export class ServicesPage implements OnInit {
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
       category: 'primary',
       isNew: true,
-      route: '/tabs/buy-internet-data',
+      route: '/tabs/enhanced-buy-internet-data',
       features: ['All Networks', 'Flexible Plans', 'Auto-Renewal', 'Usage Tracking']
     },
     {

@@ -1,0 +1,316 @@
+<ion-header class="header_bg bg-transparent">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/services"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <span class="page_title">Enhanced Internet Data</span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-fill" [style.width.%]="getStepProgress()"></div>
+    </div>
+    
+    <div class="progress-steps">
+      <div class="step" [class.active]="currentStep === wizardSteps.COUNTRY_SELECTION" [class.completed]="currentStep > wizardSteps.COUNTRY_SELECTION" (click)="goToStep(wizardSteps.COUNTRY_SELECTION)">
+        <span class="step-number">1</span>
+        <span class="step-label">Country</span>
+      </div>
+      <div class="step" [class.active]="currentStep === wizardSteps.OPERATOR_SELECTION" [class.completed]="currentStep > wizardSteps.OPERATOR_SELECTION" (click)="goToStep(wizardSteps.OPERATOR_SELECTION)">
+        <span class="step-number">2</span>
+        <span class="step-label">Network</span>
+      </div>
+      <div class="step" [class.active]="currentStep === wizardSteps.PHONE_NUMBER" [class.completed]="currentStep > wizardSteps.PHONE_NUMBER" (click)="goToStep(wizardSteps.PHONE_NUMBER)">
+        <span class="step-number">3</span>
+        <span class="step-label">Phone</span>
+      </div>
+      <div class="step" [class.active]="currentStep === wizardSteps.DATA_BUNDLE_SELECTION" [class.completed]="currentStep > wizardSteps.DATA_BUNDLE_SELECTION" (click)="goToStep(wizardSteps.DATA_BUNDLE_SELECTION)">
+        <span class="step-number">4</span>
+        <span class="step-label">Bundle</span>
+      </div>
+      <div class="step" [class.active]="currentStep === wizardSteps.CONFIRMATION" [class.completed]="currentStep > wizardSteps.CONFIRMATION" (click)="goToStep(wizardSteps.CONFIRMATION)">
+        <span class="step-number">5</span>
+        <span class="step-label">Confirm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <div class="step-content fade-in">
+    
+    <!-- Step 1: Country Selection -->
+    <div *ngIf="currentStep === wizardSteps.COUNTRY_SELECTION">
+      <div class="step-description">
+        <h2 class="step-title">{{ getStepTitle(wizardSteps.COUNTRY_SELECTION) }}</h2>
+        <p>{{ getStepDescription(wizardSteps.COUNTRY_SELECTION) }}</p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <ion-item class="search-item">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          <ion-input 
+            placeholder="Search countries..." 
+            [(ngModel)]="searchQuery"
+            (ionInput)="filterCountries($event)"
+            class="search-input">
+          </ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="countries.length === 0">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading countries...</p>
+      </div>
+
+      <!-- Countries Grid -->
+      <div class="countries-grid" *ngIf="countries.length > 0">
+        <ion-card 
+          *ngFor="let country of filteredCountries" 
+          class="country-card modern-card"
+          [class.selected]="selectedCountry?.isoName === country.isoName"
+          (click)="selectCountry(country)"
+        >
+          <ion-card-content>
+            <div class="country-info">
+              <div class="country-flag">
+                <img 
+                  *ngIf="country.flag && country.flag.startsWith('http')"
+                  [src]="country.flag" 
+                  [alt]="country.name + ' flag'" 
+                  [title]="country.name + ' flag'"
+                  class="flag-image"
+                />
+                <span 
+                  *ngIf="!country.flag || !country.flag.startsWith('http')" 
+                  class="flag-emoji"
+                >
+                  {{ country.flag || '🏳️' }}
+                </span>
+              </div>
+              <div class="country-details">
+                <h3 class="country-name">{{ country.name }}</h3>
+                <p class="country-currency">{{ country.currencyCode }} ({{ country.currencyName }})</p>
+              </div>
+              <ion-icon name="chevron-forward" class="arrow-icon"></ion-icon>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Step 2: Operator Selection -->
+    <div *ngIf="currentStep === wizardSteps.OPERATOR_SELECTION">
+      <div class="step-description">
+        <h2 class="step-title">{{ getStepTitle(wizardSteps.OPERATOR_SELECTION) }}</h2>
+        <p>{{ getStepDescription(wizardSteps.OPERATOR_SELECTION) }}</p>
+      </div>
+
+      <div class="operators-grid" *ngIf="operators.length > 0">
+        <ion-card 
+          *ngFor="let operator of operators" 
+          class="operator-card modern-card"
+          [class.selected]="selectedOperator?.id === operator.id"
+          (click)="selectOperator(operator)"
+        >
+          <ion-card-content>
+            <div class="operator-info">
+              <img [src]="operator.logo" [alt]="operator.name" [title]="operator.name" class="operator-logo" />
+              <div class="operator-details">
+                <h3 class="operator-name">{{ operator.name }}</h3>
+                <p class="operator-currency">{{ operator.currency }}</p>
+              </div>
+              <ion-icon name="checkmark-circle" class="check-icon" *ngIf="selectedOperator?.id === operator.id"></ion-icon>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <div class="no-operators" *ngIf="operators.length === 0">
+        <ion-icon name="cellular-outline" class="no-data-icon"></ion-icon>
+        <h3>No Networks Available</h3>
+        <p>No mobile networks found for the selected country.</p>
+      </div>
+    </div>
+
+    <!-- Step 3: Phone Number Input -->
+    <div *ngIf="currentStep === wizardSteps.PHONE_NUMBER">
+      <div class="step-description">
+        <h2 class="step-title">{{ getStepTitle(wizardSteps.PHONE_NUMBER) }}</h2>
+        <p>{{ getStepDescription(wizardSteps.PHONE_NUMBER) }}</p>
+      </div>
+
+      <form [formGroup]="internetDataForm" class="form-container">
+        <ion-item class="form-item modern-input">
+          <ion-label position="stacked">Phone Number</ion-label>
+          <ion-input
+            formControlName="recipientNumber"
+            type="tel"
+            placeholder="Enter phone number"
+            (ionInput)="onPhoneNumberInput($event)"
+            class="phone-input"
+          ></ion-input>
+        </ion-item>
+
+        <div class="auto-detect-toggle">
+          <ion-toggle formControlName="autoDetect" class="toggle-switch">
+            <ion-label>Auto-detect network</ion-label>
+          </ion-toggle>
+        </div>
+
+        <div class="detection-status" *ngIf="isDetectingOperator">
+          <ion-spinner name="crescent"></ion-spinner>
+          <span>Detecting network...</span>
+        </div>
+
+        <div class="detected-operator" *ngIf="detectedOperator">
+          <ion-chip color="success">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <ion-label>Detected: {{ detectedOperator.name }}</ion-label>
+          </ion-chip>
+        </div>
+      </form>
+    </div>
+
+    <!-- Step 4: Data Bundle Selection -->
+    <div *ngIf="currentStep === wizardSteps.DATA_BUNDLE_SELECTION">
+      <div class="step-description">
+        <h2 class="step-title">{{ getStepTitle(wizardSteps.DATA_BUNDLE_SELECTION) }}</h2>
+        <p>{{ getStepDescription(wizardSteps.DATA_BUNDLE_SELECTION) }}</p>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="isLoading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading data bundles...</p>
+      </div>
+
+      <!-- Bundles Grid -->
+      <div class="bundles-grid" *ngIf="!isLoading && dataBundles.length > 0">
+        <ion-card 
+          *ngFor="let bundle of dataBundles" 
+          class="bundle-card modern-card"
+          [class.selected]="selectedBundle?.plan_id === bundle.plan_id"
+          (click)="selectDataBundle(bundle)"
+        >
+          <ion-card-content>
+            <div class="bundle-header">
+              <h3 class="bundle-name">{{ bundle.plan_name || bundle.volume }}</h3>
+              <ion-badge *ngIf="bundle.category === 'FIBRE'" color="warning">FIBRE</ion-badge>
+            </div>
+            <div class="bundle-details">
+              <div class="bundle-data">
+                <ion-icon name="wifi-outline"></ion-icon>
+                <span>{{ bundle.volume }}</span>
+              </div>
+              <div class="bundle-validity">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>{{ bundle.validity }}</span>
+              </div>
+            </div>
+            <div class="bundle-price">
+              <span class="currency">GH₵</span>
+              <span class="amount">{{ bundle.price }}</span>
+            </div>
+            <p class="bundle-description" *ngIf="bundle.type">{{ bundle.type }}</p>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- No Bundles State -->
+      <div class="no-bundles" *ngIf="!isLoading && dataBundles.length === 0">
+        <ion-icon name="wifi-outline" class="no-bundles-icon"></ion-icon>
+        <h3>No Data Bundles Available</h3>
+        <p>No data bundles found for the selected network.</p>
+      </div>
+    </div>
+
+    <!-- Step 5: Confirmation -->
+    <div *ngIf="currentStep === wizardSteps.CONFIRMATION">
+      <div class="step-description">
+        <h2 class="step-title">{{ getStepTitle(wizardSteps.CONFIRMATION) }}</h2>
+        <p>{{ getStepDescription(wizardSteps.CONFIRMATION) }}</p>
+      </div>
+
+      <div class="confirmation-details">
+        <ion-card class="summary-card">
+          <ion-card-content>
+            <h3 class="summary-title">Purchase Summary</h3>
+            <div class="summary-item">
+              <span class="label">Country:</span>
+              <span class="value">{{ selectedCountry?.name }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Network:</span>
+              <span class="value">{{ selectedOperator?.name || detectedOperator?.name }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Phone Number:</span>
+              <span class="value">{{ getFormattedPhoneNumber() }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Data Bundle:</span>
+              <span class="value">{{ selectedBundle?.plan_name || selectedBundle?.volume }} ({{ selectedBundle?.volume }})</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Validity:</span>
+              <span class="value">{{ selectedBundle?.validity }}</span>
+            </div>
+            <div class="summary-item total">
+              <span class="label">Total Amount:</span>
+              <span class="value">GH₵{{ selectedBundle?.price }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Step 6: Processing -->
+    <div *ngIf="currentStep === wizardSteps.PROCESSING">
+      <div class="processing-container">
+        <ion-spinner name="crescent" class="processing-spinner"></ion-spinner>
+        <h3>Processing Your Request</h3>
+        <p>Please wait while we process your data bundle purchase...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="navigation-buttons" *ngIf="currentStep !== wizardSteps.PROCESSING">
+    <ion-button 
+      fill="outline" 
+      (click)="previousStep()" 
+      [disabled]="currentStep === wizardSteps.COUNTRY_SELECTION"
+      class="nav-button"
+    >
+      <ion-icon name="arrow-back" slot="start"></ion-icon>
+      Previous
+    </ion-button>
+
+    <ion-button 
+      (click)="nextStep()" 
+      [disabled]="!canProceed()"
+      class="nav-button"
+      *ngIf="currentStep < wizardSteps.CONFIRMATION"
+    >
+      Next
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+    </ion-button>
+
+    <ion-button 
+      (click)="onSubmit()" 
+      [disabled]="!canProceed() || isProcessing"
+      class="nav-button primary"
+      *ngIf="currentStep === wizardSteps.CONFIRMATION"
+    >
+      <ion-icon name="checkmark" slot="start"></ion-icon>
+      Confirm Purchase
+    </ion-button>
+  </div>
+</ion-content>

@@ -110,6 +110,23 @@ export const routes: Routes = [
           import('./services/services.page').then((m) => m.ServicesPage),
       },
       {
+        path: 'buy-internet-data',
+        redirectTo: 'recharge/internet',
+        pathMatch: 'full'
+      },
+      {
+        path: 'buy-airtime',
+        redirectTo: 'recharge/airtime',
+        pathMatch: 'full'
+      },
+      {
+        path: 'enhanced-buy-internet-data',
+        loadComponent: () =>
+          import('./buy-internet-data/enhanced-buy-internet-data.page').then(
+            (m) => m.EnhancedBuyInternetDataPage
+          ),
+      },
+      {
         path: 'airtime-conversion',
         loadComponent: () =>
           import('./airtime-conversion/airtime-conversion.page').then((m) => m.AirtimeConversionPage),

@@ -41,7 +41,7 @@ export class HistoryService {
       );
   }
   //Get transaction by transactionId
-  public getTransactionByTransactionId(transactionId: string): Observable<any> {
+  public  getTransactionByTransactionId(transactionId: string): Observable<any> {
     return this.http
       .get(`${this.hsURL}/api/v1/transactions/${transactionId}`)
       .pipe(

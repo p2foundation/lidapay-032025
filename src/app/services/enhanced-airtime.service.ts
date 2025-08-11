@@ -419,31 +419,67 @@ export class EnhancedAirtimeService {
    * Format phone number for API calls (no spaces, proper format)
    */
   formatPhoneNumberForAPI(phoneNumber: string, countryIso: string): string {
-    if (!phoneNumber) return '';
+    console.log('=== ENHANCED AIRTIME SERVICE - formatPhoneNumberForAPI ===');
+    console.log('Input phone number:', phoneNumber);
+    console.log('Country ISO:', countryIso);
+    console.log('Is Ghana?', countryIso === this.GHANA_ISO);
+    
+    if (!phoneNumber) {
+      console.log('Empty phone number, returning empty string');
+      return '';
+    }
 
     const cleanNumber = phoneNumber.replace(/\D/g, '');
+    console.log('Clean number (digits only):', cleanNumber);
+    console.log('Clean number length:', cleanNumber.length);
+    console.log('Clean number starts with 233?', cleanNumber.startsWith('233'));
+    console.log('Clean number starts with 0?', cleanNumber.startsWith('0'));
 
     if (countryIso === this.GHANA_ISO) {
+      console.log('Processing Ghana phone number...');
+      
       // For Ghana: use local format (like 0240000000) for Prymo API
       if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
         // Keep as is: 0244588584 (perfect for Prymo API)
+        console.log('Ghana 10-digit format kept as is:', cleanNumber);
         return cleanNumber;
       } else if (cleanNumber.length === 9) {
         // Convert 244588584 -> 0244588584 (for Prymo API)
-        return `0${cleanNumber}`;
+        const result = `0${cleanNumber}`;
+        console.log('Ghana 9-digit format converted:', cleanNumber, '->', result);
+        return result;
       } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
         // Convert 233244588584 -> 0244588584 (for Prymo API)
-        return `0${cleanNumber.slice(3)}`;
+        const result = `0${cleanNumber.slice(3)}`;
+        console.log('Ghana 12-digit format converted:', cleanNumber, '->', result);
+        return result;
+      } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+        // Convert 2330244588584 -> 0244588584 (for Prymo API)
+        const result = cleanNumber.slice(3);
+        console.log('Ghana 13-digit format converted:', cleanNumber, '->', result);
+        return result;
+      } else if (cleanNumber.length === 11 && cleanNumber.startsWith('233')) {
+        // Convert 233244000000 -> 0244000000 (for Prymo API)
+        const result = `0${cleanNumber.slice(3)}`;
+        console.log('Ghana 11-digit format converted:', cleanNumber, '->', result);
+        return result;
       }
-      // Return as is for other cases
+      // For any other format, try to make it work
+      console.log('Ghana other format, returning as is:', cleanNumber);
       return cleanNumber;
     } else {
+      console.log('Processing international phone number...');
       // For international: ensure it has + prefix for Reloadly API
       if (cleanNumber.startsWith('233')) {
-        return `+${cleanNumber}`;
+        const result = `+${cleanNumber}`;
+        console.log('International 233 format converted:', cleanNumber, '->', result);
+        return result;
       } else if (!cleanNumber.startsWith('+')) {
-        return `+${cleanNumber}`;
+        const result = `+${cleanNumber}`;
+        console.log('International format with + added:', cleanNumber, '->', result);
+        return result;
       }
+      console.log('International format kept as is:', cleanNumber);
       return cleanNumber;
     }
   }
