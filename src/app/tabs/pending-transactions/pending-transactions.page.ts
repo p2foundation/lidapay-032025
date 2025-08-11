@@ -7,7 +7,12 @@ import { addIcons } from 'ionicons';
 import { 
   refreshOutline, 
   checkmarkCircleOutline, 
-  trashOutline 
+  trashOutline,
+  eyeOutline,
+  timeOutline,
+  arrowDownOutline,
+  closeCircleOutline,
+  helpCircleOutline
 } from 'ionicons/icons';
 import {
   IonContent,
@@ -39,35 +44,37 @@ import {
   ToastController,
   AlertController,
 } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 
 import { NotificationService } from '../../services/notification.service';
-import { AirtimeService } from '../../services/one4all/airtime.service';
-import { InternetDataService } from '../../services/one4all/internet.data.service';
-import { AdvansisPayService } from '../../services/payments/advansis-pay.service';
-import { MobileMoneyService } from '../../services/payments/mobile.money.service';
-import { ReloadlyAirtimeService } from '../../services/reloadly/reloadly-airtime.service';
+import { HistoryService } from '../../services/transactions/history.service';
+import { StateService } from '../../services/state.service';
 import { StorageService } from '../../services/storage.service';
-import { GlobalService } from '../../services/global.service';
-import { UtilsService } from '../../services/utils.service';
 
-interface PendingTransaction {
-  id: string;
-  transType: 'AIRTIMETOPUP' | 'DATABUNDLELIST' | 'GLOBALAIRTOPUP';
-  status: 'PENDING' | 'FAILED';
-  amount: number;
-  currency: string;
+interface Transaction {
+  _id: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  transType: string;
+  transId: string;
   recipientNumber: string;
-  network?: string;
-  description: string;
-  timestamp: string;
-  orderId?: string;
-  token?: string;
-  retryCount?: number;
-  operatorId?: string;
-  recipientCountryCode?: string;
-  senderNumber?: string;
-  customerEmail?: string;
-  payTransRef?: string;
+  retailer: string;
+  expressToken: string;
+  monetary: {
+    amount: number;
+    fee: number;
+    originalAmount: string;
+    currency: string;
+    _id: string;
+  };
+  status: {
+    transaction: 'pending' | 'completed' | 'failed';
+    service: 'pending' | 'completed' | 'failed';
+    payment: 'pending' | 'completed' | 'failed';
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 @Component({
@@ -107,33 +114,44 @@ interface PendingTransaction {
   ],
 })
 export class PendingTransactionsPage implements OnInit, OnDestroy {
-  pendingTransactions: PendingTransaction[] = [];
+  pendingTransactions: Transaction[] = [];
   isLoading = false;
-  isProcessing = false;
-  processingTransactionId: string | null = null;
+  isCheckingStatus = false;
+  checkingTransactionId: string | null = null;
   
   // Filter options
-  filterStatus: 'ALL' | 'PENDING' | 'FAILED' = 'ALL';
+  filterStatus: 'ALL' | 'PENDING' | 'COMPLETED' | 'FAILED' = 'ALL';
   searchTerm = '';
+  
+  // Pagination
+  currentPage = 1;
+  limit = 20;
+  totalPages = 1;
+  hasMoreData = true;
 
   private destroy$ = new Subject<void>();
 
   constructor(
+    private historyService: HistoryService,
+    private stateService: StateService,
     private storage: StorageService,
     private notificationService: NotificationService,
-    private airtimeService: AirtimeService,
-    private internetDataService: InternetDataService,
-    private advansisPayService: AdvansisPayService,
-    private mobileMoneyService: MobileMoneyService,
-    private reloadlyService: ReloadlyAirtimeService,
-    private globalService: GlobalService,
-    private utilService: UtilsService,
+    private router: Router,
     private modalController: ModalController,
     private loadingController: LoadingController,
     private toastController: ToastController,
     private alertController: AlertController
   ) {
-    addIcons({ refreshOutline, checkmarkCircleOutline, trashOutline });
+    addIcons({
+      refreshOutline,
+      checkmarkCircleOutline,
+      timeOutline,
+      eyeOutline,
+      arrowDownOutline,
+      trashOutline,
+      closeCircleOutline,
+      helpCircleOutline
+    });
   }
 
   ngOnInit() {
@@ -145,74 +163,205 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async loadPendingTransactions() {
-    this.isLoading = true;
+  async loadPendingTransactions(page: number = 1, append: boolean = false) {
+    if (page === 1) {
+      this.isLoading = true;
+    }
+
     try {
-      // Get all stored transactions
-      const allKeys = await this.storage.getAllKeys();
-      const pendingKeys = allKeys.filter(key => 
-        key.startsWith('pendingTransaction_') || 
-        key === 'pendingTransaction'
-      );
-
-      const transactions: PendingTransaction[] = [];
-
-      for (const key of pendingKeys) {
-        try {
-          const transactionData = await this.storage.getStorage(key);
-          if (transactionData) {
-            const transaction = typeof transactionData === 'string' 
-              ? JSON.parse(transactionData) 
-              : transactionData;
-
-            // Only include failed or pending transactions
-            if (transaction.status === 'FAILED' || transaction.status === 'PENDING') {
-              transactions.push({
-                id: key,
-                transType: transaction.transType,
-                status: transaction.status,
-                amount: transaction.amount,
-                currency: transaction.currency || 'GHS',
-                recipientNumber: transaction.recipientNumber,
-                network: transaction.network,
-                description: transaction.description || transaction.orderDesc,
-                timestamp: transaction.timestamp,
-                orderId: transaction.orderId,
-                token: transaction.token,
-                retryCount: transaction.retryCount || 0,
-                operatorId: transaction.operatorId,
-                recipientCountryCode: transaction.recipientCountryCode,
-                senderNumber: transaction.senderNumber,
-                customerEmail: transaction.customerEmail,
-                payTransRef: transaction.payTransRef,
-              });
-            }
-          }
-        } catch (error) {
-          console.error(`Error parsing transaction ${key}:`, error);
-        }
+      const userId = this.stateService.getUserId();
+      if (!userId) {
+        throw new Error('User ID not found. Please login again.');
       }
 
-      // Sort by timestamp (newest first)
-      this.pendingTransactions = transactions.sort((a, b) => 
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      console.log('Loading transactions for user:', userId, 'Page:', page, 'Limit:', this.limit);
+      
+      const response = await firstValueFrom(
+        this.historyService.getTransactionByUserId(userId, page, this.limit)
       );
 
-      console.log('Loaded pending transactions:', this.pendingTransactions);
-    } catch (error) {
+      console.log('API Response:', response);
+
+      if (response && response.transactions) {
+        // Filter for pending transactions based on status.transaction
+        const pendingTransactions = response.transactions.filter((tx: Transaction) => 
+          tx.status?.transaction === 'pending'
+        );
+
+        if (append) {
+          this.pendingTransactions = [...this.pendingTransactions, ...pendingTransactions];
+        } else {
+          this.pendingTransactions = pendingTransactions;
+        }
+
+        // Update pagination info
+        this.currentPage = page;
+        this.totalPages = response.totalPages || 1;
+        this.hasMoreData = page < this.totalPages;
+
+        console.log('Filtered pending transactions:', this.pendingTransactions);
+        console.log('Total pages:', this.totalPages, 'Current page:', this.currentPage);
+      } else {
+        this.pendingTransactions = [];
+        this.hasMoreData = false;
+      }
+    } catch (error: any) {
       console.error('Error loading pending transactions:', error);
-      this.notificationService.showError('Failed to load pending transactions');
+      this.notificationService.showError(
+        error.message || 'Failed to load pending transactions'
+      );
     } finally {
       this.isLoading = false;
     }
   }
 
-  get filteredTransactions(): PendingTransaction[] {
+  async checkTransactionStatus(transaction: Transaction) {
+    this.isCheckingStatus = true;
+    this.checkingTransactionId = transaction._id;
+
+    const loading = await this.loadingController.create({
+      message: 'Checking transaction status...',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
+    try {
+      console.log('Checking status for transaction:', transaction._id);
+      
+      // Query the transaction status using the transaction ID
+      const response = await firstValueFrom(
+        this.historyService.getTransactionByTransactionId(transaction._id)
+      );
+
+      console.log('Status check response:', response);
+
+      if (response) {
+        const updatedTransaction = response;
+        const transactionStatus = updatedTransaction.status?.transaction;
+
+        if (transactionStatus === 'completed') {
+          // Transaction is complete, forward to checkout for crediting
+          await this.forwardToCheckout(updatedTransaction);
+        } else if (transactionStatus === 'failed') {
+          // Transaction failed
+          await this.showTransactionFailedAlert(updatedTransaction);
+        } else if (transactionStatus === 'pending') {
+          // Still pending, show current status
+          await this.showCurrentStatus(updatedTransaction);
+        }
+      } else {
+        throw new Error('Unable to retrieve transaction status');
+      }
+    } catch (error: any) {
+      console.error('Error checking transaction status:', error);
+      this.notificationService.showError(
+        error.message || 'Failed to check transaction status'
+      );
+    } finally {
+      this.isCheckingStatus = false;
+      this.checkingTransactionId = null;
+      await loading.dismiss();
+    }
+  }
+
+  private async forwardToCheckout(transaction: Transaction) {
+    try {
+      // Prepare airtimeTopup params for checkout
+      const airtimeTopupParams = {
+        transType: transaction.transType,
+        amount: transaction.monetary.amount,
+        currency: transaction.monetary.currency,
+        recipientNumber: transaction.recipientNumber,
+        transId: transaction.transId,
+        expressToken: transaction.expressToken,
+        retailer: transaction.retailer,
+        status: 'COMPLETED',
+        result: 'Transaction completed successfully',
+        orderId: transaction.transId,
+        transactionId: transaction._id,
+        // Add any other required fields for checkout
+      };
+
+      console.log('Forwarding to checkout with params:', airtimeTopupParams);
+
+      // Navigate to checkout with the transaction data
+      const navigationExtras = {
+        queryParams: {
+          special: JSON.stringify(airtimeTopupParams)
+        }
+      };
+
+      await this.router.navigate(['/tabs/checkout'], navigationExtras);
+      
+      // Show success message
+      this.notificationService.showSuccess('Transaction completed! Redirecting to checkout for crediting.');
+      
+    } catch (error) {
+      console.error('Error forwarding to checkout:', error);
+      this.notificationService.showError('Failed to forward to checkout');
+    }
+  }
+
+  private async showTransactionFailedAlert(transaction: Transaction) {
+    const alert = await this.alertController.create({
+      header: 'Transaction Failed',
+      message: `The transaction has failed and cannot be processed.\n\nTransaction ID: ${transaction.transId}\nAmount: ${transaction.monetary.currency} ${transaction.monetary.amount}\nRecipient: ${transaction.recipientNumber}`,
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => {
+            // Refresh the list to show updated status
+            this.loadPendingTransactions();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  private async showCurrentStatus(transaction: Transaction) {
+    const alert = await this.alertController.create({
+      header: 'Transaction Status',
+      message: `Transaction is still being processed.\n\nStatus: ${transaction.status?.transaction}\nService: ${transaction.status?.service}\nPayment: ${transaction.status?.payment}\n\nPlease check back later.`,
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
+  async viewTransactionDetails(transaction: Transaction) {
+    const alert = await this.alertController.create({
+      header: 'Transaction Details',
+      message: `
+        <div style="text-align: left;">
+          <p><strong>Transaction ID:</strong> ${transaction.transId}</p>
+          <p><strong>Type:</strong> ${transaction.transType}</p>
+          <p><strong>Amount:</strong> ${transaction.monetary.currency} ${transaction.monetary.amount}</p>
+          <p><strong>Recipient:</strong> ${transaction.recipientNumber}</p>
+          <p><strong>Retailer:</strong> ${transaction.retailer}</p>
+          <p><strong>Status:</strong></p>
+          <ul>
+            <li>Transaction: ${transaction.status?.transaction}</li>
+            <li>Service: ${transaction.status?.service}</li>
+            <li>Payment: ${transaction.status?.payment}</li>
+          </ul>
+          <p><strong>Created:</strong> ${this.formatDate(transaction.createdAt)}</p>
+          <p><strong>Updated:</strong> ${this.formatDate(transaction.updatedAt)}</p>
+        </div>
+      `,
+      buttons: ['Close']
+    });
+
+    await alert.present();
+  }
+
+  get filteredTransactions(): Transaction[] {
     let filtered = this.pendingTransactions;
 
     // Filter by status
     if (this.filterStatus !== 'ALL') {
-      filtered = filtered.filter(t => t.status === this.filterStatus);
+      filtered = filtered.filter(t => t.status?.transaction === this.filterStatus.toLowerCase());
     }
 
     // Filter by search term
@@ -220,201 +369,29 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
       const search = this.searchTerm.toLowerCase();
       filtered = filtered.filter(t => 
         t.recipientNumber.toLowerCase().includes(search) ||
-        t.description.toLowerCase().includes(search) ||
-        t.network?.toLowerCase().includes(search) ||
-        t.orderId?.toLowerCase().includes(search)
+        t.transType.toLowerCase().includes(search) ||
+        t.transId.toLowerCase().includes(search) ||
+        t.retailer.toLowerCase().includes(search)
       );
     }
 
     return filtered;
   }
 
-  async initiateCrediting(transaction: PendingTransaction) {
-    const alert = await this.alertController.create({
-      header: 'Confirm Crediting',
-      message: `Are you sure you want to initiate crediting for this transaction?\n\nAmount: ${transaction.currency} ${transaction.amount}\nRecipient: ${transaction.recipientNumber}\nNetwork: ${transaction.network || 'N/A'}`,
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Proceed',
-          handler: () => this.processCrediting(transaction)
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  async processCrediting(transaction: PendingTransaction) {
-    this.isProcessing = true;
-    this.processingTransactionId = transaction.id;
-
-    const loading = await this.loadingController.create({
-      message: 'Initiating crediting...',
-      spinner: 'crescent'
-    });
-    await loading.present();
-
-    try {
-      console.log('Processing crediting for transaction:', transaction);
-
-      let result: any;
-
-      switch (transaction.transType) {
-        case 'AIRTIMETOPUP':
-          result = await this.processAirtimeCrediting(transaction);
-          break;
-        case 'DATABUNDLELIST':
-          result = await this.processDataBundleCrediting(transaction);
-          break;
-        case 'GLOBALAIRTOPUP':
-          result = await this.processGlobalAirtimeCrediting(transaction);
-          break;
-        default:
-          throw new Error(`Unsupported transaction type: ${transaction.transType}`);
-      }
-
-      // Update transaction status
-      await this.updateTransactionStatus(transaction.id, 'COMPLETED', result);
-
-      // Show success message
-      await this.showSuccessMessage(transaction, result);
-
-      // Remove from pending list
-      this.pendingTransactions = this.pendingTransactions.filter(t => t.id !== transaction.id);
-
-    } catch (error: any) {
-      console.error('Error processing crediting:', error);
-      
-      // Update transaction status to failed
-      await this.updateTransactionStatus(transaction.id, 'FAILED', { error: error.message });
-      
-      this.notificationService.showError(error.message || 'Failed to process crediting');
-    } finally {
-      this.isProcessing = false;
-      this.processingTransactionId = null;
-      await loading.dismiss();
-    }
-  }
-
-  private async processAirtimeCrediting(transaction: PendingTransaction): Promise<any> {
-    const params = {
-      recipientNumber: transaction.recipientNumber,
-      amount: transaction.amount,
-      network: this.getNetworkId(transaction.network || ''),
-      description: transaction.description,
-      payTransRef: transaction.payTransRef || await this.utilService.generateReference()
-    };
-
-    console.log('Airtime crediting params:', params);
-    return await firstValueFrom(this.airtimeService.buyAirtimeTopup(params));
-  }
-
-  private async processDataBundleCrediting(transaction: PendingTransaction): Promise<any> {
-    const params = {
-      recipientNumber: transaction.recipientNumber,
-      dataCode: transaction.operatorId || '',
-      network: this.getNetworkId(transaction.network || ''),
-      description: transaction.description,
-      payTransRef: transaction.payTransRef || await this.utilService.generateReference()
-    };
-
-    console.log('Data bundle crediting params:', params);
-    return await firstValueFrom(this.internetDataService.buyInternetData(params));
-  }
-
-  private async processGlobalAirtimeCrediting(transaction: PendingTransaction): Promise<any> {
-    const params = {
-      operatorId: transaction.operatorId || '',
-      amount: transaction.amount,
-      recipientNumber: transaction.recipientNumber,
-      recipientCountryCode: transaction.recipientCountryCode || 'GH',
-      description: transaction.description,
-      payTransRef: transaction.payTransRef || await this.utilService.generateReference()
-    };
-
-    console.log('Global airtime crediting params:', params);
-    return await firstValueFrom(this.reloadlyService.makeAirtimeTopup(params));
-  }
-
-  private getNetworkId(networkName: string): number {
-    const networkMapping: { [key: string]: number } = {
-      'MTN': 1,
-      'TELECEL': 2,
-      'AIRTELTIGO': 3,
-      'GLO': 4
-    };
-    return networkMapping[networkName.toUpperCase()] || 1;
-  }
-
-  private async updateTransactionStatus(transactionId: string, status: string, result: any) {
-    try {
-      const transactionData = await this.storage.getStorage(transactionId);
-      if (transactionData) {
-        const transaction = typeof transactionData === 'string' 
-          ? JSON.parse(transactionData) 
-          : transactionData;
-
-        transaction.status = status;
-        transaction.result = result;
-        transaction.updatedAt = new Date().toISOString();
-
-        await this.storage.setStorage(transactionId, JSON.stringify(transaction));
-        console.log(`Updated transaction ${transactionId} status to ${status}`);
-      }
-    } catch (error) {
-      console.error('Error updating transaction status:', error);
-    }
-  }
-
-  private async showSuccessMessage(transaction: PendingTransaction, result: any) {
-    const alert = await this.alertController.create({
-      header: 'Crediting Successful!',
-      message: `Transaction processed successfully!\n\nAmount: ${transaction.currency} ${transaction.amount}\nRecipient: ${transaction.recipientNumber}\nTransaction ID: ${result.transactionId || 'N/A'}`,
-      buttons: ['OK']
-    });
-    await alert.present();
-  }
-
-  async deleteTransaction(transaction: PendingTransaction) {
-    const alert = await this.alertController.create({
-      header: 'Delete Transaction',
-      message: 'Are you sure you want to delete this pending transaction? This action cannot be undone.',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Delete',
-          role: 'destructive',
-          handler: async () => {
-            try {
-              await this.storage.removeStorage(transaction.id);
-              this.pendingTransactions = this.pendingTransactions.filter(t => t.id !== transaction.id);
-              this.notificationService.showSuccess('Transaction deleted successfully');
-            } catch (error) {
-              console.error('Error deleting transaction:', error);
-              this.notificationService.showError('Failed to delete transaction');
-            }
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
   async refreshTransactions() {
-    await this.loadPendingTransactions();
+    await this.loadPendingTransactions(1, false);
     this.notificationService.showSuccess('Transactions refreshed');
   }
 
-  formatDate(timestamp: string): string {
-    return new Date(timestamp).toLocaleString();
+  async loadMoreTransactions() {
+    if (this.hasMoreData && !this.isLoading) {
+      await this.loadPendingTransactions(this.currentPage + 1, true);
+    }
+  }
+
+  formatDate(dateString?: string): string {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString();
   }
 
   formatAmount(amount: number): string {
@@ -422,12 +399,18 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
   }
 
   getStatusColor(status: string): string {
-    return status === 'PENDING' ? 'warning' : 'danger';
+    switch (status) {
+      case 'pending': return 'warning';
+      case 'completed': return 'success';
+      case 'failed': return 'danger';
+      default: return 'medium';
+    }
   }
 
   getTransactionTypeLabel(transType: string): string {
     const labels: { [key: string]: string } = {
-      'AIRTIMETOPUP': 'Airtime',
+      'MOMO': 'Mobile Money',
+      'AIRTIMETOPUP': 'Airtime Top-up',
       'DATABUNDLELIST': 'Data Bundle',
       'GLOBALAIRTOPUP': 'Global Airtime'
     };
@@ -442,17 +425,22 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
     
     // For Ghanaian numbers (233 prefix), convert to local format
     if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
-      // Convert 2330244588584 -> 0244588584
       return cleanNumber.slice(3);
     } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
-      // Convert +2330244588584 -> 0244588584
       return cleanNumber.slice(3);
     } else if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
-      // Keep as is: 0244588584
       return cleanNumber;
     }
     
-    // For any other format, return as is
     return phoneNumber;
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'pending': return 'timeOutline';
+      case 'completed': return 'checkmarkCircleOutline';
+      case 'failed': return 'closeCircleOutline';
+      default: return 'helpCircleOutline';
+    }
   }
 }
