@@ -127,6 +127,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'enhanced-buy-airtime',
+        loadComponent: () =>
+          import('./buy-airtime/enhanced-buy-airtime.page').then(
+            (m) => m.EnhancedBuyAirtimePage
+          ),
+      },
+      {
+        path: 'enhanced-purchase',
+        loadComponent: () =>
+          import('./buy-airtime/enhanced-buy-airtime.page').then(
+            (m) => m.EnhancedBuyAirtimePage
+          ),
+      },
+      {
         path: 'airtime-conversion',
         loadComponent: () =>
           import('./airtime-conversion/airtime-conversion.page').then((m) => m.AirtimeConversionPage),

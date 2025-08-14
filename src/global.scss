@@ -1766,3 +1766,22 @@ body.light {
     }
   }
 }
+
+/* Transaction Details Modal */
+.transaction-details-modal {
+  --height: auto;
+  --max-height: 90vh;
+  --border-radius: 16px 16px 0 0;
+  
+  .modal-wrapper {
+    border-radius: 16px 16px 0 0;
+  }
+  
+  ion-content {
+    --background: var(--ion-color-light);
+  }
+  
+  ion-header {
+    --background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+  }
+}

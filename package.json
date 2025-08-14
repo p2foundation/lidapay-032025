@@ -16,7 +16,13 @@
     "cap:sync": "cap sync",
     "cap:open:android": "cap open android",
     "cap:run:android": "cap run android",
-    "cap:build:android": "npm run build && npm run cap:sync && npm run cap:open:android"
+    "cap:build:android": "npm run build && npm run cap:sync && npm run cap:open:android",
+    "test:android:unit": "cd android && gradlew test",
+    "test:android:instrumented": "cd android && gradlew connectedAndroidTest",
+    "test:android:all": "cd android && gradlew test connectedAndroidTest",
+    "test:android:clean": "cd android && gradlew clean",
+    "test:android:build": "cd android && gradlew build",
+    "prepare:android": "npm run build && npm run cap:sync"
   },
   "private": true,
   "dependencies": {

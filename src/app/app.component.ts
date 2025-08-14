@@ -172,7 +172,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private async processPaymentWithToken(token: string, orderId: string) {
     let loading: HTMLIonLoadingElement | undefined;
     let retryCount = 0;
-    const MAX_RETRIES = 15; // Increased from 10 to 15 (45 seconds total with 3s intervals)
+    const MAX_RETRIES = 20; // Increased from 15 to 20 (60 seconds total with 3s intervals)
     const RETRY_DELAY = 3000; // 3 seconds
     const INITIAL_DELAY = 10000; // Increased to 10 seconds initial delay
     let lastError: any = null;

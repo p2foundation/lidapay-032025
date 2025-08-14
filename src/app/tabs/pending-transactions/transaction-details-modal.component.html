@@ -1,0 +1,173 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar class="modal-header">
+    <ion-title class="modal-title">
+              <ion-icon name="document-outline" class="title-icon"></ion-icon>
+      Transaction Details
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="closeModal()" class="close-button">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="modal-content">
+  <div class="transaction-details-container" *ngIf="transaction; else loadingContent">
+    
+    <!-- Transaction Header -->
+    <div class="transaction-header">
+      <div class="transaction-type-badge">
+        <ion-icon [name]="getTransactionTypeIcon()" class="type-icon"></ion-icon>
+        <span class="type-text">{{ getTransactionTypeDisplay(transaction.transType) }}</span>
+      </div>
+      <div class="transaction-amount">
+        <span class="amount-label">Amount</span>
+        <span class="amount-value">{{ formatAmount(transaction.monetary?.amount) }}</span>
+      </div>
+    </div>
+
+    <!-- Transaction Information -->
+    <div class="info-section">
+      <h3 class="section-title">
+        <ion-icon name="information-circle-outline" class="section-icon"></ion-icon>
+        Transaction Information
+      </h3>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <ion-icon name="information-circle-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <span class="info-label">Transaction ID</span>
+            <span class="info-value">{{ transaction.transId || 'N/A' }}</span>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <ion-icon name="calendar-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <span class="info-label">Date Created</span>
+            <span class="info-value">{{ formatDate(transaction.createdAt) }}</span>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <ion-icon name="time-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <span class="info-label">Last Updated</span>
+            <span class="info-value">{{ formatDate(transaction.updatedAt) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipient Information -->
+    <div class="info-section">
+      <h3 class="section-title">
+        <ion-icon name="person-outline" class="section-icon"></ion-icon>
+        Recipient Details
+      </h3>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <ion-icon name="phone-portrait-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <span class="info-label">Phone Number</span>
+            <span class="info-value">{{ transaction.recipientNumber || 'N/A' }}</span>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <ion-icon name="business-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <span class="info-label">Retailer</span>
+            <span class="info-value">{{ transaction.retailer || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Information -->
+    <div class="info-section">
+      <h3 class="section-title">
+        <ion-icon name="analytics-outline" class="section-icon"></ion-icon>
+        Status Information
+      </h3>
+      
+      <div class="status-grid">
+        <div class="status-item" [ngClass]="getStatusColor(transaction.status?.transaction)">
+          <ion-icon [name]="getStatusIcon(transaction.status?.transaction)" class="status-icon"></ion-icon>
+          <div class="status-content">
+            <span class="status-label">Transaction Status</span>
+            <span class="status-value">{{ transaction.status?.transaction || 'pending' }}</span>
+          </div>
+        </div>
+        
+        <div class="status-item" [ngClass]="getStatusColor(transaction.status?.service)">
+          <ion-icon [name]="getStatusIcon(transaction.status?.service)" class="status-icon"></ion-icon>
+          <div class="status-content">
+            <span class="status-label">Service Status</span>
+            <span class="status-value">{{ transaction.status?.service || 'pending' }}</span>
+          </div>
+        </div>
+        
+        <div class="status-item" [ngClass]="getStatusColor(transaction.status?.payment)">
+          <ion-icon [name]="getStatusIcon(transaction.status?.payment)" class="status-icon"></ion-icon>
+          <div class="status-content">
+            <span class="status-label">Payment Status</span>
+            <span class="status-value">{{ transaction.status?.payment || 'pending' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Details -->
+    <div class="info-section" *ngIf="transaction.notes || transaction.reference">
+      <h3 class="section-title">
+        <ion-icon name="document-outline" class="section-icon"></ion-icon>
+        Additional Details
+      </h3>
+      
+      <div class="info-grid">
+        <div class="info-item" *ngIf="transaction.notes">
+          <ion-icon name="chatbubble-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <span class="info-label">Notes</span>
+            <span class="info-value">{{ transaction.notes }}</span>
+          </div>
+        </div>
+        
+        <div class="info-item" *ngIf="transaction.reference">
+          <ion-icon name="link-outline" class="info-icon"></ion-icon>
+          <div class="info-content">
+            <span class="info-label">Reference</span>
+            <span class="info-value">{{ transaction.reference }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Loading/Error Content -->
+  <ng-template #loadingContent>
+    <div class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading transaction details...</p>
+    </div>
+  </ng-template>
+</ion-content>
+
+<ion-footer class="modal-footer">
+  <ion-toolbar>
+    <ion-button 
+      expand="block" 
+      fill="solid" 
+      color="primary" 
+      (click)="closeModal()"
+      class="close-modal-btn">
+      <ion-icon name="close-outline" slot="start"></ion-icon>
+      Close
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

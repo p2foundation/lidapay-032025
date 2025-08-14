@@ -14,11 +14,8 @@ import {
   IonTitle,
   IonToolbar,
   IonButton,
-  IonItem,
   IonLabel,
   IonInput,
-  IonSelect,
-  IonSelectOption,
   IonCard,
   IonCardContent,
   IonButtons,
@@ -29,12 +26,6 @@ import {
   IonCol,
   IonChip,
   IonSpinner,
-  IonAlert,
-  IonToast,
-  IonModal,
-  IonList,
-  IonAvatar,
-  IonBadge,
   ModalController,
 } from '@ionic/angular/standalone';
 
@@ -75,11 +66,8 @@ enum WizardStep {
     IonTitle,
     IonToolbar,
     IonButton,
-    IonItem,
     IonLabel,
     IonInput,
-    IonSelect,
-    IonSelectOption,
     IonCard,
     IonCardContent,
     IonButtons,
@@ -90,12 +78,6 @@ enum WizardStep {
     IonCol,
     IonChip,
     IonSpinner,
-    IonAlert,
-    IonToast,
-    IonModal,
-    IonList,
-    IonAvatar,
-    IonBadge,
   ],
 })
 export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
@@ -126,6 +108,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   topupParams: any = {};
 
   private destroy$ = new Subject<void>();
+  private isFormattingPhone = false; // Flag to prevent recursive formatting
 
   constructor(
     private formBuilder: FormBuilder,
@@ -141,7 +124,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     this.airtimeForm = this.formBuilder.group({
       countryIso: ['', Validators.required],
       operatorId: ['', Validators.required],
-      recipientNumber: ['', [Validators.required, Validators.minLength(7)]],
+      recipientNumber: ['', [Validators.required]],
       amount: ['', [Validators.required, Validators.min(1)]],
       autoDetect: [true],
     });
@@ -157,6 +140,8 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+
 
   private async loadUserProfile() {
     try {
@@ -190,12 +175,14 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
   }
 
   private setupFormListeners() {
-    // Listen to phone number changes for auto-detection and formatting
+    // Phone number input listener
     this.airtimeForm
       .get('recipientNumber')
       ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((phoneNumber) => {
-        if (phoneNumber) {
+        if (phoneNumber && !this.isFormattingPhone) {
+          this.isFormattingPhone = true; // Set flag to prevent recursion
+          
           let formattedNumber = phoneNumber;
           
           // For Ghana, ensure we format to local format without any country code prefix
@@ -224,10 +211,15 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
             }
           }
           
-          // Auto-detect operator
-          if (this.airtimeForm.get('autoDetect')?.value) {
+          // Auto-detect operator for international countries
+          if (this.airtimeForm.get('autoDetect')?.value && this.selectedCountry?.isoName !== this.GHANA_ISO) {
             this.autoDetectOperator(formattedNumber);
           }
+          
+          // Reset flag after formatting is complete
+          setTimeout(() => {
+            this.isFormattingPhone = false;
+          }, 100);
         }
       });
   }
@@ -318,6 +310,9 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     this.detectedOperator = null;
     this.airtimeForm.patchValue({ operatorId: '' });
 
+    // Update form validation based on country
+    this.updateFormValidation(country.isoName);
+
     // Load operators only for Ghana
     if (country.isoName === this.GHANA_ISO) {
       console.log('Loading Ghana operators...');
@@ -329,6 +324,20 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     }
 
     this.nextStep();
+  }
+
+  private updateFormValidation(countryIso: string) {
+    const operatorIdControl = this.airtimeForm.get('operatorId');
+    
+    if (countryIso === this.GHANA_ISO) {
+      // For Ghana, operator selection is required
+      operatorIdControl?.setValidators([Validators.required]);
+    } else {
+      // For international countries, operator selection is not required (auto-detection will be used)
+      operatorIdControl?.clearValidators();
+    }
+    
+    operatorIdControl?.updateValueAndValidity();
   }
 
   // Method to ensure phone number is formatted correctly
@@ -419,18 +428,87 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     console.log('Form updated with phone number:', phoneNumber);
   }
 
+  private getGhanaNetworkProvider(phoneNumber: string): string {
+    if (!phoneNumber) return 'Unknown';
+    
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    let nineDigitNumber = '';
+    
+    if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+      nineDigitNumber = cleanNumber.slice(1);
+    } else if (cleanNumber.length === 9) {
+      nineDigitNumber = cleanNumber;
+    } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+      nineDigitNumber = cleanNumber.slice(3);
+    } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+      nineDigitNumber = cleanNumber.slice(3);
+    } else {
+      return 'Unknown';
+    }
+    
+    if (nineDigitNumber.length !== 9) return 'Unknown';
+    
+    const prefix = nineDigitNumber.substring(0, 2);
+    
+    // Ghana mobile prefixes (2025)
+    if (['20', '24', '26', '27'].includes(prefix)) {
+      return 'MTN Ghana';
+    } else if (['54', '55', '56', '57'].includes(prefix)) {
+      return 'AirtelTigo Ghana';
+    } else {
+      return 'Unknown';
+    }
+  }
+
+  private validateGhanaPhoneNumber(phoneNumber: string): boolean {
+    if (!phoneNumber) return false;
+    
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    
+    // Valid Ghana mobile prefixes (2025) - STRICTLY ENFORCED
+    const validPrefixes = ['20', '24', '26', '27', '54', '55', '56', '57'];
+    
+    let nineDigitNumber = '';
+    
+    if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+      // 0XXXXXXXXX format
+      nineDigitNumber = cleanNumber.slice(1);
+    } else if (cleanNumber.length === 9) {
+      // XXXXXXXXX format
+      nineDigitNumber = cleanNumber;
+    } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+      // 233XXXXXXXXX format
+      nineDigitNumber = cleanNumber.slice(3);
+    } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+      // +233XXXXXXXXX format
+      nineDigitNumber = cleanNumber.slice(3);
+    } else {
+      return false;
+    }
+    
+    if (nineDigitNumber.length !== 9) return false;
+    
+    const prefix = nineDigitNumber.substring(0, 2);
+    const isValid = validPrefixes.includes(prefix);
+    
+    console.log(`Ghana phone validation: ${phoneNumber} -> prefix ${prefix} -> ${isValid ? 'VALID' : 'INVALID'}`);
+    return isValid;
+  }
+
   validatePhoneNumber(): boolean {
     const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
     const countryIso = this.airtimeForm.get('countryIso')?.value;
-
-    if (!phoneNumber || !countryIso) return false;
-
-    // Allow any reasonable phone number format (7+ digits)
-    // This allows users to enter numbers like 0240000000, +233244000000, etc.
-    const cleanNumber = phoneNumber.replace(/\D/g, '');
     
-    // Basic validation: must have at least 7 digits
-    return cleanNumber.length >= 7;
+    if (!phoneNumber || !countryIso) return false;
+    
+    if (countryIso === this.GHANA_ISO) {
+      // Use strict Ghana validation
+      return this.validateGhanaPhoneNumber(phoneNumber);
+    } else {
+      // International validation (7-15 digits)
+      const cleanNumber = phoneNumber.replace(/\D/g, '');
+      return cleanNumber.length >= 7 && cleanNumber.length <= 15;
+    }
   }
 
   nextStep() {

@@ -438,33 +438,76 @@ export class EnhancedAirtimeService {
     if (countryIso === this.GHANA_ISO) {
       console.log('Processing Ghana phone number...');
       
+      // Valid Ghana mobile prefixes (2025)
+      const validGhanaPrefixes = ['20', '24', '26', '27', '54', '55', '56', '57'];
+      
       // For Ghana: use local format (like 0240000000) for Prymo API
       if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
-        // Keep as is: 0244588584 (perfect for Prymo API)
-        console.log('Ghana 10-digit format kept as is:', cleanNumber);
-        return cleanNumber;
+        // Check if the prefix after 0 is valid
+        const prefix = cleanNumber.substring(1, 3);
+        if (validGhanaPrefixes.includes(prefix)) {
+          // Keep as is: 0244588584 (perfect for Prymo API)
+          console.log('Ghana 10-digit format kept as is:', cleanNumber);
+          return cleanNumber;
+        } else {
+          // Invalid prefix, remove the 0 and check if it's valid
+          const nineDigitNumber = cleanNumber.substring(1);
+          if (validGhanaPrefixes.includes(nineDigitNumber.substring(0, 2))) {
+            console.log('Ghana invalid 10-digit format corrected:', cleanNumber, '->', nineDigitNumber);
+            return nineDigitNumber;
+          }
+        }
       } else if (cleanNumber.length === 9) {
-        // Convert 244588584 -> 0244588584 (for Prymo API)
-        const result = `0${cleanNumber}`;
-        console.log('Ghana 9-digit format converted:', cleanNumber, '->', result);
-        return result;
+        // Check if the 9-digit number has a valid Ghana prefix
+        const prefix = cleanNumber.substring(0, 2);
+        if (validGhanaPrefixes.includes(prefix)) {
+          // Convert 244588584 -> 0244588584 (for Prymo API)
+          const result = `0${cleanNumber}`;
+          console.log('Ghana 9-digit format converted:', cleanNumber, '->', result);
+          return result;
+        } else {
+          // Invalid prefix, return as is
+          console.log('Ghana 9-digit format has invalid prefix:', cleanNumber);
+          return cleanNumber;
+        }
       } else if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
         // Convert 233244588584 -> 0244588584 (for Prymo API)
-        const result = `0${cleanNumber.slice(3)}`;
-        console.log('Ghana 12-digit format converted:', cleanNumber, '->', result);
-        return result;
+        const nineDigitNumber = cleanNumber.slice(3);
+        const prefix = nineDigitNumber.substring(0, 2);
+        if (validGhanaPrefixes.includes(prefix)) {
+          const result = `0${nineDigitNumber}`;
+          console.log('Ghana 12-digit format converted:', cleanNumber, '->', result);
+          return result;
+        } else {
+          console.log('Ghana 12-digit format has invalid prefix:', cleanNumber);
+          return cleanNumber;
+        }
       } else if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
         // Convert 2330244588584 -> 0244588584 (for Prymo API)
-        const result = cleanNumber.slice(3);
-        console.log('Ghana 13-digit format converted:', cleanNumber, '->', result);
-        return result;
+        const nineDigitNumber = cleanNumber.slice(3);
+        const prefix = nineDigitNumber.substring(0, 2);
+        if (validGhanaPrefixes.includes(prefix)) {
+          const result = `0${nineDigitNumber}`;
+          console.log('Ghana 13-digit format converted:', cleanNumber, '->', result);
+          return result;
+        } else {
+          console.log('Ghana 13-digit format has invalid prefix:', cleanNumber);
+          return cleanNumber;
+        }
       } else if (cleanNumber.length === 11 && cleanNumber.startsWith('233')) {
         // Convert 233244000000 -> 0244000000 (for Prymo API)
-        const result = `0${cleanNumber.slice(3)}`;
-        console.log('Ghana 11-digit format converted:', cleanNumber, '->', result);
-        return result;
+        const nineDigitNumber = cleanNumber.slice(3);
+        const prefix = nineDigitNumber.substring(0, 2);
+        if (validGhanaPrefixes.includes(prefix)) {
+          const result = `0${nineDigitNumber}`;
+          console.log('Ghana 11-digit format converted:', cleanNumber, '->', result);
+          return result;
+        } else {
+          console.log('Ghana 11-digit format has invalid prefix:', cleanNumber);
+          return cleanNumber;
+        }
       }
-      // For any other format, try to make it work
+      // For any other format, return as is
       console.log('Ghana other format, returning as is:', cleanNumber);
       return cleanNumber;
     } else {

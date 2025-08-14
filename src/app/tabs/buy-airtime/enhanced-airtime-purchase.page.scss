@@ -845,3 +845,24 @@ body.light {
     border-top-color: #e2e8f0;
   }
 } 
+
+.debug-section {
+  margin-top: 16px;
+  text-align: center;
+  
+  ion-button {
+    --color: var(--dark-text-muted);
+    --background: transparent;
+    --border-color: var(--dark-border);
+    --border-width: 1px;
+    --border-style: solid;
+    --border-radius: 8px;
+    font-size: 12px;
+    height: 32px;
+    
+    &:hover {
+      --background: var(--dark-bg-tertiary);
+      --color: var(--dark-text-secondary);
+    }
+  }
+} 

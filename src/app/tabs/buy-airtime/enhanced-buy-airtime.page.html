@@ -1,7 +1,10 @@
-<ion-header class="header_bg bg-transparent">
+<ion-header class="header_bg">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button 
+        defaultHref="/tabs/services"
+        style="--color: var(--ion-color-primary-contrast); --icon-color: var(--ion-color-primary-contrast);">
+      </ion-back-button>
     </ion-buttons>
     <ion-title>
       <div class="d-flex">
@@ -149,11 +152,11 @@
                    [alt]="selectedCountry.name + ' flag'"
                    [title]="selectedCountry.name + ' flag'"
                    style="width: 24px; height: 18px; vertical-align: middle; margin-right: 4px;" />
-              <span *ngIf="!selectedCountry?.flag || !selectedCountry.flag.startsWith('http')">
-                {{ selectedCountry?.flag || '🏳️' }}
+              <span *ngIf="!selectedCountry.flag || !selectedCountry.flag.startsWith('http')">
+                {{ selectedCountry.flag || '🏳️' }}
               </span>
             </span>
-            {{ selectedCountry?.name }}
+            {{ selectedCountry.name }}
           </ion-chip>
         </div>
       </ion-card-content>
@@ -175,7 +178,7 @@
         </div>
 
         <!-- Quick Amounts -->
-        <div class="quick-amounts">
+        <div class="quick-amounts" *ngIf="selectedCountry">
           <h4 class="text-heading-3">Quick Amounts</h4>
           <ion-grid>
             <ion-row>
@@ -184,7 +187,7 @@
                   class="amount-chip"
                   [class.selected]="airtimeForm.get('amount')?.value === amount"
                   (click)="selectAmount(amount)">
-                  <ion-label>{{ selectedCountry?.currencyCode }} {{ amount }}</ion-label>
+                  <ion-label>{{ selectedCountry.currencyCode }} {{ amount }}</ion-label>
                 </ion-chip>
               </ion-col>
             </ion-row>
@@ -211,21 +214,21 @@
           <h3 class="text-heading-2">Confirm Purchase</h3>
         </div>
 
-        <div class="confirmation-details">
+        <div class="confirmation-details" *ngIf="selectedCountry">
           <div class="detail-row">
             <span class="label text-body-small text-gray-600">Country:</span>
             <span class="value text-body">
               <span class="flag-emoji">
-                <img *ngIf="selectedCountry?.flag && selectedCountry.flag.startsWith('http')"
+                <img *ngIf="selectedCountry.flag && selectedCountry.flag.startsWith('http')"
                      [src]="selectedCountry.flag"
                      [alt]="selectedCountry.name + ' flag'"
                      [title]="selectedCountry.name + ' flag'"
                      style="width: 24px; height: 18px; vertical-align: middle; margin-right: 4px;" />
-                <span *ngIf="!selectedCountry?.flag || !selectedCountry.flag.startsWith('http')">
-                  {{ selectedCountry?.flag || '🏳️' }}
+                <span *ngIf="!selectedCountry.flag || !selectedCountry.flag.startsWith('http')">
+                  {{ selectedCountry.flag || '🏳️' }}
                 </span>
               </span>
-              {{ selectedCountry?.name }}
+              {{ selectedCountry.name }}
             </span>
           </div>
           
@@ -242,7 +245,7 @@
           <div class="detail-row">
             <span class="label text-body-small text-gray-600">Amount:</span>
             <span class="value text-body font-semibold text-primary">
-              {{ selectedCountry?.currencyCode }} {{ airtimeForm.get('amount')?.value }}
+              {{ selectedCountry.currencyCode }} {{ airtimeForm.get('amount')?.value }}
             </span>
           </div>
         </div>

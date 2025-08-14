@@ -24,6 +24,41 @@
   "signup": {
     "title": "Create Account",
     "subtitle": "Join us today and get started",
+    "wizard": {
+      "steps": {
+        "step1": {
+          "title": "Welcome to Lidapay!",
+          "subtitle": "Let's get you started on your financial journey",
+          "description": "Choose your account type to begin"
+        },
+        "step2": {
+          "title": "Tell us about yourself",
+          "subtitle": "We'd like to know you better",
+          "description": "Enter your personal information"
+        },
+        "step3": {
+          "title": "Contact Details",
+          "subtitle": "How can we reach you?",
+          "description": "Provide your email and phone number"
+        },
+        "step4": {
+          "title": "Secure Your Account",
+          "subtitle": "Almost there!",
+          "description": "Create a strong password to protect your account"
+        }
+      },
+      "navigation": {
+        "previous": "Previous",
+        "next": "Next",
+        "step": "Step",
+        "of": "of"
+      },
+      "success": {
+        "title": "Welcome to Lidapay! 🎉",
+        "message": "Your account has been created successfully. We've sent you a welcome email!",
+        "continue": "Continue to Login"
+      }
+    },
     "form": {
       "role": {
         "label": "Select Role",

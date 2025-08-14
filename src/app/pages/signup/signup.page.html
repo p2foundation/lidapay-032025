@@ -15,6 +15,19 @@
   </ion-header>
   <div class="background-pattern"></div>
 
+  <!-- Success Message Overlay -->
+  <div class="success-overlay" *ngIf="showSuccessMessage">
+          <div class="success-card animate__animated animate__fadeInUp">
+        <ion-icon name="checkmark-circle-outline" class="success-icon"></ion-icon>
+        <h2>{{ 'signup.wizard.success.title' | translate }}</h2>
+        <p>{{ 'signup.wizard.success.message' | translate }}</p>
+        <ion-button fill="clear" (click)="register_now()">
+          <ion-icon name="home-outline" slot="start"></ion-icon>
+          {{ 'signup.wizard.success.continue' | translate }}
+        </ion-button>
+      </div>
+  </div>
+
   <!-- Logo Section -->
   <div class="logo-container animate__animated animate__fadeIn">
     <img src="assets/imgs/lidapay-logo-white-red.png" alt="signup-logo" />
@@ -26,173 +39,284 @@
     </p>
   </div>
 
-  <div
-    class="form-container animate__animated animate__fadeInUp animate__delay-1s"
-  >
-    <form
-      [formGroup]="signUpForm"
-      (ngSubmit)="signupFormSubmit(signUpForm.value)"
-    >
-      <!-- Role Selection -->
-      <div class="input-group">
-        <div class="input-wrapper">
-          <ion-icon name="people-outline"></ion-icon>
-          <ion-select
-            formControlName="role"
-            interface="action-sheet"
-            [placeholder]="'Select Role' | translate"
-          >
-            <ion-select-option value="USER">
-              <div class="role-option">
-                <ion-icon name="person-outline"></ion-icon>
-                <div class="role-details">
-                  <h4>{{ 'User' | translate }}</h4> <br>
-                  <p>{{ 'Personal account for individuals' | translate }}</p>
-                </div>
-              </div>
-            </ion-select-option>
-            <ion-select-option value="MERCHANT">
-              <div class="role-option">
-                <ion-icon name="storefront-outline"></ion-icon>
-                <div class="role-details">
-                  <h4>{{ 'Merchant' | translate }}</h4> <br>
-                  <p>{{ 'Business account for sellers' | translate }}</p>
-                </div>
-              </div>
-            </ion-select-option>
-            <ion-select-option value="AGENT">
-              <div class="role-option">
-                <ion-icon name="briefcase-outline"></ion-icon>
-                <div class="role-details">
-                  <h4>{{ 'Agent' | translate }}</h4> - <br>
-                  <p>{{ 'Account for Agents' | translate }}</p>
-                </div>
-              </div>
-            </ion-select-option>
-          </ion-select>
-        </div>
-        <div
-          class="error-message"
-          *ngIf="signUpForm.get('role')?.touched && signUpForm.get('role')?.invalid"
-        >
-          {{ getErrorMessage('role') }}
-        </div>
-      </div>
+  <!-- Progress Bar -->
+  <div class="progress-container animate__animated animate__fadeInUp animate__delay-1s">
+    <ion-progress-bar 
+      [value]="stepProgress / 100" 
+      class="wizard-progress"
+      color="primary">
+    </ion-progress-bar>
+    <div class="progress-text">
+      {{ 'signup.wizard.navigation.step' | translate }} {{ currentStep }} {{ 'signup.wizard.navigation.of' | translate }} {{ totalSteps }}
+    </div>
+  </div>
 
-      <!-- First Name -->
-      <div
-        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
-      >
-        <div class="input-wrapper">
-          <ion-icon name="person-outline"></ion-icon>
-          <ion-input
-            formControlName="firstName"
-            type="text"
-            [placeholder]="'First Name' | translate"
-          ></ion-input>
-        </div>
-        <div
-          class="error-message"
-          *ngIf="signUpForm.get('firstName')?.touched && signUpForm.get('firstName')?.invalid"
-        >
-          {{ getErrorMessage('firstName') }}
-        </div>
+  <!-- Step Indicators -->
+  <div class="step-indicators animate__animated animate__fadeInUp animate__delay-1s">
+    <div 
+      *ngFor="let step of [1,2,3,4]; let i = index" 
+      class="step-indicator"
+      [class.active]="currentStep === step"
+      [class.completed]="isStepCompleted(step)"
+      [class.accessible]="isStepAccessible(step)"
+      (click)="goToStep(step)">
+      <div class="step-number">
+        <ion-icon 
+          *ngIf="isStepCompleted(step)" 
+          name="checkmark-circle-outline">
+        </ion-icon>
+        <span *ngIf="!isStepCompleted(step)">{{ step }}</span>
       </div>
+      <div class="step-label">{{ stepInfo[i].title }}</div>
+    </div>
+  </div>
 
-      <!-- Last Name -->
-      <div
-        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
-      >
-        <div class="input-wrapper">
-          <ion-icon name="person-outline"></ion-icon>
-          <ion-input
-            formControlName="lastName"
-            type="text"
-            [placeholder]="'Last Name' | translate"
-          ></ion-input>
-        </div>
-        <div
-          class="error-message"
-          *ngIf="signUpForm.get('lastName')?.touched && signUpForm.get('lastName')?.invalid"
-        >
-          {{ getErrorMessage('lastName') }}
-        </div>
-      </div>
+  <!-- Wizard Form Container -->
+  <div class="wizard-container animate__animated animate__fadeInUp animate__delay-1s">
+    <form [formGroup]="signUpForm">
+      <!-- Step 1: Role Selection -->
+      <div class="wizard-step" *ngIf="currentStep === 1">
+        <ion-card class="step-card">
+          <ion-card-header>
+            <ion-card-title class="step-title">
+              <ion-icon name="sparkles-outline" class="step-icon"></ion-icon>
+              {{ stepInfo[0].title }}
+            </ion-card-title>
+            <ion-card-subtitle class="step-subtitle">
+              {{ stepInfo[0].subtitle }}
+            </ion-card-subtitle>
+            <p class="step-description">{{ stepInfo[0].description }}</p>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="input-group">
+              <div class="input-wrapper">
+                <ion-icon name="people-outline"></ion-icon>
+                <ion-select
+                  formControlName="role"
+                  interface="action-sheet"
+                  [placeholder]="'Select Role' | translate"
+                >
+                <ion-select-option value="USER">
+                  <div class="role-option">
+                    <ion-icon name="person-outline"></ion-icon>
+                    <div class="role-details">
+                      <h4>{{ 'User' | translate }}</h4>
+                      <p>{{ 'Personal account for individuals' | translate }}</p>
+                    </div>
+                  </div>
+                </ion-select-option>
+                <ion-select-option value="MERCHANT">
+                  <div class="role-option">
+                    <ion-icon name="storefront-outline"></ion-icon>
+                    <div class="role-details">
+                      <h4>{{ 'Merchant' | translate }}</h4>
+                      <p>{{ 'Business account for sellers' | translate }}</p>
+                    </div>
+                  </div>
+                </ion-select-option>
+                <ion-select-option value="AGENT">
+                  <div class="role-option">
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                    <div class="role-details">
+                      <h4>{{ 'Agent' | translate }}</h4>
+                      <p>{{ 'Account for Agents' | translate }}</p>
+                    </div>
+                  </div>
+                </ion-select-option>
+              </ion-select>
+            </div>
+            <div
+              class="error-message"
+              *ngIf="signUpForm.get('role')?.touched && signUpForm.get('role')?.invalid"
+            >
+              {{ getErrorMessage('role') }}
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
 
-      <!-- Email -->
-      <div
-        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
-      >
-        <div class="input-wrapper">
-          <ion-icon name="mail-outline"></ion-icon>
-          <ion-input
-            formControlName="email"
-            type="email"
-            [placeholder]="'Email' | translate"
-          ></ion-input>
-        </div>
-        <div
-          class="error-message"
-          *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid"
-        >
-          {{ getErrorMessage('email') }}
-        </div>
-      </div>
+    <!-- Step 2: Personal Information -->
+    <div class="wizard-step" *ngIf="currentStep === 2">
+      <ion-card class="step-card">
+        <ion-card-header>
+          <ion-card-title class="step-title">
+            <ion-icon name="person-outline" class="step-icon"></ion-icon>
+            {{ stepInfo[1].title }}
+          </ion-card-title>
+          <ion-card-subtitle class="step-subtitle">
+            {{ stepInfo[1].subtitle }}
+          </ion-card-subtitle>
+          <p class="step-description">{{ stepInfo[1].description }}</p>
+        </ion-card-header>
+        <ion-card-content>
+          <!-- First Name -->
+          <div class="input-group">
+            <div class="input-wrapper">
+              <ion-icon name="person-outline"></ion-icon>
+              <ion-input
+                formControlName="firstName"
+                type="text"
+                [placeholder]="'First Name' | translate"
+              ></ion-input>
+            </div>
+            <div
+              class="error-message"
+              *ngIf="signUpForm.get('firstName')?.touched && signUpForm.get('firstName')?.invalid"
+            >
+              {{ getErrorMessage('firstName') }}
+            </div>
+          </div>
 
-      <!-- Mobile -->
-      <div
-        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
-      >
-        <div class="input-wrapper">
-          <ion-icon name="call-outline"></ion-icon>
-          <ion-input
-            formControlName="mobile"
-            type="text"
-            [placeholder]="'Enter your mobile number' | translate"
-          ></ion-input>
-        </div>
-        <div
-          class="error-message"
-          *ngIf="signUpForm.get('mobile')?.touched && signUpForm.get('mobile')?.invalid"
-        >
-          {{ getErrorMessage('mobile') }}
-        </div>
-      </div>
+          <!-- Last Name -->
+          <div class="input-group">
+            <div class="input-wrapper">
+              <ion-icon name="person-outline"></ion-icon>
+              <ion-input
+                formControlName="lastName"
+                type="text"
+                [placeholder]="'Last Name' | translate"
+              ></ion-input>
+            </div>
+            <div
+              class="error-message"
+              *ngIf="signUpForm.get('lastName')?.touched && signUpForm.get('lastName')?.invalid"
+            >
+              {{ getErrorMessage('lastName') }}
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
 
-      <!-- Password -->
-      <div
-        class="input-group animate__animated animate__fadeInUp animate__delay-1s"
-      >
-        <div class="input-wrapper">
-          <ion-icon name="lock-closed-outline"></ion-icon>
-          <ion-input
-            formControlName="password"
-            [type]="showPassword ? 'text' : 'password'"
-            [placeholder]="'Enter a password' | translate"
-          ></ion-input>
-          <ion-icon
-            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
-            (click)="showPassword = !showPassword"
-          ></ion-icon>
-        </div>
-        <div
-          class="error-message"
-          *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid"
+    <!-- Step 3: Contact Details -->
+    <div class="wizard-step" *ngIf="currentStep === 3">
+      <ion-card class="step-card">
+        <ion-card-header>
+          <ion-card-title class="step-title">
+            <ion-icon name="mail-outline" class="step-icon"></ion-icon>
+            {{ stepInfo[2].title }}
+          </ion-card-title>
+          <ion-card-subtitle class="step-subtitle">
+            {{ stepInfo[2].subtitle }}
+          </ion-card-subtitle>
+          <p class="step-description">{{ stepInfo[2].description }}</p>
+        </ion-card-header>
+        <ion-card-content>
+          <!-- Email -->
+          <div class="input-group">
+            <div class="input-wrapper">
+              <ion-icon name="mail-outline"></ion-icon>
+              <ion-input
+                formControlName="email"
+                type="email"
+                [placeholder]="'Email' | translate"
+              ></ion-input>
+            </div>
+            <div
+              class="error-message"
+              *ngIf="signUpForm.get('email')?.touched && signUpForm.get('email')?.invalid"
+            >
+              {{ getErrorMessage('email') }}
+            </div>
+          </div>
+
+          <!-- Mobile -->
+          <div class="input-group">
+            <div class="input-wrapper">
+              <ion-icon name="call-outline"></ion-icon>
+              <ion-input
+                formControlName="mobile"
+                type="text"
+                [placeholder]="'Enter your mobile number' | translate"
+              ></ion-input>
+            </div>
+            <div
+              class="error-message"
+              *ngIf="signUpForm.get('mobile')?.touched && signUpForm.get('mobile')?.invalid"
+            >
+              {{ getErrorMessage('mobile') }}
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Step 4: Password -->
+    <div class="wizard-step" *ngIf="currentStep === 4">
+      <ion-card class="step-card">
+        <ion-card-header>
+          <ion-card-title class="step-title">
+            <ion-icon name="lock-closed-outline" class="step-icon"></ion-icon>
+            {{ stepInfo[3].title }}
+          </ion-card-title>
+          <ion-card-subtitle class="step-subtitle">
+            {{ stepInfo[3].subtitle }}
+          </ion-card-subtitle>
+          <p class="step-description">{{ stepInfo[3].description }}</p>
+        </ion-card-header>
+        <ion-card-content>
+          <!-- Password -->
+          <div class="input-group">
+            <div class="input-wrapper">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+              <ion-input
+                formControlName="password"
+                [type]="showPassword ? 'text' : 'password'"
+                [placeholder]="'Enter a password' | translate"
+              ></ion-input>
+              <ion-icon
+                [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+                (click)="showPassword = !showPassword"
+                class="toggle-password"
+              ></ion-icon>
+            </div>
+            <div
+              class="error-message"
+              *ngIf="signUpForm.get('password')?.touched && signUpForm.get('password')?.invalid"
+            >
+              {{ getErrorMessage('password') }}
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="wizard-navigation animate__animated animate__fadeInUp animate__delay-2s">
+              <ion-button
+          *ngIf="currentStep > 1"
+          fill="outline"
+          (click)="previousStep()"
+          class="nav-button prev-button"
         >
-          {{ getErrorMessage('password') }}
-        </div>
-      </div>
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          {{ 'signup.wizard.navigation.previous' | translate }}
+        </ion-button>
+
+        <ion-button
+          *ngIf="currentStep < totalSteps"
+          [disabled]="!isStepValid"
+          (click)="nextStep()"
+          class="nav-button next-button"
+        >
+          {{ 'signup.wizard.navigation.next' | translate }}
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
 
       <ion-button
+        *ngIf="currentStep === totalSteps"
         type="submit"
         expand="block"
         size="large"
         [disabled]="!signUpForm.valid || signUpForm.pristine || isLoading"
-        class="animate__animated animate__fadeInUp animate__delay-2s"
+        class="nav-button submit-button"
+        (click)="onSubmit()"
       >
+        <ion-spinner *ngIf="isLoading" name="circular"></ion-spinner>
         <span *ngIf="!isLoading">{{ 'Create Account' | translate }}</span>
-        <span *ngIf="isLoading">{{ 'Processing...' | translate }}</span>
       </ion-button>
+    </div>
     </form>
   </div>
 

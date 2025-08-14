@@ -3,7 +3,7 @@ ion-content {
   --background: var(--ion-background-color);
 }
 
-// Header Styles with Dark Theme Support
+// Header Styles with Theme Support
 ion-header {
   ion-toolbar {
     --background: var(--ion-toolbar-background);
@@ -12,7 +12,12 @@ ion-header {
     
     ion-back-button {
       --color: var(--ion-text-color);
+      --icon-color: var(--ion-text-color);
       --icon-font-size: 24px;
+      --opacity: 1;
+      --icon-opacity: 1;
+      display: block !important;
+      visibility: visible !important;
     }
     
     ion-title {
@@ -24,6 +29,7 @@ ion-header {
     }
   }
   
+  // Blue header theme (primary color)
   &.header_bg {
     ion-toolbar {
       --background: var(--ion-color-primary);
@@ -31,6 +37,13 @@ ion-header {
       
       ion-back-button {
         --color: var(--ion-color-primary-contrast);
+        --icon-color: var(--ion-color-primary-contrast);
+        --opacity: 1;
+        --icon-opacity: 1;
+        display: block !important;
+        visibility: visible !important;
+        z-index: 1000;
+        position: relative;
       }
       
       ion-title {
@@ -41,6 +54,53 @@ ion-header {
         }
       }
     }
+  }
+}
+
+// Enhanced back button visibility and theme support
+ion-back-button {
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 1000 !important;
+  position: relative !important;
+  font-size: 24px !important;
+}
+
+// Theme-specific back button styling
+ion-header.header_bg ion-toolbar ion-buttons ion-back-button {
+  --color: var(--ion-color-primary-contrast) !important;
+  --icon-color: var(--ion-color-primary-contrast) !important;
+}
+
+ion-header:not(.header_bg) ion-toolbar ion-buttons ion-back-button {
+  --color: var(--ion-text-color) !important;
+  --icon-color: var(--ion-text-color) !important;
+  padding: 0 !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+// Custom back button in primary header (blue background)
+ion-header.header_bg ion-toolbar ion-buttons ion-button {
+  --color: var(--ion-color-primary-contrast) !important;
+  
+  ion-icon {
+    color: var(--ion-color-primary-contrast) !important;
+    font-size: 24px !important;
+    opacity: 1 !important;
+  }
+}
+
+// Custom back button in default header (white/light background)
+ion-header:not(.header_bg) ion-toolbar ion-buttons ion-button {
+  --color: var(--ion-text-color) !important;
+  
+  ion-icon {
+    color: var(--ion-text-color) !important;
+    font-size: 24px !important;
+    opacity: 1 !important;
   }
 }
 

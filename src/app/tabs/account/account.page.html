@@ -1,19 +1,23 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" class="modern-header">
   <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button text="" icon="arrow-back-outline"></ion-back-button>
+      <ion-back-button 
+        text="" 
+        icon="arrow-back-outline"
+        class="back-button">
+      </ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">
       <div class="title-content">
-        <h1>{{ 'account' | translate }}</h1>
-        <p>Manage your profile and preferences</p>
+        <h1 class="main-title">{{ 'account' | translate }}</h1>
+        <p class="subtitle">Manage your profile and preferences</p>
       </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="account-content">
-  <!-- Loading Skeleton -->
+<ion-content [fullscreen]="true" class="modern-account-content">
+  <!-- Loading Skeleton with Modern Design -->
   <div class="skeleton-wrapper" *ngIf="isLoading">
     <div class="profile-skeleton">
       <ion-skeleton-text animated class="avatar-skeleton"></ion-skeleton-text>
@@ -23,47 +27,68 @@
     <div class="stats-skeleton">
       <ion-skeleton-text animated class="stat-item-skeleton"></ion-skeleton-text>
       <ion-skeleton-text animated class="stat-item-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="stat-item-skeleton"></ion-skeleton-text>
     </div>
   </div>
 
-  <!-- Profile Section -->
+  <!-- Enhanced Profile Section -->
   <div class="profile-section" *ngIf="!isLoading">
     <div class="profile-header animate__animated animate__fadeIn">
-      <div class="avatar-container">
-        <ion-avatar class="profile-avatar">
-          <img [src]="profile.gravatar || defaultAvatarUrl" 
-               [alt]="profile.firstName + ' profile picture'"
-               [title]="profile.firstName + ' profile picture'"
-               (error)="profile.gravatar = defaultAvatarUrl">
-        </ion-avatar>
-        <div class="avatar-badge">
-          <ion-icon name="checkmark-circle" color="success" title="Verified Account"></ion-icon>
-        </div>
+      <div class="profile-background">
+        <div class="profile-gradient"></div>
       </div>
-      <div class="profile-info">
-        <h2 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h2>
-        <p class="profile-email">{{ profile.email }}</p>
-        <div class="profile-status">
-          <ion-badge color="success" class="status-badge">
-            <ion-icon name="shield-checkmark-outline"></ion-icon>
-            Verified Account
-          </ion-badge>
+      
+      <div class="profile-content">
+        <div class="avatar-container">
+          <ion-avatar class="profile-avatar">
+            <img [src]="profile.gravatar || defaultAvatarUrl" 
+                 [alt]="profile.firstName + ' profile picture'"
+                 [title]="profile.firstName + ' profile picture'"
+                 (error)="profile.gravatar = defaultAvatarUrl">
+          </ion-avatar>
+          <div class="avatar-badge">
+            <ion-icon name="checkmark-circle" color="success" title="Verified Account"></ion-icon>
+          </div>
+          <div class="online-indicator" [class.online]="profile.isOnline"></div>
+        </div>
+        
+        <div class="profile-info">
+          <h2 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h2>
+          <p class="profile-email">{{ profile.email }}</p>
+          <div class="profile-status">
+            <ion-badge color="success" class="status-badge">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              Verified Account
+            </ion-badge>
+          </div>
+        </div>
+        
+        <div class="profile-actions">
+          <ion-button fill="clear" size="small" (click)="editProfile()" class="edit-btn">
+            <ion-icon name="create-outline"></ion-icon>
+            Edit
+          </ion-button>
         </div>
       </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Enhanced Stats Cards -->
     <div class="stats-container animate__animated animate__fadeInUp">
-      <div class="stat-card">
+      <div class="stat-card primary">
         <div class="stat-icon">
           <ion-icon name="diamond-outline"></ion-icon>
         </div>
         <div class="stat-content">
           <span class="stat-value">{{ rewardPoints | number }}</span>
-          <span class="stat-label">{{ 'Points' | translate }}</span>
+          <span class="stat-label">{{ 'Reward Points' | translate }}</span>
+        </div>
+        <div class="stat-trend positive">
+          <ion-icon name="trending-up-outline"></ion-icon>
+          +12%
         </div>
       </div>
-      <div class="stat-card">
+      
+      <div class="stat-card secondary">
         <div class="stat-icon">
           <ion-icon name="receipt-outline"></ion-icon>
         </div>
@@ -71,125 +96,275 @@
           <span class="stat-value">{{ totalTransactions }}</span>
           <span class="stat-label">{{ 'Transactions' | translate }}</span>
         </div>
+        <div class="stat-trend positive">
+          <ion-icon name="trending-up-outline"></ion-icon>
+          +8%
+        </div>
+      </div>
+      
+      <div class="stat-card accent">
+        <div class="stat-icon">
+          <ion-icon name="wallet-outline"></ion-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ getWalletBalance() | currency:'GHS' }}</span>
+          <span class="stat-label">{{ 'Wallet Balance' | translate }}</span>
+        </div>
+        <div class="stat-trend neutral">
+          <ion-icon name="remove-outline"></ion-icon>
+          Stable
+        </div>
       </div>
     </div>
 
-    <!-- Quick Settings -->
-    <div class="quick-settings animate__animated animate__fadeInUp">
-      <ion-item lines="none" button detail="false" (click)="toggleTheme()" class="theme-toggle">
-        <ion-icon slot="start" [name]="getThemeIcon()" class="theme-icon"></ion-icon>
-        <ion-label>
-          <h4>{{ 'Theme' | translate }}</h4>
-          <p>{{ getThemeDescription() | translate }}</p>
-        </ion-label>
-        <ion-note slot="end" class="theme-label">{{ getThemeLabel() | translate }}</ion-note>
-      </ion-item>
+    <!-- Smart Quick Actions -->
+    <div class="quick-actions animate__animated animate__fadeInUp">
+      <h3 class="section-title">
+        <ion-icon name="flash-outline"></ion-icon>
+        Quick Actions
+      </h3>
+      
+      <div class="action-grid">
+        <div class="action-card" (click)="scanQR()">
+          <div class="action-icon">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </div>
+          <span class="action-label">Scan QR</span>
+        </div>
+        
+        <div class="action-card" (click)="sendMoney()">
+          <div class="action-icon">
+            <ion-icon name="send-outline"></ion-icon>
+          </div>
+          <span class="action-label">Send Money</span>
+        </div>
+        
+        <div class="action-card" (click)="buyAirtime()">
+          <div class="action-icon">
+            <ion-icon name="cellular-outline"></ion-icon>
+          </div>
+          <span class="action-label">Buy Airtime</span>
+        </div>
+        
+        <div class="action-card" (click)="payBills()">
+          <div class="action-icon">
+            <ion-icon name="card-outline"></ion-icon>
+          </div>
+          <span class="action-label">Pay Bills</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Theme Toggle -->
+    <div class="theme-section animate__animated animate__fadeInUp">
+      <ion-card class="theme-card">
+        <ion-card-content>
+          <div class="theme-toggle-container">
+            <div class="theme-info">
+              <ion-icon name="moon-outline" class="theme-icon"></ion-icon>
+              <div class="theme-text">
+                <h4>Dark Mode</h4>
+                <p>Switch between light and dark themes</p>
+              </div>
+            </div>
+            <ion-toggle 
+              [checked]="isDarkMode" 
+              (ionChange)="toggleTheme()"
+              class="modern-toggle">
+            </ion-toggle>
+          </div>
+        </ion-card-content>
+      </ion-card>
     </div>
   </div>
 
-  <!-- Menu Sections -->
+  <!-- Enhanced Menu Sections -->
   <div class="menu-sections" *ngIf="!isLoading">
-    <!-- Account Section -->
+    <!-- Account Management Section -->
     <div class="menu-section animate__animated animate__fadeInUp animate__delay-1s">
       <h3 class="section-title">
         <ion-icon name="person-circle-outline"></ion-icon>
-        {{ 'Account' | translate }}
+        Account Management
       </h3>
-      <ion-list lines="none" class="menu-list">
+      
+      <ion-list lines="none" class="modern-menu-list">
         <ion-item button detail="true" (click)="myProfile()" class="menu-item">
           <ion-icon slot="start" name="person-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'My Profile' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'My Profile' | translate }}</h4>
+            <p class="menu-description">View and edit your profile information</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
         
         <ion-item button detail="true" (click)="goToTransactionPage()" class="menu-item">
           <ion-icon slot="start" name="receipt-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Transaction History' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Transaction History' | translate }}</h4>
+            <p class="menu-description">View all your transaction records</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
         <ion-item button detail="true" (click)="gotoAdvansRewards()" class="menu-item">
           <ion-icon slot="start" name="gift-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Rewards' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Rewards & Loyalty' | translate }}</h4>
+            <p class="menu-description">Earn points and unlock rewards</p>
+          </ion-label>
           <ion-badge color="warning" slot="end" class="reward-badge">New</ion-badge>
+        </ion-item>
+        
+        <ion-item button detail="true" (click)="walletManagement()" class="menu-item">
+          <ion-icon slot="start" name="wallet-outline" class="menu-icon"></ion-icon>
+          <ion-label>
+            <h4 class="menu-title">Wallet Management</h4>
+            <p class="menu-description">Manage your digital wallet</p>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
       </ion-list>
     </div>
 
-    <!-- Settings Section -->
+    <!-- Preferences & Settings Section -->
     <div class="menu-section animate__animated animate__fadeInUp animate__delay-2s">
       <h3 class="section-title">
         <ion-icon name="settings-outline"></ion-icon>
-        {{ 'Settings' | translate }}
+        Preferences & Settings
       </h3>
-      <ion-list lines="none" class="menu-list">
+      
+      <ion-list lines="none" class="modern-menu-list">
         <ion-item button detail="true" (click)="goToSettings()" class="menu-item">
           <ion-icon slot="start" name="settings-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Settings' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Settings' | translate }}</h4>
+            <p class="menu-description">Customize your app preferences</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
         <ion-item button detail="true" (click)="notification()" class="menu-item">
           <ion-icon slot="start" name="notifications-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Notifications' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Notifications' | translate }}</h4>
+            <p class="menu-description">Manage your notification preferences</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
         <ion-item button detail="true" (click)="change_language()" class="menu-item">
           <ion-icon slot="start" name="language-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Language' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Language' | translate }}</h4>
+            <p class="menu-description">Choose your preferred language</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
-        <ion-item button detail="true" (click)="help()" class="menu-item">
-          <ion-icon slot="start" name="help-circle-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Help & Support' | translate }}</ion-label>
+        <ion-item button detail="true" (click)="securitySettings()" class="menu-item">
+          <ion-icon slot="start" name="lock-closed-outline" class="menu-icon"></ion-icon>
+          <ion-label>
+            <h4 class="menu-title">Security Settings</h4>
+            <p class="menu-description">Manage your account security</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
       </ion-list>
     </div>
 
-    <!-- Other Section -->
+    <!-- Support & Information Section -->
     <div class="menu-section animate__animated animate__fadeInUp animate__delay-3s">
       <h3 class="section-title">
-        <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
-        {{ 'Other' | translate }}
+        <ion-icon name="information-circle-outline"></ion-icon>
+        Support & Information
       </h3>
-      <ion-list lines="none" class="menu-list">
+      
+      <ion-list lines="none" class="modern-menu-list">
+        <ion-item button detail="true" (click)="help()" class="menu-item">
+          <ion-icon slot="start" name="help-circle-outline" class="menu-icon"></ion-icon>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Help & Support' | translate }}</h4>
+            <p class="menu-description">Get help and contact support</p>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+        </ion-item>
+
         <ion-item button detail="true" (click)="inviteFriends()" class="menu-item">
           <ion-icon slot="start" name="share-social-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Invite Friends' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Invite Friends' | translate }}</h4>
+            <p class="menu-description">Share Lidapay with friends</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
         <ion-item button detail="true" (click)="contactUs()" class="menu-item">
           <ion-icon slot="start" name="mail-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Contact Us' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Contact Us' | translate }}</h4>
+            <p class="menu-description">Get in touch with our team</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
 
         <ion-item button detail="true" (click)="condition()" class="menu-item">
           <ion-icon slot="start" name="document-text-outline" class="menu-icon"></ion-icon>
-          <ion-label>{{ 'Terms & Conditions' | translate }}</ion-label>
+          <ion-label>
+            <h4 class="menu-title">{{ 'Terms & Conditions' | translate }}</h4>
+            <p class="menu-description">Read our terms of service</p>
+          </ion-label>
+          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+        </ion-item>
+        
+        <ion-item button detail="true" (click)="privacyPolicy()" class="menu-item">
+          <ion-icon slot="start" name="shield-outline" class="menu-icon"></ion-icon>
+          <ion-label>
+            <h4 class="menu-title">Privacy Policy</h4>
+            <p class="menu-description">Learn about data protection</p>
+          </ion-label>
           <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
         </ion-item>
       </ion-list>
     </div>
   </div>
 
-  <!-- Logout Section -->
+  <!-- Enhanced Logout Section -->
   <div class="logout-section animate__animated animate__fadeInUp animate__delay-4s">
-    <ion-button expand="block" color="danger" (click)="logout()" [disabled]="isLoading" class="logout-button">
-      <ion-icon slot="start" name="log-out-outline"></ion-icon>
-      {{ 'Logout' | translate }}
-    </ion-button>
+    <ion-card class="logout-card">
+      <ion-card-content>
+        <div class="logout-content">
+          <div class="logout-info">
+            <ion-icon name="log-out-outline" class="logout-icon"></ion-icon>
+            <div class="logout-text">
+              <h4>Ready to leave?</h4>
+              <p>Sign out of your account securely</p>
+            </div>
+          </div>
+          <ion-button 
+            fill="outline" 
+            color="danger" 
+            (click)="logout()" 
+            [disabled]="isLoading" 
+            class="logout-button">
+            <ion-icon slot="start" name="log-out-outline"></ion-icon>
+            {{ 'Logout' | translate }}
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
   </div>
 
-  <!-- App Version -->
-  <div class="version-info animate__animated animate__fadeIn animate__delay-4s">
-    <p class="version-text">v{{ config.version }}</p>
-    <p class="developed-by" (click)="developed_by()">
-      {{ 'Developed by' | translate }} Advansis Technologies
-    </p>
+  <!-- Enhanced App Information -->
+  <div class="app-info-section animate__animated animate__fadeIn animate__delay-4s">
+    <div class="app-info-card">
+      <div class="app-version">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <span>Version {{ config.version }}</span>
+      </div>
+      <div class="developed-by" (click)="developed_by()">
+        <ion-icon name="heart-outline"></ion-icon>
+        <span>{{ 'Developed by' | translate }} Advansis Technologies</span>
+      </div>
+    </div>
   </div>
 </ion-content>

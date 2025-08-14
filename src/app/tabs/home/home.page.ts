@@ -439,19 +439,23 @@ export class HomePage implements OnInit {
       console.log('Updated pendingTransactions to:', this.pendingTransactions);
       console.log('Updated completedTransactions to:', this.totalTransactions);
 
+      // Update the pending transaction count for the notification system
+      this.pendingTransactionCount = pendingCount;
+
     } catch (error) {
       console.error('Error loading transaction stats:', error);
       
       // Set default values on error
       this.pendingTransactions = 0;
       this.totalTransactions = 0;
+      this.pendingTransactionCount = 0;
       
       // Show error toast
       const toast = await this.toastCtrl.create({
-        message: 'Failed to load transaction stats. Please try again.',
+        message: 'Failed to load transaction statistics',
         duration: 3000,
-        position: 'bottom',
-        color: 'danger'
+        color: 'danger',
+        position: 'bottom'
       });
       await toast.present();
     }

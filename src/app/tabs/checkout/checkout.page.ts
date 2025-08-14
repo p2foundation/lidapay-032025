@@ -27,6 +27,7 @@ import { MobileMoneyService } from '../../services/payments/mobile.money.service
 import { ReloadlyAirtimeService } from '../../services/reloadly/reloadly-airtime.service';
 import { StorageService } from '../../services/storage.service';
 import { GlobalService } from '../../services/global.service';
+import { PhoneValidationService } from '../../services/utils/phone-validation.service';
 
 interface ApiResponse {
   status: string;
@@ -104,7 +105,8 @@ export class CheckoutPage implements OnInit {
     private advansPayService: AdvansisPayService,
     private globalService: GlobalService,
     private translate: TranslateService,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private phoneValidationService: PhoneValidationService
   ) {
 
     this.route.queryParams.subscribe((params) => {
@@ -434,25 +436,26 @@ export class CheckoutPage implements OnInit {
       // Validate required fields
       let recipientNumber = data.recipientNumber;
       
-      // Handle phone number validation for Ghanaian numbers
+      // Handle phone number validation for Ghanaian numbers using the enhanced validation service
       if (!recipientNumber || typeof recipientNumber !== 'string') {
         return createErrorResponse('Please provide a valid phone number');
       }
       
-      // Clean the phone number (remove spaces, dashes, etc.)
-      recipientNumber = recipientNumber.replace(/\D/g, '');
+      // Use the enhanced phone validation service for pre-payment validation
+      const phoneValidation = this.phoneValidationService.validateGhanaPhoneNumberForPayment(recipientNumber);
       
-      // Check if it's a valid Ghanaian phone number
-      // Accept formats: 0244588584, 244588584, 233244588584, +233244588584
-      const isValidGhanaNumber = 
-        (recipientNumber.length === 10 && recipientNumber.startsWith('0')) || // 0244588584
-        (recipientNumber.length === 9) || // 244588584
-        (recipientNumber.length === 12 && recipientNumber.startsWith('233')) || // 233244588584
-        (recipientNumber.length === 13 && recipientNumber.startsWith('233')); // +233244588584
-      
-      if (!isValidGhanaNumber) {
-        return createErrorResponse('Please provide a valid Ghanaian phone number');
+      if (!phoneValidation.isValid) {
+        // Show warning if sanitization was needed
+        if (phoneValidation.warning) {
+          console.log(phoneValidation.warning);
+          // You can optionally show this warning to the user
+        }
+        
+        return createErrorResponse(phoneValidation.error || 'Invalid phone number format');
       }
+      
+      // Use the sanitized and validated phone number
+      recipientNumber = phoneValidation.sanitized;
       
       // Convert to standard format for API (233 format)
       if (recipientNumber.length === 10 && recipientNumber.startsWith('0')) {

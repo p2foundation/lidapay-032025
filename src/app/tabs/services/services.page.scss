@@ -6,6 +6,19 @@
     --background: transparent;
     --border-style: none;
     
+    // Ensure back button is visible with proper contrast
+    ion-back-button {
+      --color: var(--ion-color-dark) !important;
+      --icon-color: var(--ion-color-dark) !important;
+      --opacity: 1 !important;
+      --icon-opacity: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+      z-index: 1000 !important;
+      position: relative !important;
+      font-size: 24px !important;
+    }
+    
     .header-title {
       .title-content {
         h1 {
@@ -22,6 +35,23 @@
         }
       }
     }
+  }
+}
+
+// Additional back button visibility fixes for the Services page
+ion-header ion-toolbar ion-buttons ion-back-button {
+  --color: var(--ion-color-dark) !important;
+  --icon-color: var(--ion-color-dark) !important;
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 1000 !important;
+  position: relative !important;
+  
+  &::part(native) {
+    color: var(--ion-color-dark) !important;
+    opacity: 1 !important;
   }
 }
 

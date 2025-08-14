@@ -96,7 +96,7 @@ export class ServicesPage implements OnInit {
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       category: 'primary',
       isPopular: true,
-      route: '/tabs/buy-airtime/enhanced-buy-airtime',
+      route: '/tabs/buy-airtime/enhanced-purchase',
       features: ['Ghana & International', 'Instant Delivery', 'Best Rates', '24/7 Support']
     },
     {

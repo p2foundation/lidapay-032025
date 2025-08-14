@@ -3,6 +3,10 @@
     <ion-title class="chat-title">
       <ion-icon name="chatbubble-outline" class="title-icon"></ion-icon>
       <span class="title-text">AI Remitter</span>
+      <div class="ai-status" [class.connected]="isOpenAIConnected">
+        <ion-icon [name]="isOpenAIConnected ? 'cloud-done-outline' : 'cloud-offline-outline'"></ion-icon>
+        <span class="status-text">{{ isOpenAIConnected ? 'AI Connected' : 'Local AI' }}</span>
+      </div>
     </ion-title>
     <ion-button fill="clear" slot="end" (click)="closeChatHandler()" class="close-btn">
       <ion-icon name="close-outline"></ion-icon>
@@ -27,6 +31,22 @@
           <div class="message-time">
             {{ message.timestamp | date:'shortTime' }}
           </div>
+          
+          <!-- Show suggestions if available -->
+          <div class="message-suggestions" *ngIf="message.suggestions && message.suggestions.length > 0">
+            <div class="suggestions-title">💡 Try these:</div>
+            <div class="suggestions-list">
+              <ion-button 
+                *ngFor="let suggestion of message.suggestions" 
+                fill="clear" 
+                size="small" 
+                class="suggestion-btn"
+                (click)="handleSuggestion(suggestion)"
+              >
+                {{ suggestion }}
+              </ion-button>
+            </div>
+          </div>
         </div>
         
         <div class="message-avatar" *ngIf="message.isUser">
@@ -35,6 +55,52 @@
                  (error)="onImageError($event)" />
           </ion-avatar>
         </div>
+      </div>
+    </div>
+
+    <!-- Quick Action Buttons (show only after welcome message) -->
+    <div class="quick-actions" *ngIf="messages.length === 1">
+      <div class="quick-actions-title">Quick Actions:</div>
+      <div class="quick-actions-grid">
+        <ion-button 
+          fill="outline" 
+          size="small" 
+          class="quick-action-btn"
+          (click)="handleQuickAction('airtime')"
+        >
+          <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
+          Buy Airtime
+        </ion-button>
+        
+        <ion-button 
+          fill="outline" 
+          size="small" 
+          class="quick-action-btn"
+          (click)="handleQuickAction('data')"
+        >
+          <ion-icon name="cellular-outline" slot="start"></ion-icon>
+          Data Bundle
+        </ion-button>
+        
+        <ion-button 
+          fill="outline" 
+          size="small" 
+          class="quick-action-btn"
+          (click)="handleQuickAction('transfer')"
+        >
+          <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
+          Send Money
+        </ion-button>
+        
+        <ion-button 
+          fill="outline" 
+          size="small" 
+          class="quick-action-btn"
+          (click)="handleQuickAction('wallet')"
+        >
+          <ion-icon name="wallet-outline" slot="start"></ion-icon>
+          Check Balance
+        </ion-button>
       </div>
     </div>
 

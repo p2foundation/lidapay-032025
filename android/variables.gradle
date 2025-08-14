@@ -1,9 +1,9 @@
 ext {
-    minSdkVersion = 23
+    minSdkVersion = 26
     compileSdkVersion = 35
     targetSdkVersion = 35
-    versionCode = 5
-    versionName = "0.0.9"
+    versionCode = 6
+    versionName = "1.0.0"
     androidxActivityVersion = '1.9.2'
     androidxAppCompatVersion = '1.7.0'
     androidxCoordinatorLayoutVersion = '1.2.0'

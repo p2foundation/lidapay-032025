@@ -23,7 +23,7 @@ import {
   ModalController,
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
-import { Subject, takeUntil, firstValueFrom } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom, debounceTime, distinctUntilChanged } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EnhancedAirtimeService, Country, Operator, AirtimeRequest } from '../../services/enhanced-airtime.service';
 import { NotificationService } from '../../services/notification.service';
@@ -149,7 +149,7 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   searchTerm: string = '';
   
   // Amount selection
-  quickAmounts = [5, 10, 20, 50, 100, 200];
+  quickAmounts = [1, 5, 10, 20, 50, 100, 200];
   selectedAmount: number | null = null;
   
   // Loading states
@@ -187,6 +187,17 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     this.loadUserProfile();
     this.loadCountries();
     this.setupFormListeners();
+    
+    // Set default country for initial validation
+    this.selectedCountry = { isoName: 'GH', name: 'Ghana', currencyCode: 'GHS', currencyName: 'Ghanaian Cedi' } as Country;
+    
+    // Set initial validation for default country (GH)
+    this.updatePhoneNumberValidation();
+    
+    // Ensure form is properly initialized
+    setTimeout(() => {
+      this.debugValidationState();
+    }, 100);
   }
 
   ngOnDestroy() {
@@ -204,6 +215,29 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Updates phone number validation based on selected country
+   */
+  private updatePhoneNumberValidation() {
+    const recipientNumberControl = this.airtimeForm.get('recipientNumber');
+    if (recipientNumberControl) {
+      // Clear existing validators
+      recipientNumberControl.clearValidators();
+      
+      // Add appropriate validators based on country
+      if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+        // Ghana: minimum 10 digits (local format) - allow both 9 and 10 digit formats
+        recipientNumberControl.addValidators([Validators.required, Validators.minLength(9)]);
+      } else {
+        // International: minimum 14-15 digits (with country code)
+        recipientNumberControl.addValidators([Validators.required, Validators.minLength(14)]);
+      }
+      
+      // Trigger validation
+      recipientNumberControl.updateValueAndValidity();
+    }
+  }
+
   private async loadUserProfile() {
     try {
       const response = await firstValueFrom(this.accountService.getProfile());
@@ -216,12 +250,28 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   }
 
   private setupFormListeners() {
-    // Listen to phone number changes for auto-detection
+    // Listen to phone number changes for auto-detection with debouncing
     this.airtimeForm.get('recipientNumber')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(1000), // Wait 1 second after user stops typing
+        distinctUntilChanged() // Only trigger if value actually changed
+      )
       .subscribe(phoneNumber => {
         if (phoneNumber && this.airtimeForm.get('autoDetect')?.value) {
-          this.autoDetectOperator(phoneNumber);
+          // Only auto-detect for international numbers (non-Ghana) and when phone number is complete
+          if (this.selectedCountry && this.selectedCountry.isoName !== this.GHANA_ISO) {
+            // For international numbers, wait until the number is complete (14-15 digits)
+            if (this.isPhoneNumberComplete(phoneNumber)) {
+              this.autoDetectOperator(phoneNumber);
+            } else if (!this.isPhoneNumberComplete(phoneNumber) && this.detectedOperator) {
+              // Clear detected operator if phone number becomes too short
+              this.detectedOperator = null;
+              this.selectedOperator = null;
+              this.airtimeForm.patchValue({ operatorId: '' });
+              this.clearAutoDetectionStatus();
+            }
+          }
         }
       });
   }
@@ -272,6 +322,9 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     // Update form value
     this.airtimeForm.patchValue({ countryIso: countryIso });
     
+    // Update phone number validation based on selected country
+    this.updatePhoneNumberValidation();
+    
     // Clear any previous operator selection
     this.selectedOperator = null;
     this.detectedOperator = null;
@@ -308,12 +361,27 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     }
   }
 
-  async autoDetectOperator(phoneNumber: string) {
+    async autoDetectOperator(phoneNumber: string) {
     if (!phoneNumber || !this.selectedCountry) return;
+    
+    // Only auto-detect for international numbers (non-Ghana)
+    if (this.selectedCountry.isoName === this.GHANA_ISO) {
+      return;
+    }
+    
+    // Ensure phone number is complete enough for detection
+    if (!this.isPhoneNumberComplete(phoneNumber)) {
+      return;
+    }
     
     this.isDetectingOperator = true;
     
     try {
+      console.log('Auto-detecting operator for:', phoneNumber, 'in country:', this.selectedCountry.isoName);
+      
+      // Show subtle loading indicator
+      this.showAutoDetectionStatus('Detecting network provider...');
+      
       this.detectedOperator = await firstValueFrom(
         this.enhancedAirtimeService.autoDetectOperator(phoneNumber, this.selectedCountry.isoName)
       );
@@ -323,18 +391,77 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
         this.airtimeForm.patchValue({ operatorId: this.detectedOperator.id });
         this.selectedOperator = this.detectedOperator;
         
-        // For non-Ghanaian countries, show a notification that operator was detected
-        if (this.selectedCountry.isoName !== this.GHANA_ISO) {
-          this.notificationService.showSuccess(`Network detected: ${this.detectedOperator.name}`);
-        }
+        // Show success notification with operator details
+        this.notificationService.showSuccess(
+          `Network detected: ${this.detectedOperator.name}`
+        );
+        
+        // Update status
+        this.showAutoDetectionStatus(`Network detected: ${this.detectedOperator.name}`, 'success');
+        
+        console.log('Operator auto-detected:', this.detectedOperator);
       }
     } catch (error) {
-      // Auto-detection failed - user can manually select operator
-      if (this.selectedCountry.isoName !== this.GHANA_ISO) {
-        this.notificationService.showWarn('Could not auto-detect network. Please ensure the phone number is correct.');
+      console.error('Auto-detection failed:', error);
+      
+      // Only show warning if the phone number seems complete
+      if (this.isPhoneNumberComplete(phoneNumber)) {
+        this.notificationService.showWarn(
+          'Could not auto-detect network provider. Please ensure the phone number is correct or select manually.'
+        );
+        
+        // Update status
+        this.showAutoDetectionStatus('Network detection failed', 'error');
       }
     } finally {
       this.isDetectingOperator = false;
+      
+      // Clear status after a delay
+      setTimeout(() => {
+        this.clearAutoDetectionStatus();
+      }, 3000);
+    }
+  }
+
+  /**
+   * Shows auto-detection status to the user
+   */
+  private showAutoDetectionStatus(message: string, type: 'info' | 'success' | 'error' = 'info') {
+    // This can be implemented to show status in the UI
+    // For now, we'll just log it
+    console.log(`Auto-detection status [${type}]:`, message);
+  }
+
+  /**
+   * Clears auto-detection status
+   */
+  private clearAutoDetectionStatus() {
+    // This can be implemented to clear status from the UI
+    console.log('Auto-detection status cleared');
+  }
+
+  /**
+   * Gets the expected phone number length message for the selected country
+   */
+  getExpectedPhoneNumberLength(): string {
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      return 'Enter 10-digit phone number (e.g., 0240000000)';
+    } else {
+      return 'Enter complete international number with country code (e.g., +2348130671234)';
+    }
+  }
+
+  /**
+   * Checks if the phone number is complete enough for the selected country
+   */
+  isPhoneNumberComplete(phoneNumber: string): boolean {
+    if (!phoneNumber) return false;
+    
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      // For Ghana: allow both 9-digit (local) and 10-digit (with 0 prefix) formats
+      return phoneNumber.length >= 9;
+    } else {
+      return phoneNumber.length >= 14;
     }
   }
 
@@ -352,6 +479,14 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     console.log('Selected country:', this.selectedCountry?.isoName);
     console.log('Is Ghana?', this.selectedCountry?.isoName === this.GHANA_ISO);
     
+    // Clear previously detected operator when user starts typing again
+    if (this.detectedOperator && !this.isPhoneNumberComplete(phoneNumber)) {
+      this.detectedOperator = null;
+      this.selectedOperator = null;
+      this.airtimeForm.patchValue({ operatorId: '' });
+      this.clearAutoDetectionStatus();
+    }
+    
     if (this.selectedCountry) {
       // For Ghana, use formatPhoneNumberForAPI to ensure local format without country code prefix
       // For other countries, use formatPhoneNumber for display formatting
@@ -366,11 +501,12 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
       
       this.airtimeForm.patchValue({ recipientNumber: formatted });
       
-      // Auto-detect operator for non-Ghanaian countries when phone number is entered
-      if (this.selectedCountry.isoName !== this.GHANA_ISO && formatted.length >= 7) {
-        // Auto-detecting operator
-        this.autoDetectOperator(formatted);
-      }
+      // Trigger validation and debug
+      this.airtimeForm.get('recipientNumber')?.updateValueAndValidity();
+      this.debugValidationState();
+      
+      // Auto-detection is now handled by the debounced form listener
+      // This provides a better user experience by waiting for the user to finish typing
     }
   }
 
@@ -423,6 +559,27 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Debug method to help troubleshoot validation issues
+   */
+  debugValidationState(): void {
+    const phoneControl = this.airtimeForm.get('recipientNumber');
+    const phoneNumber = phoneControl?.value;
+    const isPhoneValid = phoneControl?.valid || false;
+    const isPhoneComplete = this.isPhoneNumberComplete(phoneNumber);
+    
+    console.log('=== VALIDATION DEBUG ===');
+    console.log('Current step:', this.currentStep);
+    console.log('Phone number:', phoneNumber);
+    console.log('Phone number length:', phoneNumber?.length);
+    console.log('Is phone valid (form):', isPhoneValid);
+    console.log('Is phone complete (custom):', isPhoneComplete);
+    console.log('Can proceed to next step:', this.canProceedToNextStep());
+    console.log('Form errors:', phoneControl?.errors);
+    console.log('Form touched:', phoneControl?.touched);
+    console.log('Form dirty:', phoneControl?.dirty);
+  }
+
   canProceedToNextStep(): boolean {
     switch (this.currentStep) {
       case PurchaseStep.COUNTRY_SELECTION:
@@ -434,7 +591,10 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
         }
         return !!this.selectedOperator;
       case PurchaseStep.RECIPIENT_NUMBER:
-        return this.airtimeForm.get('recipientNumber')?.valid || false;
+        // Check if phone number meets the minimum length requirement for the selected country
+        const phoneNumber = this.airtimeForm.get('recipientNumber')?.value;
+        const isPhoneValid = this.airtimeForm.get('recipientNumber')?.valid || false;
+        return this.isPhoneNumberComplete(phoneNumber) && isPhoneValid;
       case PurchaseStep.AMOUNT_SELECTION:
         return this.airtimeForm.get('amount')?.valid || false;
       default:

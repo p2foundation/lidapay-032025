@@ -29,8 +29,11 @@
 <!-- AI Chat Modal -->
 <ion-modal 
   [isOpen]="isAiChatOpen" 
-  (didDismiss)="closeAiChat()"
+  (didDismiss)="onModalDismiss()"
   class="ai-chat-modal"
+  [backdropDismiss]="true"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
 >
   <ng-template>
     <app-ai-chat (closeChat)="closeAiChat()"></app-ai-chat>

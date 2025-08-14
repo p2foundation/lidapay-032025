@@ -1,52 +1,82 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button 
+        defaultHref="/tabs/home" 
+        class="back-button"
+        text=""
+        icon="arrow-back-outline">
+      </ion-back-button>
     </ion-buttons>
-    <ion-title>Pending Transactions</ion-title>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <ion-icon name="time-outline" class="title-icon"></ion-icon>
+        <span>Pending Transactions</span>
+        <ion-badge *ngIf="filteredTransactions.length > 0" color="warning" class="count-badge">
+          {{ filteredTransactions.length }}
+        </ion-badge>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="refreshTransactions()" [disabled]="isLoading">
+      <ion-button 
+        fill="clear" 
+        class="refresh-button"
+        (click)="refreshTransactions()" 
+        [disabled]="isLoading">
         <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content [fullscreen]="true" class="transactions-content">
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>Loading pending transactions...</p>
+    <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+    <p class="loading-text">Loading pending transactions...</p>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!isLoading && filteredTransactions.length === 0" class="empty-state">
-    <ion-icon name="checkmark-circle-outline" color="success" size="large"></ion-icon>
-    <h2>No Pending Transactions</h2>
-    <p>All your transactions have been processed successfully!</p>
+    <div class="empty-icon">
+      <ion-icon name="checkmark-circle-outline" color="success" size="large"></ion-icon>
+    </div>
+    <h2 class="empty-title">No Pending Transactions</h2>
+    <p class="empty-description">All your transactions have been processed successfully!</p>
+    <ion-button fill="outline" color="medium" (click)="refreshTransactions()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Refresh
+    </ion-button>
   </div>
 
   <!-- Content -->
-  <div *ngIf="!isLoading && filteredTransactions.length > 0">
+  <div *ngIf="!isLoading && filteredTransactions.length > 0" class="content-wrapper">
     <!-- Search and Filter Section -->
     <ion-card class="filter-card">
       <ion-card-content>
         <ion-grid>
           <ion-row>
             <ion-col size="12" size-md="8">
-              <ion-item>
-                <ion-label position="stacked">Search Transactions</ion-label>
+              <ion-item class="search-item">
+                <ion-label position="stacked" class="search-label">
+                  <ion-icon name="search-outline"></ion-icon>
+                  Search Transactions
+                </ion-label>
                 <ion-input 
                   [(ngModel)]="searchTerm" 
                   placeholder="Search by phone number, transaction type, or ID"
-                  clearInput="true">
+                  clearInput="true"
+                  class="search-input">
                 </ion-input>
               </ion-item>
             </ion-col>
             <ion-col size="12" size-md="4">
-              <ion-item>
-                <ion-label position="stacked">Status Filter</ion-label>
-                <ion-select [(ngModel)]="filterStatus">
+              <ion-item class="filter-item">
+                <ion-label position="stacked" class="filter-label">
+                  <ion-icon name="filter-outline"></ion-icon>
+                  Status Filter
+                </ion-label>
+                <ion-select [(ngModel)]="filterStatus" class="status-select">
                   <ion-select-option value="ALL">All Status</ion-select-option>
                   <ion-select-option value="PENDING">Pending</ion-select-option>
                   <ion-select-option value="COMPLETED">Completed</ion-select-option>
@@ -61,84 +91,132 @@
 
     <!-- Results Summary -->
     <div class="results-summary">
-      <p>Showing {{ filteredTransactions.length }} of {{ pendingTransactions.length }} pending transactions</p>
+      <ion-chip color="primary" outline>
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <ion-label>Showing {{ filteredTransactions.length }} of {{ pendingTransactions.length }} pending transactions</ion-label>
+      </ion-chip>
     </div>
 
     <!-- Transactions List -->
-    <ion-list>
-      <ion-card *ngFor="let transaction of filteredTransactions" class="transaction-card">
+    <div class="transactions-list">
+      <ion-card *ngFor="let transaction of sortTransactionsByPriority(filteredTransactions)" 
+                class="transaction-card"
+                [ngClass]="transaction.status && transaction.status.transaction ? transaction.status.transaction : ''">
         <ion-card-content>
           <!-- Transaction Header -->
           <div class="transaction-header">
             <div class="transaction-type">
-              <ion-chip [color]="getStatusColor(transaction.status?.transaction || 'unknown')" outline>
+              <ion-chip [color]="getStatusColor(transaction.status && transaction.status.transaction ? transaction.status.transaction : 'unknown')" 
+                       class="type-chip">
+                <ion-icon [name]="getTransactionTypeIcon(transaction.transType)"></ion-icon>
                 <ion-label>{{ getTransactionTypeLabel(transaction.transType) }}</ion-label>
               </ion-chip>
             </div>
             <div class="transaction-status">
-              <ion-badge [color]="getStatusColor(transaction.status?.transaction || 'unknown')">
-                {{ transaction.status?.transaction?.toUpperCase() || 'UNKNOWN' }}
+              <ion-badge [color]="getStatusColor(transaction.status && transaction.status.transaction ? transaction.status.transaction : 'unknown')" 
+                        class="status-badge">
+                <ion-icon [name]="getStatusIcon(transaction.status && transaction.status.transaction ? transaction.status.transaction : 'unknown')"></ion-icon>
+                {{ transaction.status && transaction.status.transaction ? transaction.status.transaction.toUpperCase() : 'UNKNOWN' }}
               </ion-badge>
             </div>
           </div>
 
           <!-- Transaction Details -->
           <div class="transaction-details">
-            <div class="detail-row">
-              <span class="label">Amount:</span>
-              <span class="value amount">{{ transaction.monetary.currency }} {{ formatAmount(transaction.monetary.amount) }}</span>
+            <div class="detail-row amount-row">
+              <span class="label">
+                <ion-icon name="cash-outline"></ion-icon>
+                Amount:
+              </span>
+              <span class="value amount">
+                {{ transaction.monetary.currency }} {{ formatAmount(transaction.monetary.amount) }}
+              </span>
             </div>
             
             <div class="detail-row">
-              <span class="label">Recipient:</span>
-              <span class="value phone">{{ formatPhoneNumber(transaction.recipientNumber) }}</span>
+              <span class="label">
+                <ion-icon name="phone-portrait-outline"></ion-icon>
+                Recipient:
+              </span>
+              <span class="value phone" 
+                    [ngClass]="{'invalid-phone': !getPhoneNumberValidation(transaction.recipientNumber).isValid}">
+                {{ formatPhoneNumber(transaction.recipientNumber) }}
+                <ion-chip *ngIf="getPhoneNumberValidation(transaction.recipientNumber).isValid" 
+                         size="small" 
+                         color="success" 
+                         class="network-chip">
+                  {{ getPhoneNumberValidation(transaction.recipientNumber).network }}
+                </ion-chip>
+              </span>
             </div>
             
             <div class="detail-row">
-              <span class="label">Transaction ID:</span>
+              <span class="label">
+                <ion-icon name="information-circle-outline"></ion-icon>
+                Transaction ID:
+              </span>
               <span class="value transaction-id">{{ transaction.transId }}</span>
             </div>
             
             <div class="detail-row">
-              <span class="label">Retailer:</span>
+              <span class="label">
+                <ion-icon name="business-outline"></ion-icon>
+                Retailer:
+              </span>
               <span class="value">{{ transaction.retailer }}</span>
             </div>
             
             <div class="detail-row">
-              <span class="label">Customer:</span>
+              <span class="label">
+                <ion-icon name="person-outline"></ion-icon>
+                Customer:
+              </span>
               <span class="value">{{ transaction.firstName }} {{ transaction.lastName }}</span>
             </div>
             
             <div class="detail-row">
-              <span class="label">Created:</span>
+              <span class="label">
+                <ion-icon name="calendar-outline"></ion-icon>
+                Created:
+              </span>
               <span class="value">{{ formatDate(transaction.createdAt) }}</span>
             </div>
             
             <div class="detail-row">
-              <span class="label">Updated:</span>
+              <span class="label">
+                <ion-icon name="time-outline"></ion-icon>
+                Updated:
+              </span>
               <span class="value">{{ formatDate(transaction.updatedAt) }}</span>
             </div>
           </div>
 
-          <!-- Status Details -->
-          <div class="status-details">
-            <h4>Status Breakdown:</h4>
-            <div class="status-grid">
-                          <div class="status-item">
-              <ion-icon [name]="getStatusIcon(transaction.status?.transaction || 'unknown')" 
-                       [color]="getStatusColor(transaction.status?.transaction || 'unknown')"></ion-icon>
-              <span>Transaction: {{ transaction.status?.transaction || 'N/A' }}</span>
+          <!-- Status Breakdown Section -->
+          <div class="status-breakdown" (click)="toggleStatusBreakdown()">
+            <div class="status-breakdown-header">
+              <ion-icon name="analytics-outline" class="status-icon"></ion-icon>
+              <span class="status-title">Status Breakdown</span>
+              <ion-icon 
+                [name]="isStatusBreakdownOpen ? 'chevron-up-outline' : 'chevron-down-outline'" 
+                class="collapse-icon">
+              </ion-icon>
             </div>
-            <div class="status-item">
-              <ion-icon [name]="getStatusIcon(transaction.status?.service || 'unknown')" 
-                       [color]="getStatusColor(transaction.status?.service || 'unknown')"></ion-icon>
-              <span>Service: {{ transaction.status?.service || 'N/A' }}</span>
-            </div>
-            <div class="status-item">
-              <ion-icon [name]="getStatusIcon(transaction.status?.payment || 'unknown')" 
-                       [color]="getStatusColor(transaction.status?.payment || 'unknown')"></ion-icon>
-              <span>Payment: {{ transaction.status?.payment || 'N/A' }}</span>
-            </div>
+            
+            <div class="status-breakdown-content" *ngIf="isStatusBreakdownOpen">
+              <div class="status-grid">
+                <div class="status-item">
+                  <ion-icon name="swap-horizontal-outline" class="status-icon"></ion-icon>
+                  <span class="status-text">Transaction: {{ transaction.status && transaction.status.transaction ? transaction.status.transaction : 'pending' }}</span>
+                </div>
+                <div class="status-item">
+                  <ion-icon name="construct-outline" class="status-icon"></ion-icon>
+                  <span class="status-text">Service: {{ transaction.status && transaction.status.service ? transaction.status.service : 'pending' }}</span>
+                </div>
+                <div class="status-item">
+                  <ion-icon name="card-outline" class="status-icon"></ion-icon>
+                  <span class="status-text">Payment: {{ transaction.status && transaction.status.payment ? transaction.status.payment : 'pending' }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -147,6 +225,7 @@
             <ion-button 
               expand="block" 
               color="primary" 
+              class="check-status-btn"
               (click)="checkTransactionStatus(transaction)"
               [disabled]="isCheckingStatus && checkingTransactionId === transaction._id">
               <ion-icon name="refresh-outline" slot="start" *ngIf="isCheckingStatus && checkingTransactionId === transaction._id"></ion-icon>
@@ -159,6 +238,7 @@
               expand="block" 
               fill="outline" 
               color="secondary" 
+              class="view-details-btn"
               (click)="viewTransactionDetails(transaction)"
               [disabled]="isCheckingStatus">
               <ion-icon name="eye-outline" slot="start"></ion-icon>
@@ -167,7 +247,7 @@
           </div>
         </ion-card-content>
       </ion-card>
-    </ion-list>
+    </div>
 
     <!-- Load More Button -->
     <div *ngIf="hasMoreData && !isLoading" class="load-more-container">
@@ -175,6 +255,7 @@
         expand="block" 
         fill="outline" 
         color="medium"
+        class="load-more-btn"
         (click)="loadMoreTransactions()">
         <ion-icon name="arrow-down-outline" slot="start"></ion-icon>
         Load More Transactions
@@ -184,7 +265,7 @@
 
   <!-- Floating Action Button for Refresh -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!isLoading">
-    <ion-fab-button (click)="refreshTransactions()" [disabled]="isLoading">
+    <ion-fab-button (click)="refreshTransactions()" [disabled]="isLoading" class="fab-button">
       <ion-icon name="refresh-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>

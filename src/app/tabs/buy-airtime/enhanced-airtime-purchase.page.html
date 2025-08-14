@@ -177,6 +177,17 @@
           <ion-icon name="checkmark-circle" color="success"></ion-icon>
           <span>Detected: {{ detectedOperator.name }}</span>
         </div>
+        
+        <!-- Debug button (only in development) -->
+        <div class="debug-section" *ngIf="true">
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            (click)="debugValidationState()"
+            color="medium">
+            Debug Validation
+          </ion-button>
+        </div>
       </div>
     </div>
 

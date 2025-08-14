@@ -73,12 +73,20 @@ export class TabsPage {
     try {
       await Haptics.impact({ style: ImpactStyle.Medium });
       this.isAiChatOpen = true;
+      console.log('AI Chat opened');
     } catch (error) {
       console.log('Haptics error:', error);
     }
   }
 
   closeAiChat() {
+    console.log('Closing AI Chat');
+    this.isAiChatOpen = false;
+  }
+
+  // Handle modal dismiss event
+  onModalDismiss() {
+    console.log('Modal dismissed');
     this.isAiChatOpen = false;
   }
 }
