@@ -22,8 +22,9 @@ export class NotificationService {
     await alert.present();
   }
 
+  // Success alert that auto-dismisses
   showSuccess(message: string) {
-    this.showAlert(message, 'Success', '', ['OK']);
+    this.showToast(message, 'success');
   }
 
   showWarn(message: string) {
@@ -35,10 +36,10 @@ export class NotificationService {
   }
 
   //  ion toast
-  async showToast(message: string, color: string) {
+  async showToast(message: string, color: string, duration?: number) {
     const toast = await this.toastController.create({
       message,
-      duration: 2000,
+      duration: duration || (color === 'success' ? 3000 : 2000), // Success messages show longer
       color,
       position: 'bottom'
     });
@@ -47,11 +48,31 @@ export class NotificationService {
   }
 
   showToastSuccess(message: string) {
-    this.showToast(message, 'success');
+    this.showToast(message, 'success', 3000); // Success toasts show for 3 seconds
   }
 
   showToastError(message: string) {
     this.showToast(message, 'danger');
   }
 
+  // Success alert that auto-dismisses after a delay (for more prominent notifications)
+  async showSuccessAlert(message: string, duration: number = 3000) {
+    const alert = await this.alertController.create({
+      header: 'Success',
+      message,
+      buttons: [],
+      backdropDismiss: true
+    });
+    
+    await alert.present();
+    
+    // Auto-dismiss after specified duration
+    setTimeout(async () => {
+      try {
+        await alert.dismiss();
+      } catch (error) {
+        console.log('Alert already dismissed');
+      }
+    }, duration);
+  }
 }

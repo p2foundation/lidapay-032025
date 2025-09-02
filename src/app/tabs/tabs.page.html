@@ -1,25 +1,29 @@
 <ion-tabs (ionTabsDidChange)="onTabChange()">
-  <ion-tab-bar slot="bottom" class="ion-padding-bottom">
-    <ion-tab-button tab="home" href="/tabs/home">
+  <ion-tab-bar slot="bottom" class="ion-padding-bottom custom-tab-bar">
+    <ion-tab-button tab="home" href="/tabs/home" class="tab-button">
       <ion-icon aria-hidden="true" name="home-outline"></ion-icon>
       <ion-label>{{'home' | translate}}</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="services" href="/tabs/services">
+    <ion-tab-button tab="services" href="/tabs/services" class="tab-button">
       <ion-icon aria-hidden="true" name="reload-circle-outline"></ion-icon>
       <ion-label>{{'services' | translate}}</ion-label>
     </ion-tab-button>
  
-    <ion-tab-button class="ai-chat-tab" (click)="openAiChat()">
-      <ion-label>{{'remitter' | translate}}</ion-label>
+    <ion-tab-button class="ai-chat-tab featured-tab" (click)="openAiChat()">
+      <div class="ai-chat-icon-wrapper">
+        <ion-icon aria-hidden="true" name="chatbubble-ellipses"></ion-icon>
+        <div class="ai-badge">AI</div>
+      </div>
+      <ion-label>{{'ai_chat' | translate}}</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="orders" href="/tabs/orders">
+    <ion-tab-button tab="orders" href="/tabs/orders" class="tab-button">
       <ion-icon aria-hidden="true" name="time-outline"></ion-icon>
       <ion-label>{{'history' | translate}}</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="account" href="/tabs/account">
+    <ion-tab-button tab="account" href="/tabs/account" class="tab-button">
       <ion-icon aria-hidden="true" name="person-outline"></ion-icon>
       <ion-label>{{'account' | translate}}</ion-label>
     </ion-tab-button>

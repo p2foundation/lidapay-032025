@@ -1,0 +1,840 @@
+// Wallet Management Page Styles
+:host {
+  --wallet-primary: #3880ff;
+  --wallet-secondary: #3dc2ff;
+  --wallet-success: #2dd36f;
+  --wallet-warning: #ffc409;
+  --wallet-danger: #eb445a;
+  --wallet-medium: #92949c;
+  --wallet-light: #f4f5f8;
+  --wallet-dark: #222428;
+  
+  --balance-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  --primary-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+// Balance Card
+.balance-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: var(--balance-gradient);
+  color: white;
+  
+  ion-card-content {
+    padding: 24px;
+  }
+  
+  .balance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    
+    .balance-info {
+      h2 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+      
+      .balance-amount {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        
+        .currency {
+          font-size: 20px;
+          font-weight: 600;
+          opacity: 0.8;
+        }
+        
+        .amount {
+          font-size: 32px;
+          font-weight: 700;
+          line-height: 1;
+        }
+        
+        &.hidden {
+          .amount {
+            letter-spacing: 4px;
+          }
+        }
+      }
+    }
+  }
+  
+  .balance-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+    
+    .balance-item {
+      text-align: center;
+      
+      .label {
+        display: block;
+        font-size: 12px;
+        opacity: 0.8;
+        margin-bottom: 4px;
+      }
+      
+      .value {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      
+      &.total {
+        .label {
+          font-weight: 600;
+          opacity: 1;
+        }
+        
+        .value {
+          font-size: 18px;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+  
+  .last-updated {
+    font-size: 12px;
+    opacity: 0.7;
+    text-align: center;
+  }
+}
+
+// Quick Actions Card
+.quick-actions-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-header {
+    padding: 16px 16px 8px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wallet-dark);
+    }
+  }
+  
+  ion-card-content {
+    padding: 8px 16px 16px;
+    
+    ion-grid {
+      padding: 0;
+      
+      ion-row {
+        margin-bottom: 12px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+      
+      ion-button {
+        --border-radius: 12px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        height: 48px;
+        font-weight: 500;
+        
+        ion-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+}
+
+// Quick Recharge Card
+.quick-recharge-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-header {
+    padding: 16px 16px 8px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wallet-dark);
+    }
+  }
+  
+  ion-card-content {
+    padding: 8px 16px 16px;
+    
+    .quick-amounts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      
+      .amount-chip {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}
+
+// Tab Navigation
+ion-segment {
+  margin: 16px;
+  border-radius: 12px;
+  background: var(--wallet-light);
+  
+  ion-segment-button {
+    --color: var(--wallet-medium);
+    --color-checked: var(--wallet-primary);
+    --indicator-color: var(--wallet-primary);
+    --indicator-height: 3px;
+    border-radius: 12px;
+    font-weight: 500;
+    
+    ion-icon {
+      margin-bottom: 4px;
+    }
+    
+    ion-label {
+      font-size: 12px;
+    }
+  }
+}
+
+// Overview Tab
+.stats-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-header {
+    padding: 16px 16px 8px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wallet-dark);
+    }
+  }
+  
+  ion-card-content {
+    padding: 8px 16px 16px;
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--wallet-light);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      ion-icon {
+        font-size: 24px;
+        padding: 12px;
+        border-radius: 12px;
+        background: var(--wallet-light);
+      }
+      
+      .stat-content {
+        flex: 1;
+        
+        .stat-value {
+          display: block;
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--wallet-dark);
+          margin-bottom: 4px;
+        }
+        
+        .stat-label {
+          font-size: 14px;
+          color: var(--wallet-medium);
+        }
+      }
+    }
+  }
+}
+
+.categories-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-header {
+    padding: 16px 16px 8px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wallet-dark);
+    }
+  }
+  
+  ion-card-content {
+    padding: 8px 16px 16px;
+    
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--wallet-light);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .category-info {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .category-amount {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--wallet-dark);
+        }
+      }
+      
+      .category-bar {
+        flex: 1;
+        height: 8px;
+        background: var(--wallet-light);
+        border-radius: 4px;
+        overflow: hidden;
+        
+        .bar-fill {
+          height: 100%;
+          background: var(--wallet-primary);
+          border-radius: 4px;
+          transition: width 0.3s ease;
+        }
+      }
+      
+      .category-percentage {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--wallet-medium);
+        min-width: 40px;
+        text-align: right;
+      }
+    }
+  }
+}
+
+// Transactions Tab
+.search-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-content {
+    padding: 16px;
+    
+    ion-searchbar {
+      --background: var(--wallet-light);
+      --border-radius: 12px;
+      --box-shadow: none;
+      margin-bottom: 16px;
+    }
+    
+    .filters-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+      
+      ion-select {
+        --background: var(--wallet-light);
+        --border-radius: 8px;
+        --padding-start: 12px;
+        --padding-end: 12px;
+        font-size: 14px;
+      }
+    }
+    
+    ion-button {
+      --color: var(--wallet-medium);
+      font-size: 14px;
+      
+      ion-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+}
+
+.transactions-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-content {
+    padding: 16px;
+    
+    .transactions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--wallet-dark);
+      }
+      
+      ion-button {
+        --color: var(--wallet-primary);
+        font-size: 14px;
+        
+        ion-icon {
+          margin-right: 4px;
+        }
+      }
+    }
+    
+    .transactions-list {
+      .transaction-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        border-radius: 12px;
+        background: var(--wallet-light);
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: #e8eaed;
+          transform: translateY(-1px);
+        }
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .transaction-icon {
+          ion-icon {
+            font-size: 24px;
+            padding: 12px;
+            border-radius: 12px;
+            background: white;
+          }
+        }
+        
+        .transaction-details {
+          flex: 1;
+          
+          .transaction-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            
+            .transaction-description {
+              font-size: 16px;
+              font-weight: 500;
+              color: var(--wallet-dark);
+            }
+            
+            .transaction-amount {
+              font-size: 16px;
+              font-weight: 600;
+              
+              &.credit {
+                color: var(--wallet-success);
+              }
+              
+              &.debit {
+                color: var(--wallet-danger);
+              }
+            }
+          }
+          
+          .transaction-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            ion-chip {
+              height: 24px;
+              font-size: 12px;
+            }
+            
+            ion-badge {
+              font-size: 10px;
+              padding: 4px 8px;
+            }
+            
+            .transaction-time {
+              font-size: 12px;
+              color: var(--wallet-medium);
+              margin-left: auto;
+            }
+          }
+        }
+        
+        .transaction-arrow {
+          color: var(--wallet-medium);
+          font-size: 16px;
+        }
+      }
+    }
+    
+    .no-transactions {
+      text-align: center;
+      padding: 48px 16px;
+      
+      ion-icon {
+        margin-bottom: 16px;
+      }
+      
+      p {
+        color: var(--wallet-medium);
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
+// Analytics Tab
+.analytics-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-header {
+    padding: 16px 16px 8px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wallet-dark);
+    }
+  }
+  
+  ion-card-content {
+    padding: 8px 16px 16px;
+    
+    .trend-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--wallet-light);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .trend-date {
+        font-size: 14px;
+        color: var(--wallet-medium);
+        min-width: 100px;
+      }
+      
+      .trend-amounts {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+        flex: 1;
+        
+        .spent {
+          font-size: 14px;
+          color: var(--wallet-danger);
+          font-weight: 500;
+        }
+        
+        .received {
+          font-size: 14px;
+          color: var(--wallet-success);
+          font-weight: 500;
+        }
+      }
+      
+      .trend-net {
+        font-size: 16px;
+        font-weight: 600;
+        min-width: 80px;
+        text-align: right;
+        
+        &.positive {
+          color: var(--wallet-success);
+        }
+        
+        &.negative {
+          color: var(--wallet-danger);
+        }
+      }
+    }
+  }
+}
+
+// Settings Tab
+.settings-card {
+  margin: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  ion-card-header {
+    padding: 16px 16px 8px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--wallet-dark);
+    }
+  }
+  
+  ion-card-content {
+    padding: 8px 16px 16px;
+    
+    ion-button {
+      --border-radius: 12px;
+      height: 48px;
+      font-weight: 500;
+      
+      ion-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+// Modals
+ion-modal {
+  --border-radius: 16px 16px 0 0;
+  
+  ion-header {
+    ion-toolbar {
+      --border-radius: 16px 16px 0 0;
+      
+      ion-title {
+        font-weight: 600;
+      }
+    }
+  }
+  
+  ion-content {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    
+    form {
+      ion-item {
+        --border-radius: 12px;
+        --background: var(--wallet-light);
+        margin-bottom: 16px;
+        
+        ion-label {
+          font-weight: 500;
+          color: var(--wallet-dark);
+        }
+        
+        ion-input, ion-select, ion-textarea {
+          --padding-start: 16px;
+          --padding-end: 16px;
+          font-size: 16px;
+        }
+      }
+      
+      .modal-actions {
+        margin-top: 32px;
+        
+        ion-button {
+          --border-radius: 12px;
+          height: 48px;
+          font-weight: 500;
+          
+          ion-spinner {
+            margin-right: 8px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Pull to Refresh
+ion-refresher {
+  --color: var(--wallet-primary);
+}
+
+// Floating Action Button
+ion-fab {
+  ion-fab-button {
+    --background: var(--wallet-primary);
+    --color: white;
+    --border-radius: 16px;
+    --box-shadow: 0 4px 16px rgba(56, 128, 255, 0.3);
+    
+    &:hover {
+      --box-shadow: 0 6px 20px rgba(56, 128, 255, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Loading States
+ion-skeleton-text {
+  border-radius: 4px;
+}
+
+// Responsive Design
+@media (max-width: 576px) {
+  .balance-card {
+    margin: 12px;
+    
+    ion-card-content {
+      padding: 20px;
+    }
+    
+    .balance-header .balance-info .balance-amount .amount {
+      font-size: 28px;
+    }
+    
+    .balance-details {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+  
+  .quick-actions-card,
+  .quick-recharge-card,
+  .stats-card,
+  .categories-card,
+  .search-card,
+  .transactions-card,
+  .analytics-card,
+  .settings-card {
+    margin: 12px;
+  }
+  
+  .search-card ion-card-content .filters-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .transactions-card ion-card-content .transaction-item {
+    padding: 12px;
+    
+    .transaction-details .transaction-main {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      
+      .transaction-amount {
+        align-self: flex-end;
+      }
+    }
+  }
+}
+
+// Dark Theme Support
+@media (prefers-color-scheme: dark) {
+  :host {
+    --wallet-light: #1e1e1e;
+    --wallet-dark: #ffffff;
+    --wallet-medium: #a0a0a0;
+  }
+  
+  .balance-card {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  }
+  
+  ion-card {
+    --background: #2d3748;
+    --color: #ffffff;
+  }
+  
+  ion-item {
+    --background: #4a5568;
+    --color: #ffffff;
+  }
+}
+
+// Animation Classes
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Utility Classes
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.p-16 {
+  padding: 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}

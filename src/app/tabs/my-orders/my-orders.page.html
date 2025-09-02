@@ -44,6 +44,10 @@
     </div>
 
     <div class="filter-actions">
+      <ion-button fill="clear" (click)="handleManualRefresh()" [disabled]="isRefreshing">
+        <ion-icon slot="start" [name]="isRefreshing ? 'refresh-outline' : 'refresh-outline'" [class.spinning]="isRefreshing"></ion-icon>
+        {{ isRefreshing ? 'Refreshing...' : 'Refresh' }}
+      </ion-button>
       <ion-button fill="clear" (click)="openFilterModal()">
         <ion-icon slot="start" name="options-outline"></ion-icon>
         Filter
@@ -56,12 +60,28 @@
   </div>
 </ion-header>
 
+<!-- Last Refresh Indicator -->
+<div class="refresh-indicator" *ngIf="lastRefreshTime">
+  <ion-icon [name]="isRefreshing ? 'refresh-outline' : 'time-outline'" [class.spinning]="isRefreshing"></ion-icon>
+  <span>{{ isRefreshing ? 'Refreshing...' : 'Last refreshed: ' + getLastRefreshText() }}</span>
+</div>
+
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">{{'history' | translate}}</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Pull to refresh"
+      refreshingSpinner="circles"
+      refreshingText="Refreshing transactions...">
+    </ion-refresher-content>
+  </ion-refresher>
 
   <div class="content-wrapper">
     <!-- Skeleton Loading -->

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 import { ThemeService, ThemeMode } from '../../services/theme.service';
+import { addIcons } from 'ionicons';
+import { settingsOutline, sunnyOutline, moonOutline, chevronForward } from 'ionicons/icons';
 
 @Component({
   selector: 'app-theme-selector',
@@ -56,7 +58,14 @@ export class ThemeSelectorComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   currentThemeMode: ThemeMode = 'system';
 
-  constructor(private themeService: ThemeService) {}
+  constructor(private themeService: ThemeService) {
+    addIcons({
+      'settings-outline': settingsOutline,
+      'sunny-outline': sunnyOutline,
+      'moon-outline': moonOutline,
+      'chevron-forward': chevronForward
+    });
+  }
 
   ngOnInit() {
     this.themeService.themeMode$

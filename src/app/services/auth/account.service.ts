@@ -68,10 +68,30 @@ export class AccountService {
   }
   // Update User Profile
   public updateUserProfile(upData: any): Observable<any> {
-    return this.http.put(`${this.BASE_URL}/api/v1/users/profile/update`, upData)
+    const state = this.stateService.getCurrentState();
+    if (!state?.token) {
+      return throwError(() => new Error('No token available for profile update'));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${state.token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.http.put(`${this.BASE_URL}/api/v1/users/profile/update`, upData, { headers })
     .pipe(
-      tap((response) => this.log(`update user ${JSON.stringify(response)}`)),
-      catchError(this.handleError('updateUser', []))
+      tap((response) => {
+        this.log(`Profile updated successfully: ${JSON.stringify(response)}`);
+        // Update local state if profile was updated
+        if (response && state.profile) {
+          const updatedProfile = { ...state.profile, ...upData };
+          this.stateService.updateState({ profile: updatedProfile });
+        }
+      }),
+      catchError((error) => {
+        console.error('Error updating profile:', error);
+        return throwError(() => error);
+      })
     );
   }
   // Remove User
@@ -140,6 +160,67 @@ export class AccountService {
         tap((userRes) => this.log(`get user ${JSON.stringify(userRes)}`)),
         catchError(this.handleError('findUserById', []))
       );
+  }
+
+  // Get Profile with enhanced error handling
+  public getProfileWithRetry(): Observable<Profile> {
+    const state = this.stateService.getCurrentState();
+    if (!state?.token) {
+      return throwError(() => new Error('No token available'));
+    }
+
+    const headers = {
+      Authorization: `Bearer ${state.token}`,
+    };
+
+    return this.http
+      .get<Profile>(`${this.BASE_URL}/api/v1/users/profile`, { headers })
+      .pipe(
+        tap((response) => {
+          console.log('Profile response:', response);
+          if (response) {
+            this.stateService.updateState({ profile: response });
+          }
+          if (!response.qrCode) {
+            this.generateQRCodeForUser();
+          }
+        }),
+        catchError((error) => {
+          console.error('Error getting user profile:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  // Update Profile Picture
+  public updateProfilePicture(imageFile: File): Observable<any> {
+    const state = this.stateService.getCurrentState();
+    if (!state?.token) {
+      return throwError(() => new Error('No token available for profile picture update'));
+    }
+
+    const formData = new FormData();
+    formData.append('profilePicture', imageFile);
+
+    const headers = {
+      Authorization: `Bearer ${state.token}`
+    };
+
+    return this.http.post<{avatarUrl: string}>(`${this.BASE_URL}/api/v1/users/profile/picture`, formData, { headers })
+    .pipe(
+      tap((response) => {
+        this.log(`Profile picture updated successfully`);
+        // Update local state
+        if (response && state.profile) {
+          const updatedProfile = { ...state.profile, avatarUrl: response.avatarUrl };
+          this.stateService.updateState({ profile: updatedProfile });
+        }
+      }),
+      catchError((error) => {
+        console.error('Error updating profile picture:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   private handleError<T>(operation = 'operation', result?: T) {

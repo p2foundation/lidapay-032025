@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -131,6 +131,7 @@ import {
 import { StorageService } from '../../services/storage.service';
 import { HistoryService } from '../../services/transactions/history.service';
 import { PendingTransactionsService } from '../../services/transactions/pending-transactions.service';
+import { StateService } from '../../services/state.service';
 
 @Component({
   selector: 'app-home',
@@ -144,41 +145,16 @@ import { PendingTransactionsService } from '../../services/transactions/pending-
     IonContent,
     IonHeader,
     IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonBackButton,
     IonButton,
     IonIcon,
     IonBadge,
     IonRippleEffect,
     IonSkeletonText,
     IonRefresher,
-    IonRefresherContent,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonCard,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
-    IonCardContent,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonThumbnail,
-    IonAvatar,
-    IonChip,
-    IonSpinner,
-    IonFab,
-    IonFabButton,
-    IonSegment,
-    IonSegmentButton,
-    IonSearchbar,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent
+    IonRefresherContent
   ]
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
   isLoading = true;
   hasNotifications = false;
   pendingTransactionCount = 0;
@@ -203,6 +179,7 @@ export class HomePage implements OnInit {
     private historyService: HistoryService,
     private pendingTxService: PendingTransactionsService,
     private storage: StorageService,
+    private stateService: StateService,
     private toastCtrl: ToastController,
     private modalCtrl: ModalController,
     private alertCtrl: AlertController
@@ -297,10 +274,45 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    // Don't load transaction stats here - wait for user data to be available
   }
   
   ionViewWillEnter() {
-    this.checkPendingTransactions();
+    // Check if user data is available before proceeding
+    this.checkUserDataAndLoadTransactions();
+    
+    // Set up interval to check for count updates every 5 seconds
+    this.setupPendingTransactionsCountPolling();
+  }
+
+  ionViewWillLeave() {
+    // Clear the polling interval when leaving the page
+    this.clearPendingTransactionsCountPolling();
+  }
+
+  private countPollingInterval: any;
+
+  /**
+   * Set up polling to check for pending transactions count updates
+   */
+  private setupPendingTransactionsCountPolling() {
+    // Clear any existing interval
+    this.clearPendingTransactionsCountPolling();
+    
+    // Poll every 5 seconds for count updates
+    this.countPollingInterval = setInterval(async () => {
+      await this.refreshPendingTransactionsCount();
+    }, 5000);
+  }
+
+  /**
+   * Clear the pending transactions count polling
+   */
+  private clearPendingTransactionsCountPolling() {
+    if (this.countPollingInterval) {
+      clearInterval(this.countPollingInterval);
+      this.countPollingInterval = null;
+    }
   }
 
   async loadData() {
@@ -311,11 +323,31 @@ export class HomePage implements OnInit {
 
     this.isLoading = true;
     try {
+      // Wait a bit for storage to be ready after login
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Debug: Check all storage keys
+      const allKeys = await this.storage.getAllKeys();
+      console.log('Available storage keys:', allKeys);
+      
       // Load user data
-      const user = await this.storage.getStorage('user');
+      const user = await this.storage.getStorage('profile');
+      console.log('Profile from storage:', user);
+      
       if (user && user._id) {
+        console.log('User data loaded successfully:', user);
         // Load and check pending transactions
         await this.checkPendingTransactions();
+      } else {
+        console.log('No user data found in storage yet');
+        // Try to get from state service
+        const currentState = this.stateService.getCurrentState();
+        console.log('Current state from state service:', currentState);
+        
+        if (currentState?.profile?._id) {
+          console.log('User found in state service, using that instead');
+          await this.checkPendingTransactions();
+        }
       }
       
       // Show skeleton for minimum time to avoid flashing
@@ -335,115 +367,149 @@ export class HomePage implements OnInit {
     }
   }
   
+  async checkUserDataAndLoadTransactions() {
+    try {
+      const user = await this.storage.getStorage('profile');
+      if (user?._id) {
+        console.log('User data available, loading transactions...');
+        // Load transaction stats which will update the counts
+        await this.loadTransactionStats();
+        
+        // Check pending transactions
+        await this.checkPendingTransactions();
+        
+        // Refresh pending transactions count from storage
+        await this.refreshPendingTransactionsCount();
+      } else {
+        console.log('User data not available yet, skipping transaction loading');
+      }
+    } catch (error) {
+      console.error('Error checking user data and loading transactions:', error);
+    }
+  }
+
   async checkPendingTransactions() {
     try {
-      const user = await this.storage.getStorage('user');
+      const user = await this.storage.getStorage('profile');
       if (user?._id) {
-        const pendingTxs = await this.pendingTxService.loadPendingTransactions(user._id);
-        this.pendingTransactionCount = pendingTxs.length;
-        
-        // Show notification if there are pending transactions
-        if (this.pendingTransactionCount > 0) {
-          await this.showPendingTransactionsNotification();
-        }
+        // No need to show alert - information is already displayed in transaction summary
+        // Just log for debugging purposes
+        console.log(`User has ${this.pendingTransactionCount} pending transactions`);
       }
     } catch (error) {
       console.error('Error checking pending transactions:', error);
     }
   }
-  
-  async showPendingTransactionsNotification() {
-    const alert = await this.alertCtrl.create({
-      header: 'Pending Transactions',
-      message: `You have ${this.pendingTransactionCount} pending transaction${this.pendingTransactionCount !== 1 ? 's' : ''}.`,
-      buttons: [
-        {
-          text: 'View Details',
-          handler: () => {
-            this.router.navigate(['/tabs/pending-transactions']);
-          }
-        },
-        {
-          text: 'Dismiss',
-          role: 'cancel'
-        }
-      ]
-    });
-    
-    await alert.present();
-  }
 
   private async loadActualData() {
     console.log('Loading actual data...');
-    // Simulate API calls
-    await Promise.all([
-      this.checkNotifications(),
-      this.loadTransactionStats(),
-      this.loadUserPreferences(),
-    ]);
-    console.log('All data loaded successfully');
+    // Only load transaction stats if user is available
+    try {
+      const user = await this.storage.getStorage('profile');
+      if (user?._id) {
+        await Promise.all([
+          this.checkNotifications(),
+          this.loadTransactionStats(),
+          this.loadUserPreferences(),
+        ]);
+      } else {
+        // Load only non-user-dependent data
+        await Promise.all([
+          this.checkNotifications(),
+          this.loadUserPreferences(),
+        ]);
+      }
+      console.log('All data loaded successfully');
+    } catch (error) {
+      console.error('Error loading actual data:', error);
+    }
   }
 
   private async loadTransactionStats() {
     try {
       // Get user ID from storage
-      const user = await this.storage.getStorage('user');
+      const user = await this.storage.getStorage('profile');
+      console.log('Loading transaction stats for user:', user);
       if (!user || !user._id) {
         console.error('User not found in storage');
+        // Try to get from state service as fallback
+        const currentState = this.stateService.getCurrentState();
+        if (currentState?.profile?._id) {
+          console.log('User found in state service, using that instead');
+          await this.loadTransactionStatsWithUser(currentState.profile);
+          return;
+        }
         return;
       }
-
-      // First, check local storage for pending transactions
-      const allKeys = await (await this.storage.getAllKeys()) || [];
-      console.log('All storage keys:', allKeys);
       
-      // Look for both patterns: 'pendingTransaction' and 'pendingTransaction_*'
-      const pendingLocalTransactions = allKeys.filter(key => 
-        key === 'pendingTransaction' || key.startsWith('pendingTransaction_')
-      );
-      
-      console.log('Found pending transaction keys:', pendingLocalTransactions);
+      await this.loadTransactionStatsWithUser(user);
+    } catch (error) {
+      console.error('Error in loadTransactionStats:', error);
+    }
+  }
 
-      // Then fetch from API using firstValueFrom instead of deprecated toPromise()
+  private async loadTransactionStatsWithUser(user: any) {
+    try {
+      // Try to get transaction counts first (more efficient)
+      try {
+        const countsResponse: any = await firstValueFrom(
+          this.historyService.getTransactionCountsByUserId(user._id)
+        );
+
+        if (countsResponse && countsResponse.success) {
+          // Use the counts from the dedicated endpoint
+          this.pendingTransactions = countsResponse.pending || 0;
+          this.totalTransactions = countsResponse.completed || 0;
+          this.pendingTransactionCount = this.pendingTransactions;
+          
+          console.log('Transaction counts loaded from counts endpoint:', countsResponse);
+          console.log('Pending/Failed transactions:', this.pendingTransactions);
+          console.log('Completed transactions:', this.totalTransactions);
+          return;
+        }
+      } catch (countsError) {
+        console.log('Counts endpoint not available, falling back to full transaction list');
+      }
+
+      // Fallback: fetch transactions from API and count them
       const response: any = await firstValueFrom(
-        this.historyService.getTransactionByUserId(user._id, 1, 100) // Fetch first 100 transactions
+        this.historyService.getTransactionByUserId(user._id, 1, 1000) // Fetch more transactions for accurate counting
       );
 
       let pendingCount = 0;
+      let completedCount = 0;
       let totalCount = 0;
 
-      // Count pending transactions from API
-      if (response && response.data) {
-        const pendingApiTransactions = response.data.filter((txn: any) => 
-          txn.status && txn.status.transaction === 'pending'
-        );
-        pendingCount = pendingApiTransactions.length;
-        totalCount = response.pagination?.total || response.data.length;
+      // Count transactions by status from API
+      if (response && response.transactions) {
+        totalCount = response.transactions.length;
         
-        console.log('API transactions loaded:', response.data.length);
-        console.log('Pending API transactions:', pendingCount);
-        console.log('Total API transactions:', totalCount);
+        response.transactions.forEach((txn: any) => {
+          if (txn.status && txn.status.transaction) {
+            if (txn.status.transaction === 'pending' || txn.status.transaction === 'failed') {
+              pendingCount++;
+            } else if (txn.status.transaction === 'completed') {
+              completedCount++;
+            }
+          }
+        });
+        
+        console.log('API transactions loaded:', response.transactions.length);
+        console.log('Pending/Failed transactions:', pendingCount);
+        console.log('Completed transactions:', completedCount);
+        console.log('Total transactions:', totalCount);
       }
-
-      // Add local pending transactions
-      pendingCount += pendingLocalTransactions.length;
-      console.log('Local pending transactions:', pendingLocalTransactions.length);
-      console.log('Total pending count:', pendingCount);
 
       // Update the UI
       this.pendingTransactions = pendingCount;
-      // Calculate completed transactions by subtracting pending from total
-      const completedTransactions = Math.max(0, totalCount - pendingCount);
-      this.totalTransactions = completedTransactions;
+      this.totalTransactions = completedCount;
+      this.pendingTransactionCount = pendingCount;
       
       console.log('Updated pendingTransactions to:', this.pendingTransactions);
       console.log('Updated completedTransactions to:', this.totalTransactions);
 
-      // Update the pending transaction count for the notification system
-      this.pendingTransactionCount = pendingCount;
-
     } catch (error) {
-      console.error('Error loading transaction stats:', error);
+      console.error('Error loading transaction stats with user:', error);
       
       // Set default values on error
       this.pendingTransactions = 0;
@@ -461,11 +527,29 @@ export class HomePage implements OnInit {
     }
   }
 
+
+
   private async loadUserPreferences() {
     // TODO: Load user preferences from storage/service
     // This could control which sections to show/hide
     this.showStats = true;
     this.showPromo = true;
+  }
+
+  /**
+   * Refresh pending transactions count from storage
+   */
+  private async refreshPendingTransactionsCount() {
+    try {
+      const storedCount = await this.storage.getStorage('pendingTransactionsCount');
+      if (storedCount) {
+        this.pendingTransactions = parseInt(storedCount, 10) || 0;
+        this.pendingTransactionCount = this.pendingTransactions;
+        console.log('Updated pending transactions count from storage:', this.pendingTransactions);
+      }
+    } catch (error) {
+      console.error('Error refreshing pending transactions count:', error);
+    }
   }
 
   private async checkNotifications() {
@@ -478,6 +562,7 @@ export class HomePage implements OnInit {
       // Add haptic feedback
       await Haptics.impact({ style: ImpactStyle.Light });
       await this.loadData();
+      // Transaction stats will be loaded by loadData if user is available
     } finally {
       event.target.complete();
       // Add completion haptic feedback
@@ -488,7 +573,46 @@ export class HomePage implements OnInit {
   // Method to manually refresh transaction stats
   async refreshTransactionStats() {
     console.log('Manually refreshing transaction stats...');
-    await this.loadTransactionStats();
+    try {
+      const user = await this.storage.getStorage('profile');
+      if (user?._id) {
+        await this.loadTransactionStats();
+      } else {
+        console.log('User not available, cannot refresh transaction stats');
+      }
+    } catch (error) {
+      console.error('Error refreshing transaction stats:', error);
+    }
+  }
+
+  // Method to refresh transaction counts specifically
+  async refreshTransactionCounts() {
+    console.log('Refreshing transaction counts...');
+    try {
+      const user = await this.storage.getStorage('profile');
+      if (!user?._id) {
+        console.log('User not available, cannot refresh transaction counts');
+        return;
+      }
+      
+      // Add haptic feedback
+      await Haptics.impact({ style: ImpactStyle.Light });
+      
+      await this.loadTransactionStats();
+      // Also refresh from storage for real-time updates
+      await this.refreshPendingTransactionsCount();
+      
+      // Show success feedback
+      const toast = await this.toastCtrl.create({
+        message: 'Transaction counts updated',
+        duration: 2000,
+        color: 'success',
+        position: 'bottom'
+      });
+      await toast.present();
+    } catch (error) {
+      console.error('Error refreshing transaction counts:', error);
+    }
   }
 
   // Method to test storage and show current values
@@ -528,12 +652,12 @@ export class HomePage implements OnInit {
 
   async gotoRemitstarPage() {
     await Haptics.impact({ style: ImpactStyle.Medium });
-    this.router.navigate(['tabs/recharge/remitstar']);
+    this.router.navigate(['/tabs/recharge/remitstar']);
   }
 
   async pay_or_send() {
     await Haptics.impact({ style: ImpactStyle.Medium });
-    this.router.navigate(['./pay-or-send']);
+    this.router.navigate(['/tabs/pay-or-send']);
   }
 
   async walletOrUserAccount() {
@@ -543,17 +667,17 @@ export class HomePage implements OnInit {
 
   async transaction() {
     await Haptics.impact({ style: ImpactStyle.Medium });
-    this.router.navigate(['./transaction']);
+    this.router.navigate(['/tabs/transaction']);
   }
 
   async search() {
     await Haptics.impact({ style: ImpactStyle.Light });
-    this.router.navigate(['./search']);
+    this.router.navigate(['/tabs/search']);
   }
 
   async openNotification() {
-    await Haptics.impact({ style: ImpactStyle.Light });
-    this.router.navigate(['./notification']);
+    await Haptics.impact({ style: ImpactStyle.Medium });
+    this.router.navigate(['/tabs/notifications']);
   }
 
   // New functionality methods
@@ -582,5 +706,10 @@ export class HomePage implements OnInit {
       await Haptics.impact({ style: ImpactStyle.Medium });
       this.router.navigate(['/tabs/pending-transactions']);
     }
+  }
+
+  ngOnDestroy() {
+    // Clear the polling interval to prevent memory leaks
+    this.clearPendingTransactionsCountPolling();
   }
 }

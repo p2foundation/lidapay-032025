@@ -25,10 +25,10 @@ export class PendingTransactionsService {
         this.historyService.getTransactionByUserId(userId, 1, 50)
       );
       
-      if (response && response.data) {
-        // Filter for pending or failed transactions
-        const pendingTxs = response.data.filter((tx: any) => 
-          tx.status === 'PENDING' || tx.status === 'FAILED'
+      if (response && response.transactions) {
+        // Filter for pending or failed transactions based on status.transaction
+        const pendingTxs = response.transactions.filter((tx: any) => 
+          tx.status?.transaction === 'pending' || tx.status?.transaction === 'failed'
         );
         
         // Check status of each pending transaction
@@ -44,10 +44,10 @@ export class PendingTransactionsService {
 
   private async checkPendingTransactionsStatus(transactions: any[]) {
     for (const tx of transactions) {
-      if (tx.token) {
+      if (tx.expressToken) {
         try {
           const statusResponse = await firstValueFrom(
-            this.advansisPayService.queryStatus(tx.token)
+            this.advansisPayService.queryStatus(tx.expressToken)
           );
           
           if (statusResponse && statusResponse.status === 'SUCCESSFUL') {
@@ -69,17 +69,21 @@ export class PendingTransactionsService {
       // Update transaction status
       await firstValueFrom(
         this.historyService.updateTransactionByTransactionId(tx._id, {
-          status: 'COMPLETED',
+          status: {
+            transaction: 'completed',
+            service: 'completed',
+            payment: 'completed'
+          },
           updatedAt: new Date().toISOString()
         })
       );
 
       // Process airtime topup if applicable
-      if (tx.transType === 'AIRTIMETOPUP' && tx.recipientNumber && tx.amount) {
+      if (tx.transType === 'AIRTIMETOPUP' && tx.recipientNumber && tx.monetary?.amount) {
         await firstValueFrom(
           this.airtimeService.buyAirtimeTopup({
             recipientPhoneNumber: tx.recipientNumber,
-            amount: tx.amount,
+            amount: tx.monetary.amount,
             operatorId: tx.operatorId,
             countryCode: tx.recipientCountryCode || 'GH',
             useLocalAmount: true,
@@ -98,11 +102,15 @@ export class PendingTransactionsService {
 
   private async updateTransactionStatus(transactionId: string, status: string) {
     try {
+      const statusUpdate = {
+        transaction: status.toLowerCase(),
+        service: status.toLowerCase(),
+        payment: status.toLowerCase(),
+        updatedAt: new Date().toISOString()
+      };
+      
       await firstValueFrom(
-        this.historyService.updateTransactionByTransactionId(transactionId, {
-          status,
-          updatedAt: new Date().toISOString()
-        })
+        this.historyService.updateTransactionByTransactionId(transactionId, statusUpdate)
       );
     } catch (error) {
       console.error('Error updating transaction status:', error);

@@ -41,8 +41,21 @@
 
   <!-- Loading State -->
   <div class="loading-container" *ngIf="isLoading">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p class="text-body text-gray-600">Loading...</p>
+    <div class="loading-header">
+      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+      <h3>Loading Countries</h3>
+      <p>Please wait while we fetch available countries...</p>
+    </div>
+    
+    <div class="skeleton-grid">
+      <div class="skeleton-card" *ngFor="let item of [1,2,3,4,5,6,7,8]">
+        <div class="skeleton-flag"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-subtitle"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Step 1: Country Selection -->
@@ -127,6 +140,22 @@
             class="modern-input"
             (ionInput)="onPhoneNumberInput($event)">
           </ion-input>
+          
+          <!-- User phone number info -->
+          <div class="user-phone-info" *ngIf="userProfile?.phoneNumber && airtimeForm.get('recipientNumber')?.value === userProfile.phoneNumber">
+            <ion-chip color="success" outline>
+              <ion-icon name="person-outline"></ion-icon>
+              <ion-label>Your phone number pre-filled</ion-label>
+            </ion-chip>
+          </div>
+          
+          <!-- Helpful note about pre-filled number -->
+          <div class="help-note" *ngIf="userProfile?.phoneNumber">
+            <ion-note color="medium">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Your phone number will be automatically filled for convenience. You can change it if needed.
+            </ion-note>
+          </div>
           
           <!-- Auto-detection indicator -->
           <div class="auto-detect-info" *ngIf="isDetectingOperator">

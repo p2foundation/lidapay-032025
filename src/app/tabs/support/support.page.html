@@ -1,13 +1,256 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>support</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Help & Support</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">support</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="support-content">
+
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <ion-icon name="help-circle-outline" class="hero-icon"></ion-icon>
+      <h1>How can we help you?</h1>
+      <p>Find answers to common questions or get in touch with our support team</p>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <ion-card class="action-card" (click)="scrollToSection('faq')">
+            <ion-card-content>
+              <ion-icon name="document-text-outline" class="action-icon"></ion-icon>
+              <h3>FAQ</h3>
+              <p>Common questions</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card class="action-card" (click)="scrollToSection('contact')">
+            <ion-card-content>
+              <ion-icon name="mail-outline" class="action-icon"></ion-icon>
+              <h3>Contact Us</h3>
+              <p>Get help</p>
+            </ion-card-content>
+          </ion-card> 
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="section" id="faq">
+    <div class="section-header">
+      <h2>Frequently Asked Questions</h2>
+      <p>Find quick answers to common questions</p>
+    </div>
+
+    <ion-accordion-group class="faq-accordion">
+      <ion-accordion value="account">
+        <ion-item slot="header" class="faq-header">
+          <ion-label>Account & Security</ion-label>
+          <ion-icon name="chevron-down" slot="end"></ion-icon>
+        </ion-item>
+        <div slot="content" class="faq-content">
+          <ion-list>
+            <ion-item button (click)="expandFaq('how-to-reset-password')">
+              <ion-label>How do I reset my password?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+            <ion-item button (click)="expandFaq('two-factor-auth')">
+              <ion-label>How to enable two-factor authentication?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+            <ion-item button (click)="expandFaq('account-verification')">
+              <ion-label>How to verify my account?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+          </ion-list>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="payments">
+        <ion-item slot="header" class="faq-header">
+          <ion-label>Payments & Transactions</ion-label>
+          <ion-icon name="chevron-down" slot="end"></ion-icon>
+        </ion-item>
+        <div slot="content" class="faq-content">
+          <ion-list>
+            <ion-item button (click)="expandFaq('payment-methods')">
+              <ion-label>What payment methods are accepted?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+            <ion-item button (click)="expandFaq('transaction-fees')">
+              <ion-label>What are the transaction fees?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+            <ion-item button (click)="expandFaq('refund-policy')">
+              <ion-label>What is your refund policy?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+          </ion-list>
+        </div>
+      </ion-accordion>
+
+      <ion-accordion value="app-usage">
+        <ion-item slot="header" class="faq-header">
+          <ion-label>App Usage</ion-label>
+          <ion-icon name="chevron-down" slot="end"></ion-icon>
+        </ion-item>
+        <div slot="content" class="faq-content">
+          <ion-list>
+            <ion-item button (click)="expandFaq('update-app')">
+              <ion-label>How to update the app?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+            <ion-item button (click)="expandFaq('sync-data')">
+              <ion-label>How to sync data across devices?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+            <ion-item button (click)="expandFaq('privacy-settings')">
+              <ion-label>How to manage privacy settings?</ion-label>
+              <ion-icon name="chevron-forward" slot="end"></ion-icon>
+            </ion-item>
+          </ion-list>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </div>
+
+  <!-- Contact Section -->
+  <div class="section" id="contact">
+    <div class="section-header">
+      <h2>Contact Support</h2>
+      <p>Can't find what you're looking for? Get in touch with us</p>
+    </div>
+
+    <ion-card class="contact-card">
+      <ion-card-content>
+        <form [formGroup]="contactForm" (ngSubmit)="submitContactForm()">
+          <ion-item class="form-item">
+            <ion-label position="stacked">Full Name *</ion-label>
+            <ion-input 
+              formControlName="name" 
+              placeholder="Enter your full name"
+              type="text">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Email *</ion-label>
+            <ion-input 
+              formControlName="email" 
+              placeholder="Enter your email address"
+              type="email">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Subject *</ion-label>
+            <ion-select 
+              formControlName="subject" 
+              placeholder="Select a subject">
+              <ion-select-option value="technical-issue">Technical Issue</ion-select-option>
+              <ion-select-option value="billing">Billing Question</ion-select-option>
+              <ion-select-option value="account">Account Issue</ion-select-option>
+              <ion-select-option value="feature-request">Feature Request</ion-select-option>
+              <ion-select-option value="other">Other</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Message *</ion-label>
+            <ion-textarea 
+              formControlName="message" 
+              placeholder="Describe your issue or question"
+              rows="4">
+            </ion-textarea>
+          </ion-item>
+
+          <ion-button 
+            expand="block" 
+            type="submit" 
+            class="submit-btn"
+            [disabled]="!contactForm.valid || isSubmitting">
+            <ion-icon name="send-outline" slot="start"></ion-icon>
+            {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Additional Support Options -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Other Ways to Get Help</h2>
+      <p>Multiple channels to support you</p>
+    </div>
+
+    <ion-list class="support-options">
+      <ion-item button (click)="openEmailSupport()" class="support-option">
+        <ion-icon name="mail" slot="start" class="support-icon"></ion-icon>
+        <ion-label>
+          <h3>Email Support</h3>
+          <p>Get a response within 24 hours</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end"></ion-icon>
+      </ion-item>
+
+      <ion-item button (click)="openLiveChat()" class="support-option">
+        <ion-icon name="chatbubbles" slot="start" class="support-icon"></ion-icon>
+        <ion-label>
+          <h3>Live Chat</h3>
+          <p>Chat with our support team</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end"></ion-icon>
+      </ion-item>
+
+      <ion-item button (click)="openPhoneSupport()" class="support-option">
+        <ion-icon name="call" slot="start" class="support-icon"></ion-icon>
+        <ion-label>
+          <h3>Phone Support</h3>
+          <p>Call us directly</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- FAQ Modal -->
+  <ion-modal #faqModal [isOpen]="showFaqModal" (didDismiss)="closeFaqModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ selectedFaq?.title }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeFaqModal()">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="faq-modal-content">
+        <div class="faq-detail">
+          <h3>{{ selectedFaq?.title }}</h3>
+          <p>{{ selectedFaq?.content }}</p>
+          <div class="faq-helpful">
+            <p>Was this helpful?</p>
+            <ion-button fill="clear" size="small" (click)="markFaqHelpful(true)">
+              <ion-icon name="thumbs-up"></ion-icon> Yes
+            </ion-button>
+            <ion-button fill="clear" size="small" (click)="markFaqHelpful(false)">
+              <ion-icon name="thumbs-down"></ion-icon> No
+            </ion-button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>

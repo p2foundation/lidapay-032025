@@ -1,56 +1,68 @@
 @echo off
-echo ========================================
-echo    Lidapay Android Testing Quick Start
-echo ========================================
+REM Quick Start Android Testing Script for LidaPay
+REM This script prepares your app for Android Studio emulator testing
+
+echo.
+echo 🚀 LidaPay Android Testing Setup
+echo =================================
 echo.
 
-echo [1/4] Building project...
+REM Check if we're in the right directory
+if not exist "package.json" (
+    echo ❌ Error: Please run this script from the LidaPay project root directory
+    pause
+    exit /b 1
+)
+
+echo 📦 Building Angular application...
 call npm run build
-if %errorlevel% neq 0 (
-    echo ❌ Build failed! Please check errors above.
+
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Build failed! Please fix the errors and try again.
     pause
     exit /b 1
 )
-echo ✅ Build completed successfully!
 
-echo.
-echo [2/4] Syncing with Capacitor...
+echo ✅ Angular build completed successfully!
+
+echo 🔄 Syncing with Capacitor...
 call npm run cap:sync
-if %errorlevel% neq 0 (
-    echo ❌ Sync failed! Please check errors above.
+
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Capacitor sync failed! Please check the errors and try again.
     pause
     exit /b 1
 )
-echo ✅ Sync completed successfully!
 
-echo.
-echo [3/4] Opening Android Studio...
+echo ✅ Capacitor sync completed successfully!
+
+echo 🧹 Cleaning Android project...
+cd android
+call gradlew clean
+
+if %ERRORLEVEL% neq 0 (
+    echo ❌ Android clean failed! Please check the errors and try again.
+    pause
+    exit /b 1
+)
+
+echo ✅ Android project cleaned successfully!
+
+cd ..
+
+echo 🚪 Opening project in Android Studio...
 call npm run cap:open:android
-if %errorlevel% neq 0 (
-    echo ❌ Failed to open Android Studio!
-    pause
-    exit /b 1
-)
-echo ✅ Android Studio opened!
 
 echo.
-echo ========================================
-echo 🎯 Setup Complete!
-echo ========================================
+echo 🎉 Setup Complete! Your project is now ready for testing.
 echo.
-echo 📋 Next Steps in Android Studio:
-echo 1. Wait for project to load
-echo 2. Click "Sync Project with Gradle Files" (elephant icon)
-echo 3. Wait for sync to complete
-echo 4. Right-click on test folders to run tests:
-echo    - android/app/src/test/ (Unit Tests)
-echo    - android/app/src/androidTest/ (Instrumented Tests)
+echo 📱 Next Steps:
+echo 1. Wait for Android Studio to open the project
+echo 2. Let Gradle sync complete
+echo 3. Create/start an Android emulator (API 35 recommended)
+echo 4. Build and run the app (Shift+F10)
 echo.
-echo 🚀 Quick Test Commands (from project root):
-echo - npm run test:android:unit
-echo - npm run test:android:instrumented
-echo - npm run test:android:all
+echo 📋 Use the testing checklist: ANDROID_EMULATOR_TESTING_CHECKLIST.md
 echo.
-echo 📚 See ANDROID_STUDIO_TESTING_GUIDE.md for details
-echo.
+echo Happy Testing! 🚀
 pause

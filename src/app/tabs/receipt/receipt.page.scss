@@ -7,6 +7,152 @@ ion-toolbar {
   }
 }
 
+/* Transaction ID special styling */
+  .transaction-id-item {
+    --background: rgba(var(--ion-color-primary-rgb), 0.05);
+    border: 2px solid var(--ion-color-primary);
+    border-radius: 12px;
+    margin: 16px 0;
+    
+    ion-label {
+      color: var(--ion-color-primary);
+      font-weight: 600;
+      font-size: 1rem;
+      opacity: 1;
+      
+      // Mobile optimization
+      @media (max-width: 480px) {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .transaction-id-value {
+      color: var(--ion-color-primary);
+      font-weight: 700;
+      font-size: 1rem;
+      opacity: 1;
+      font-family: 'Courier New', monospace;
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--ion-color-primary);
+      max-width: 100%;
+      
+      // Mobile optimization
+      @media (max-width: 480px) {
+        font-size: 0.9rem;
+        padding: 5px 8px;
+      }
+      
+      @media (max-width: 360px) {
+        font-size: 0.8rem;
+        padding: 4px 6px;
+      }
+      
+      .transaction-id-note-container {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 0;
+        
+        span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          flex: 1;
+          min-width: 0;
+        }
+        
+        &:hover {
+          background: rgba(var(--ion-color-primary-rgb), 0.15);
+          border-radius: 6px;
+          padding: 4px 8px;
+          margin: -4px -8px;
+        }
+        
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+      
+      .view-icon-small {
+        font-size: 14px;
+        color: var(--ion-color-primary);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+        flex-shrink: 0;
+        
+        &:hover {
+          opacity: 1;
+        }
+        
+        // Mobile optimization
+        @media (max-width: 480px) {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  // Recipient Number Item Styling
+  .recipient-item {
+    --background: rgba(var(--ion-color-success-rgb), 0.05);
+    border: 2px solid var(--ion-color-success);
+    border-radius: 12px;
+    margin: 16px 0;
+    
+    ion-label {
+      color: var(--ion-color-success);
+      font-weight: 600;
+      font-size: 1rem;
+      opacity: 1;
+    }
+    
+    .recipient-number-value {
+      color: var(--ion-color-success);
+      font-weight: 700;
+      font-size: 1.1rem;
+      opacity: 1;
+      font-family: 'Courier New', monospace;
+      background: rgba(var(--ion-color-success-rgb), 0.1);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--ion-color-success);
+      
+      .recipient-number-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba(var(--ion-color-success-rgb), 0.15);
+          border-radius: 6px;
+          padding: 4px 8px;
+          margin: -4px -8px;
+        }
+        
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+      
+      .view-icon-small {
+        font-size: 16px;
+        color: var(--ion-color-success);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+        
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
 .receipt-container {
   max-width: 100%;
   padding: 16px;
@@ -15,6 +161,34 @@ ion-toolbar {
   border-radius: 12px;
   box-shadow: 0 4px 16px var(--ion-color-step-150, rgba(0, 0, 0, 0.1));
   margin: 16px auto;
+  
+  // Mobile optimization
+  @media (max-width: 480px) {
+    padding: 12px;
+    margin: 12px auto;
+    border-radius: 10px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 10px;
+    margin: 8px auto;
+    border-radius: 8px;
+  }
+  
+  // Ensure transaction ID doesn't overflow on very small screens
+  .transaction-id-header,
+  .transaction-id-item {
+    @media (max-width: 320px) {
+      padding: 8px;
+      margin: 8px 0;
+      
+      .transaction-id-display,
+      .transaction-id-value {
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+      }
+    }
+  }
 }
 
 .receipt-header {
@@ -48,6 +222,101 @@ ion-toolbar {
     color: var(--ion-color-medium);
     margin: 8px 0 0;
     font-size: 14px;
+  }
+
+  .transaction-id-header {
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+    border: 2px solid var(--ion-color-primary);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 20px 0;
+    text-align: center;
+    
+    .transaction-id-label {
+      display: block;
+      color: var(--ion-color-primary);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .transaction-id-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 8px;
+      border-radius: 8px;
+      
+      &:hover {
+        transform: scale(1.02);
+        background: rgba(var(--ion-color-primary-rgb), 0.2);
+      }
+      
+      &:active {
+        transform: scale(0.98);
+      }
+      
+      // Mobile optimization
+      @media (max-width: 480px) {
+        gap: 6px;
+        padding: 6px;
+      }
+    }
+    
+    .transaction-id-display {
+      display: block;
+      color: var(--ion-color-primary);
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      background: rgba(var(--ion-color-primary-rgb), 0.15);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--ion-color-primary);
+      word-break: break-all;
+      line-height: 1.2;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      
+      // Mobile optimization
+      @media (max-width: 480px) {
+        font-size: 14px;
+        padding: 8px 10px;
+        border-radius: 8px;
+      }
+      
+      @media (max-width: 360px) {
+        font-size: 12px;
+        padding: 6px 8px;
+      }
+    }
+    
+    .view-icon {
+      font-size: 18px;
+      color: var(--ion-color-primary);
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+      flex-shrink: 0;
+      
+      &:hover {
+        opacity: 1;
+      }
+      
+      // Mobile optimization
+      @media (max-width: 480px) {
+        font-size: 16px;
+      }
+      
+      @media (max-width: 360px) {
+        font-size: 14px;
+      }
+    }
   }
 }
 
@@ -89,6 +358,22 @@ ion-toolbar {
         font-weight: 500;
       }
     }
+
+    &.crediting-failure-message {
+      --background: rgba(var(--ion-color-warning-rgb), 0.05);
+      border-left: 4px solid var(--ion-color-warning);
+      margin-top: 16px;
+      
+      ion-label {
+        color: var(--ion-color-warning);
+        font-weight: 600;
+      }
+      
+      ion-note {
+        color: var(--ion-color-warning);
+        font-weight: 500;
+      }
+    }
   }
 }
 
@@ -99,10 +384,23 @@ ion-toolbar {
   border-top: 1px solid var(--ion-color-light);
   
   p {
-    margin: 0;
+    margin: 8px 0;
     color: var(--ion-color-primary);
     font-weight: 600;
     font-size: 16px;
+    
+    &.warning-message {
+      color: var(--ion-color-warning);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      
+      ion-icon {
+        font-size: 20px;
+      }
+    }
   }
 
   small {
@@ -241,11 +539,401 @@ ion-spinner {
       .transaction-amount {
         font-size: 1.8rem;
       }
+
+      .transaction-id-header {
+        margin: 16px 0;
+        padding: 12px;
+        
+        .transaction-id-label {
+          font-size: 12px;
+        }
+        
+              .transaction-id-display {
+        font-size: 16px;
+        padding: 10px 12px;
+        word-break: break-all;
+        white-space: normal;
+        max-width: 100%;
+        overflow-wrap: break-word;
+      }
+      }
     }
   }
   
   .action-buttons {
     margin: 16px 12px;
   }
+
+  .transaction-id-item {
+    margin: 12px 0;
+    
+      .transaction-id-value {
+    font-size: 1rem;
+    padding: 6px 10px;
+    word-break: break-all;
+    white-space: normal;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+  }
 }
+
+// Smart Actions for Failed Airtime Crediting
+.smart-actions {
+  .warning-card {
+    --background: rgba(var(--ion-color-warning-rgb), 0.05);
+    border: 2px solid var(--ion-color-warning);
+    border-radius: 16px;
+    
+    .warning-header {
+      text-align: center;
+      margin-bottom: 20px;
+      
+      ion-icon {
+        margin-bottom: 12px;
+        color: var(--ion-color-warning);
+      }
+      
+      h3 {
+        margin: 0 0 8px 0;
+        color: var(--ion-color-warning);
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0;
+        color: var(--ion-text-color);
+        font-size: 0.9rem;
+        line-height: 1.4;
+        opacity: 0.8;
+      }
+    }
+    
+    .status-check-section {
+      ion-button {
+        --border-radius: 12px;
+        font-weight: 600;
+        
+        &:first-child {
+          --background: var(--ion-color-warning);
+          --color: var(--ion-color-warning-contrast);
+        }
+        
+        &:last-child {
+          --border-color: var(--ion-color-warning);
+          --color: var(--ion-color-warning);
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  :host {
+    --modal-background: var(--ion-color-dark);
+  }
+
+  .info-section {
+    background: var(--ion-color-dark-shade);
+  }
+
+  .transaction-header {
+    background: var(--ion-color-dark-shade);
+  }
+
+  .info-item {
+    background: var(--ion-color-dark-tint) !important;
+  }
+}
+
+// Transaction ID Alert Styling
+:global(.transaction-id-alert) {
+  .alert-wrapper {
+    max-width: 90vw;
+    width: 400px;
+  }
   
+  .alert-head {
+    background: var(--ion-color-primary);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    
+    .alert-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+  
+  .alert-message {
+    padding: 20px;
+    text-align: center;
+    
+    h3 {
+      margin: 0 0 15px 0;
+      color: var(--ion-color-primary);
+      font-size: 20px;
+    }
+    
+    p {
+      margin: 8px 0;
+      color: var(--ion-color-medium);
+      
+      strong {
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+  
+  .alert-button-group {
+    padding: 0 20px 20px;
+    
+    .alert-button {
+      margin: 5px;
+      border-radius: 8px;
+      font-weight: 500;
+      
+      &:first-child {
+        background: var(--ion-color-primary);
+        color: white;
+      }
+      
+      &:last-child {
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// Recipient Number Alert Styling
+:global(.recipient-number-alert) {
+  .alert-wrapper {
+    max-width: 90vw;
+    width: 400px;
+  }
+  
+  .alert-head {
+    background: var(--ion-color-success);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    
+    .alert-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+  
+  .alert-message {
+    padding: 20px;
+    text-align: center;
+    
+    h3 {
+      margin: 0 0 15px 0;
+      color: var(--ion-color-success);
+      font-size: 20px;
+    }
+    
+    p {
+      margin: 8px 0;
+      color: var(--ion-color-medium);
+      
+      strong {
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+  
+  .alert-button-group {
+    padding: 0 20px 20px;
+    
+    .alert-button {
+      margin: 5px;
+      border-radius: 8px;
+      font-weight: 500;
+      
+      &:first-child {
+        background: var(--ion-color-success);
+        color: white;
+      }
+      
+      &:last-child {
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+  }
+
+// PDF Preview Alert Styling
+:global(.pdf-preview-alert) {
+  .alert-wrapper {
+    max-width: 90vw;
+    width: 450px;
+  }
+  
+  .alert-head {
+    background: var(--ion-color-primary);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    
+    .alert-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+  
+  .alert-message {
+    padding: 20px;
+    text-align: center;
+    
+    h3 {
+      margin: 0 0 15px 0;
+      color: var(--ion-color-primary);
+      font-size: 20px;
+    }
+    
+    p {
+      margin: 8px 0;
+      color: var(--ion-color-medium);
+      
+      strong {
+        color: var(--ion-color-dark);
+      }
+    }
+    
+    div {
+      p {
+        margin: 8px 0;
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .alert-button-group {
+    padding: 0 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    .alert-button {
+      margin: 0;
+      border-radius: 8px;
+      font-weight: 500;
+      padding: 12px;
+      font-size: 16px;
+      
+      &:first-child {
+        background: var(--ion-color-light);
+        color: var(--ion-color-primary);
+        border: 1px solid var(--ion-color-primary);
+      }
+      
+      &:nth-child(2) {
+        background: var(--ion-color-primary);
+        color: white;
+      }
+      
+      &:nth-child(3) {
+        background: var(--ion-color-success);
+        color: white;
+      }
+      
+      &:last-child {
+        color: var(--ion-color-medium);
+        border: 1px solid var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: 20px;
+  }
+  
+  .transaction-id-header .transaction-id-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .transaction-id-display {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-wrapper {
+    padding: 16px;
+  }
+  
+  .transaction-id-header {
+    padding: 12px;
+    margin: 16px 0;
+  }
+  
+  .transaction-id-display {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  
+  .view-icon {
+    font-size: 18px;
+  }
+  
+  .transaction-id-item .transaction-id-value .view-icon-small {
+    font-size: 14px;
+  }
+  
+  .recipient-item .recipient-number-value .view-icon-small {
+    font-size: 14px;
+  }
+}
+
+// Touch-friendly interactions for mobile
+@media (hover: none) and (pointer: coarse) {
+  .transaction-id-container,
+  .transaction-id-item,
+  .recipient-item {
+    min-height: 44px;
+    
+    &:active {
+      background: rgba(var(--ion-color-primary-rgb), 0.2);
+      transform: scale(0.98);
+    }
+  }
+  
+  .recipient-item:active {
+    background: rgba(var(--ion-color-success-rgb), 0.2);
+  }
+  
+  .view-icon,
+  .view-icon-small {
+    opacity: 1;
+  }
+}
+
+// Transaction ID Alert Modal Styling
+.transaction-id-alert {
+  --max-width: 90vw;
+  --width: 90vw;
+  
+  @media (min-width: 768px) {
+    --max-width: 500px;
+    --width: 500px;
+  }
+  
+  .alert-wrapper {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .alert-message {
+    font-size: 14px;
+    
+    @media (max-width: 480px) {
+      font-size: 13px;
+    }
+  }
+}

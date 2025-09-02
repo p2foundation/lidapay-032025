@@ -1203,6 +1203,59 @@ swiper-slide {
     height: auto;
 }
 
+// Global Back Button Visibility Fix for All Themes
+ion-back-button {
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 1000 !important;
+  position: relative !important;
+  
+  // Override any transform rotations that might make the button invisible
+  &:not(.custom-transform) {
+    transform: none !important;
+  }
+}
+
+// Light theme back button styling
+@media (prefers-color-scheme: light) {
+  ion-header {
+    ion-toolbar {
+      ion-back-button {
+        --color: var(--ion-color-dark) !important;
+        --icon-font-size: 24px !important;
+      }
+      
+      &.header-toolbar {
+        ion-back-button {
+          --color: var(--ion-color-primary) !important;
+        }
+      }
+    }
+    
+    &.header_bg {
+      ion-toolbar {
+        ion-back-button {
+          --color: var(--ion-color-primary-contrast) !important;
+        }
+      }
+    }
+  }
+}
+
+// System theme (auto) back button styling
+@media (prefers-color-scheme: no-preference) {
+  ion-header {
+    ion-toolbar {
+      ion-back-button {
+        --color: var(--ion-text-color) !important;
+        --icon-font-size: 24px !important;
+      }
+    }
+  }
+}
+
 // Dark Theme Support for All Components
 @media (prefers-color-scheme: dark) {
   // Global dark theme overrides
@@ -1217,7 +1270,13 @@ swiper-slide {
       --border-color: var(--ion-border-color);
       
       ion-back-button {
-        --color: var(--ion-text-color);
+        --color: var(--ion-text-color) !important;
+        --icon-font-size: 24px !important;
+        --opacity: 1 !important;
+        --icon-opacity: 1 !important;
+        display: block !important;
+        visibility: visible !important;
+        transform: none !important;
       }
       
       ion-title {
@@ -1784,4 +1843,60 @@ body.light {
   ion-header {
     --background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
   }
+}
+
+/* Success Alert Styling */
+.success-alert {
+  --background: var(--ion-color-success);
+  --color: white;
+  
+  .alert-wrapper {
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  
+  .alert-head {
+    background: var(--ion-color-success);
+    color: white;
+    border-radius: 16px 16px 0 0;
+    
+    .alert-title {
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+  }
+  
+  .alert-message {
+    color: white;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 20px;
+  }
+  
+  .alert-button {
+    color: white;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    margin: 10px;
+    padding: 12px 24px;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+/* Ensure alerts don't auto-dismiss */
+.alert-wrapper {
+  animation: none !important;
+}
+
+.alert-enter {
+  animation: none !important;
+}
+
+.alert-leave {
+  animation: none !important;
 }

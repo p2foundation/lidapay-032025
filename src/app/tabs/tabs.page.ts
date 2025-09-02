@@ -14,7 +14,7 @@ import {
   square,
   homeOutline,
   reloadCircleOutline,
-  chatbubbleOutline,
+  chatbubbleEllipses,
   timeOutline,
   personOutline,
   cellularOutline,
@@ -49,7 +49,7 @@ export class TabsPage {
     addIcons({
       homeOutline,
       reloadCircleOutline,
-      chatbubbleOutline,
+      chatbubbleEllipses,
       timeOutline,
       personOutline,
       triangle,

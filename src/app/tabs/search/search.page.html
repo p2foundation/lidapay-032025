@@ -1,13 +1,254 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" class="search-header">
   <ion-toolbar>
-    <ion-title>search</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <div class="title-content">
+        <ion-icon name="search-outline" class="header-icon"></ion-icon>
+        <span>{{ ('search.title' | translate) || 'Search' }}</span>
+      </div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">search</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="search-content">
+  <!-- Smart Search Bar -->
+  <div class="search-container">
+    <div class="search-bar-wrapper">
+      <ion-searchbar
+        #searchBar
+        [formControl]="queryControl"
+        [placeholder]="('search.placeholder' | translate) || 'Search for services, transactions, help...'"
+        [debounce]="300"
+        (ionInput)="onSearchInput($event)"
+        (ionSubmit)="onSearchSubmit()"
+        class="smart-searchbar"
+        [class.active]="searchQuery.length > 0">
+        <ion-icon name="search-outline" slot="start"></ion-icon>
+        <ion-button 
+          *ngIf="searchQuery.length > 0"
+          fill="clear" 
+          slot="end" 
+          (click)="onClearSearch()"
+          class="clear-button">
+          <ion-icon name="close-outline"></ion-icon>
+        </ion-button>
+      </ion-searchbar>
+      
+      <!-- Search Actions -->
+      <div class="search-actions">
+        <ion-button 
+          fill="clear" 
+          size="small" 
+          (click)="onVoiceSearch()"
+          class="action-button voice-button">
+          <ion-icon name="mic-outline"></ion-icon>
+        </ion-button>
+        <ion-button 
+          fill="clear" 
+          size="small" 
+          (click)="onScanSearch()"
+          class="action-button scan-button">
+          <ion-icon name="camera-outline"></ion-icon>
+        </ion-button>
+        <ion-button 
+          fill="clear" 
+          size="small" 
+          (click)="onFilterToggle()"
+          class="action-button filter-button"
+          [class.active]="showFilters">
+          <ion-icon name="filter-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Search Filters -->
+    <div class="search-filters" *ngIf="showFilters">
+      <ion-item class="filter-item">
+        <ion-label position="stacked">{{ ('search.category' | translate) || 'Category' }}</ion-label>
+        <ion-select 
+          [formControl]="categoryControl"
+          interface="popover"
+          class="filter-select">
+          <ion-select-option value="all">{{ ('search.all_categories' | translate) || 'All Categories' }}</ion-select-option>
+          <ion-select-option value="services">{{ ('search.services' | translate) || 'Services' }}</ion-select-option>
+          <ion-select-option value="transaction">{{ ('search.transactions' | translate) || 'Transactions' }}</ion-select-option>
+          <ion-select-option value="help">{{ ('search.help' | translate) || 'Help' }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item class="filter-item">
+        <ion-label position="stacked">{{ ('search.time_range' | translate) || 'Time Range' }}</ion-label>
+        <ion-select 
+          [formControl]="timeRangeControl"
+          interface="popover"
+          class="filter-select">
+          <ion-select-option value="all">{{ ('search.all_time' | translate) || 'All Time' }}</ion-select-option>
+          <ion-select-option value="today">{{ ('search.today' | translate) || 'Today' }}</ion-select-option>
+          <ion-select-option value="week">{{ ('search.this_week' | translate) || 'This Week' }}</ion-select-option>
+          <ion-select-option value="month">{{ ('search.this_month' | translate) || 'This Month' }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item class="filter-item">
+        <ion-label position="stacked">{{ ('search.sort_by' | translate) || 'Sort By' }}</ion-label>
+        <ion-select 
+          [formControl]="sortByControl"
+          interface="popover"
+          class="filter-select">
+          <ion-select-option value="relevance">{{ ('search.relevance' | translate) || 'Relevance' }}</ion-select-option>
+          <ion-select-option value="newest">{{ ('search.newest' | translate) || 'Newest' }}</ion-select-option>
+          <ion-select-option value="oldest">{{ ('search.oldest' | translate) || 'Oldest' }}</ion-select-option>
+          <ion-select-option value="alphabetical">{{ ('search.alphabetical' | translate) || 'Alphabetical' }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+  </div>
+
+  <!-- Search Suggestions -->
+  <div class="search-suggestions" *ngIf="showSuggestions && searchQuery.length >= 2">
+    <ion-list lines="none">
+      <ion-item 
+        *ngFor="let suggestion of searchSuggestions | filter:searchQuery"
+        button 
+        (click)="onSuggestionClick(suggestion)"
+        class="suggestion-item">
+        <ion-icon name="search-outline" slot="start" class="suggestion-icon"></ion-icon>
+        <ion-label>
+          <h3>{{ suggestion }}</h3>
+          <p>{{ ('search.suggestion_hint' | translate) || 'Tap to search' }}</p>
+        </ion-label>
+        <ion-icon name="arrow-forward-outline" slot="end" class="arrow-icon"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Quick Actions Grid -->
+  <div class="quick-actions-section" *ngIf="showQuickActions">
+    <div class="section-header">
+              <h2>{{ ('search.quick_actions' | translate) || 'Quick Actions' }}</h2>
+        <p>{{ ('search.quick_actions_desc' | translate) || 'Get quick access to popular services and features' }}</p>
+    </div>
+    
+    <div class="quick-actions-grid">
+      <ion-card 
+        *ngFor="let action of getFilteredQuickActions()"
+        class="quick-action-card"
+        [class]="'category-' + action.category"
+        (click)="onQuickActionClick(action)">
+        <ion-card-content class="action-content">
+          <div class="action-icon" [style.background]="'var(--ion-color-' + action.color + '-rgb)'">
+            <ion-icon [name]="action.icon" [color]="action.color"></ion-icon>
+          </div>
+          <div class="action-details">
+            <h3>{{ action.title }}</h3>
+            <p>{{ action.description }}</p>
+          </div>
+          <ion-icon name="arrow-forward-outline" class="action-arrow"></ion-icon>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Recent Searches -->
+  <div class="recent-searches-section" *ngIf="showRecentSearches && recentSearches.length > 0">
+    <div class="section-header">
+              <h2>{{ ('search.recent_searches' | translate) || 'Recent Searches' }}</h2>
+      <ion-button fill="clear" size="small" (click)="recentSearches = []">
+                  {{ ('search.clear_history' | translate) || 'Clear History' }}
+      </ion-button>
+    </div>
+    
+    <div class="recent-searches-list">
+      <ion-item 
+        *ngFor="let recent of recentSearches"
+        button 
+        (click)="onRecentSearchClick(recent)"
+        class="recent-search-item">
+        <ion-icon 
+          [name]="getCategoryIcon(recent.category)" 
+          slot="start" 
+          [color]="getCategoryColor(recent.category)"
+          class="recent-icon">
+        </ion-icon>
+        <ion-label>
+          <h3>{{ recent.query }}</h3>
+          <p>{{ recent.timestamp | timeAgo }} • {{ recent.resultCount }} {{ ('search.results' | translate) || 'results' }}</p>
+        </ion-label>
+        <ion-chip 
+          slot="end" 
+          [color]="getCategoryColor(recent.category)"
+          class="category-chip">
+          {{ recent.category | titlecase }}
+        </ion-chip>
+      </ion-item>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <div class="search-results-section" *ngIf="searchQuery.length > 0">
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isSearching">
+      <ion-spinner name="crescent"></ion-spinner>
+              <p>{{ ('search.searching' | translate) || 'Searching...' }}</p>
+    </div>
+
+    <!-- Results -->
+    <div class="results-container" *ngIf="!isSearching && filteredResults.length > 0">
+      <div class="results-header">
+        <h3>{{ ('search.results_for' | translate) || 'Results for' }} "{{ searchQuery }}"</h3>
+        <span class="results-count">{{ filteredResults.length }} {{ ('search.results' | translate) || 'results' }}</span>
+      </div>
+      
+      <ion-list lines="none">
+        <ion-item 
+          *ngFor="let result of filteredResults"
+          button 
+          (click)="onSearchResultClick(result)"
+          class="search-result-item">
+          <div class="result-icon" [ngClass]="'type-' + result.type">
+            <ion-icon [name]="result.icon"></ion-icon>
+          </div>
+          <ion-label class="result-details">
+            <h3>{{ result.title }}</h3>
+            <p>{{ result.description }}</p>
+            <div class="result-meta">
+              <ion-chip size="small" [color]="getCategoryColor(result.type)">
+                {{ result.type | titlecase }}
+              </ion-chip>
+              <span class="relevance-score" *ngIf="result.relevance">
+                {{ (result.relevance * 100) | number:'1.0-0' }}% {{ ('search.relevant' | translate) || 'relevant' }}
+              </span>
+            </div>
+          </ion-label>
+          <ion-button 
+            slot="end" 
+            fill="clear" 
+            size="small"
+            class="action-button">
+            {{ result.action }}
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" *ngIf="!isSearching && searchQuery.length > 0 && filteredResults.length === 0">
+      <ion-icon name="search-outline" class="no-results-icon"></ion-icon>
+              <h3>{{ ('search.no_results.title' | translate) || 'No Results Found' }}</h3>
+        <p>{{ ('search.no_results_desc' | translate) || 'Try adjusting your search terms or filters to find what you\'re looking for.' }}</p>
+      <ion-button fill="outline" (click)="onClearSearch()">
+                  {{ ('search.try_again' | translate) || 'Try Again' }}
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Floating Action Button for Advanced Search -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="onFilterToggle()" [class.active]="showFilters">
+      <ion-icon name="options-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

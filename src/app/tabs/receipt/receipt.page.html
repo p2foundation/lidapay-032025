@@ -32,6 +32,17 @@
       <p class="transaction-amount">
         {{data.currency || 'GHS'}} {{data.amount || data.requestedAmount | number:'1.2-2'}}
       </p>
+      <div class="transaction-id-header">
+        <span class="transaction-id-label">{{ 'Transaction ID' | translate }}</span>
+        <div class="transaction-id-container" 
+             (click)="showFullTransactionId()" 
+             (touchstart)="onTransactionIdTouchStart($event)"
+             (touchend)="onTransactionIdTouchEnd($event)"
+             (touchcancel)="onTransactionIdTouchCancel($event)">
+          <span class="transaction-id-display">{{getTruncatedTransactionId()}}</span>
+          <ion-icon name="eye-outline" class="view-icon" *ngIf="isTransactionIdLong()"></ion-icon>
+        </div>
+      </div>
       <p class="receipt-date">{{currentDate}}</p>
     </div>
 
@@ -45,9 +56,18 @@
         </ion-note>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="transaction-id-item" 
+                (click)="showFullTransactionId()"
+                (touchstart)="onTransactionIdTouchStart($event)"
+                (touchend)="onTransactionIdTouchEnd($event)"
+                (touchcancel)="onTransactionIdTouchCancel($event)">
         <ion-label>{{ 'Transaction ID' | translate }}</ion-label>
-        <ion-note slot="end">{{data.trxn || data.transactionId || 'N/A'}}</ion-note>
+        <ion-note slot="end" class="transaction-id-value">
+          <div class="transaction-id-note-container">
+            <span>{{getTruncatedTransactionId()}}</span>
+            <ion-icon name="eye-outline" class="view-icon-small" *ngIf="isTransactionIdLong()"></ion-icon>
+          </div>
+        </ion-note>
       </ion-item>
 
       <ion-item *ngIf="data.orderId">
@@ -60,9 +80,14 @@
         <ion-note slot="end">{{data.network || data.operatorName}}</ion-note>
       </ion-item>
 
-      <ion-item *ngIf="data.recipientPhone || data.recipientNumber">
+      <ion-item *ngIf="data.recipientPhone || data.recipientNumber" (click)="showFullRecipientNumber()" class="recipient-item">
         <ion-label>{{ 'Recipient' | translate }}</ion-label>
-        <ion-note slot="end">{{formatPhoneNumber(data.recipientPhone || data.recipientNumber)}}</ion-note>
+        <ion-note slot="end" class="recipient-number-value">
+          <div class="recipient-number-container">
+            <span>{{getFullRecipientNumber()}}</span>
+            <ion-icon name="eye-outline" class="view-icon-small"></ion-icon>
+          </div>
+        </ion-note>
       </ion-item>
 
       <ion-item *ngIf="data.recipientEmail">
@@ -85,13 +110,48 @@
         <ion-label>{{ 'Error Details' | translate }}</ion-label>
         <ion-note slot="end" class="ion-text-wrap" color="danger">{{data.message}}</ion-note>
       </ion-item>
+
+      <!-- Show crediting failure details if payment succeeded but crediting failed -->
+      <ion-item *ngIf="data.status === 'PAYMENT_SUCCESS_CREDITING_FAILED' && data.errorDetails" class="crediting-failure-message">
+        <ion-label>{{ 'Crediting Error' | translate }}</ion-label>
+        <ion-note slot="end" class="ion-text-wrap" color="warning">{{data.errorDetails}}</ion-note>
+      </ion-item>
     </ion-list>
 
     <div class="receipt-footer">
-      <p *ngIf="isTransactionSuccessful()">{{ 'Thank you for your transaction!' | translate }}</p>
+      <p *ngIf="isTransactionSuccessful() && !hasAirtimeCreditingFailed()">{{ 'Thank you for your transaction!' | translate }}</p>
+      <p *ngIf="isTransactionSuccessful() && hasAirtimeCreditingFailed()" class="warning-message">
+        <ion-icon name="warning-outline" color="warning"></ion-icon>
+        Payment successful, but airtime crediting is pending. Please check status.
+      </p>
       <p *ngIf="!isTransactionSuccessful()">{{ 'Transaction could not be completed.' | translate }}</p>
       <small>{{ 'This is a computer generated receipt' | translate }}</small>
     </div>
+  </div>
+
+  <!-- Smart Action Buttons for Failed Airtime Crediting -->
+  <div *ngIf="isTransactionSuccessful() && hasAirtimeCreditingFailed()" class="smart-actions ion-margin-bottom">
+    <ion-card class="warning-card">
+      <ion-card-content>
+        <div class="warning-header">
+          <ion-icon name="alert-circle-outline" color="warning" size="large"></ion-icon>
+          <h3>Airtime Crediting Pending</h3>
+          <p>Your payment was successful, but airtime crediting is still processing. We'll automatically check the status for you.</p>
+        </div>
+        
+        <div class="status-check-section">
+          <ion-button expand="block" (click)="checkAirtimeStatus()" color="warning" class="ion-margin-bottom">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Check Airtime Status Now
+          </ion-button>
+          
+          <ion-button expand="block" (click)="goToPendingTransactions()" fill="outline" color="warning">
+            <ion-icon name="time-outline" slot="start"></ion-icon>
+            View Pending Transactions
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
   </div>
 
   <div class="action-buttons">

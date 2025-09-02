@@ -39,6 +39,33 @@ export class AuthService {
     }
   }
 
+  async getUserProfile(): Promise<any> {
+    try {
+      return await this.storage.getStorage('profile');
+    } catch (error) {
+      console.error('Error getting user profile:', error);
+      return null;
+    }
+  }
+
+  async waitForUserProfile(maxWaitTime: number = 5000): Promise<any> {
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < maxWaitTime) {
+      const profile = await this.getUserProfile();
+      if (profile && profile._id) {
+        console.log('User profile is ready:', profile);
+        return profile;
+      }
+      
+      // Wait a bit before checking again
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    console.log('Timeout waiting for user profile');
+    return null;
+  }
+
   refreshToken(): Observable<any> {
     return from(this.storage.getStorage('refreshToken')).pipe(
       switchMap(refreshToken => {
@@ -80,7 +107,7 @@ export class AuthService {
     if (response?.access_token) {
       await this.storage.setStorage('token', response.access_token);
       await this.storage.setStorage('refreshToken', response.refresh_token);
-      await this.storage.setStorage('profile', JSON.stringify(response.user));
+      await this.storage.setStorage('profile', response.user);
       await this.state.updateState({
         userId: response.user._id,
         token: response.access_token,

@@ -5,9 +5,18 @@ import { IonContent,
   IonHeader, 
   IonTitle, 
   IonToolbar, 
-  AlertController,
+  IonButtons,
+  IonBackButton,
+  IonButton,
+  IonList,
+  IonItem,
+  IonLabel,
   IonIcon,
-  IonToggle
+  IonBadge,
+  IonNote,
+  IonModal,
+  IonSpinner,
+  AlertController
  } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Profile } from 'src/app/interfaces/profile.interface';
@@ -34,11 +43,21 @@ import { chevronForward, moonOutline, camera, qrCodeOutline, cogOutline, languag
     IonHeader, 
     IonTitle, 
     IonToolbar, 
+    IonButtons,
+    IonBackButton,
+    IonButton,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonIcon,
+    IonBadge,
+    IonNote,
+    IonModal,
+    IonSpinner,
     CommonModule, 
     FormsModule,
     TranslateModule,
-    ReactiveFormsModule,
-    IonIcon
+    ReactiveFormsModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
@@ -76,7 +95,7 @@ export class SettingsPage implements OnInit, OnDestroy  {
       this.currentThemeMode = themeMode;
     });
 
-    addIcons({camera,personOutline,chevronForward,shieldCheckmarkOutline,qrCodeOutline,shareSocialOutline,lockClosedOutline,keyOutline,languageOutline,close,downloadOutline,});
+    addIcons({camera,personOutline,chevronForward,shieldCheckmarkOutline,qrCodeOutline,shareSocialOutline,lockClosedOutline,keyOutline,languageOutline,close,downloadOutline,sunnyOutline,moonOutline,settingsOutline,cogOutline,});
   }
 
   ngOnInit() {
@@ -206,27 +225,31 @@ export class SettingsPage implements OnInit, OnDestroy  {
 
   // Navigation Methods
   gotoUserProfile() {
-    this.router.navigate(['/myprofile']);
+    this.router.navigate(['/tabs/account/my-profile']);
   }
 
   gotoVerification() {
-    this.router.navigate(['/tabs/verification']);
+    // TODO: Create verification page or redirect to account page
+    this.router.navigate(['/tabs/account']);
   }
 
   goToUpdateProfile() {
-    this.router.navigate(['/profile-update']);
+    this.router.navigate(['/tabs/account/profile-update']);
   }
 
   gotoSecurity() {
-    this.router.navigate(['/security']);
+    // TODO: Create security page or redirect to account page
+    this.router.navigate(['/tabs/account']);
   }
 
   changePassword() {
-    this.router.navigate(['/change-password']);
+    // TODO: Create change password page or redirect to account page
+    this.router.navigate(['/tabs/account']);
   }
 
   change_language() {
-    this.router.navigate(['/change-language']);
+    // TODO: Create change language page or redirect to account page
+    this.router.navigate(['/tabs/account']);
   }
 
   setThemeMode(mode: 'system' | 'light' | 'dark') {
@@ -249,26 +272,26 @@ export class SettingsPage implements OnInit, OnDestroy  {
   getThemeModeLabel(): string {
     switch (this.currentThemeMode) {
       case 'system':
-        return 'System';
+        return 'settings_page.system';
       case 'light':
-        return 'Light';
+        return 'settings_page.light';
       case 'dark':
-        return 'Dark';
+        return 'settings_page.dark';
       default:
-        return 'System';
+        return 'settings_page.system';
     }
   }
 
   getThemeModeDescription(): string {
     switch (this.currentThemeMode) {
       case 'system':
-        return 'Follows your device theme';
+        return 'settings_page.theme_system';
       case 'light':
-        return 'Always use light theme';
+        return 'settings_page.theme_light';
       case 'dark':
-        return 'Always use dark theme';
+        return 'settings_page.theme_dark';
       default:
-        return 'Follows your device theme';
+        return 'settings_page.theme_system';
     }
   }
 

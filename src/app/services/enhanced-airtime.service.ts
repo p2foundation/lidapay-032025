@@ -156,24 +156,28 @@ export class EnhancedAirtimeService {
     return this.reloadlyService.autoDetectOperator(params).pipe(
       map((response: any) => {
         console.log('EnhancedAirtimeService - Auto detect response:', response);
+        
+        // Handle different response structures
+        let operatorData: any;
+        
         if (response && response.data) {
-          return {
-            id: response.data.id,
-            name: response.data.name,
-            country: response.data.country,
-            currency: response.data.currency,
-            logo: response.data.logo
-          };
-        } else if (response && response.id) {
-          return {
-            id: response.id,
-            name: response.name,
-            country: response.country,
-            currency: response.currency,
-            logo: response.logo
-          };
+          // Response wrapped in data property
+          operatorData = response.data;
+        } else if (response && (response.id || response.operatorId)) {
+          // Direct response
+          operatorData = response;
+        } else {
+          throw new Error('No operator found in response');
         }
-        throw new Error('No operator found');
+        
+        // Map the response to our Operator interface
+        return {
+          id: operatorData.id || operatorData.operatorId,
+          name: operatorData.name || 'Unknown Operator',
+          country: operatorData.country || params.countryIsoCode,
+          currency: operatorData.currency || operatorData.destinationCurrencyCode || 'USD',
+          logo: operatorData.logo || 'assets/imgs/operators/default.png'
+        };
       }),
       catchError(error => {
         console.error('Error auto-detecting operator:', error);
@@ -264,25 +268,29 @@ export class EnhancedAirtimeService {
     // Remove country code if present
     let cleanNumber = phoneNumber.replace(/^\+233/, '').replace(/^233/, '');
     
-    // Ghana operator detection logic
+    // Ghana operator detection logic - CORRECTED with accurate network codes (2025)
     let operatorId: number;
     
-    if (cleanNumber.startsWith('24') || cleanNumber.startsWith('54') || cleanNumber.startsWith('55') || 
-        cleanNumber.startsWith('59') || cleanNumber.startsWith('25')) {
-      operatorId = 4; // MTN
-    } else if (cleanNumber.startsWith('20') || cleanNumber.startsWith('50')) {
-      operatorId = 1; // AirtelTigo
-    } else if (cleanNumber.startsWith('27') || cleanNumber.startsWith('57')) {
-      operatorId = 6; // Telecel
-    } else if (cleanNumber.startsWith('23') || cleanNumber.startsWith('24') || cleanNumber.startsWith('25') ||
-               cleanNumber.startsWith('26') || cleanNumber.startsWith('27') || cleanNumber.startsWith('28') ||
-               cleanNumber.startsWith('29')) {
-      operatorId = 3; // Glo
-    } else if (cleanNumber.startsWith('26') || cleanNumber.startsWith('56')) {
-      operatorId = 5; // Busy
-    } else if (cleanNumber.startsWith('28') || cleanNumber.startsWith('58')) {
-      operatorId = 7; // Surfline
-    } else {
+    // MTN Ghana: 024, 025, 053, 054, 055, 059
+    if (cleanNumber.startsWith('024') || cleanNumber.startsWith('025') || cleanNumber.startsWith('053') || 
+        cleanNumber.startsWith('054') || cleanNumber.startsWith('055') || cleanNumber.startsWith('059')) {
+      operatorId = 4; // MTN Ghana
+    } 
+    // Telecel Ghana: 020, 050
+    else if (cleanNumber.startsWith('020') || cleanNumber.startsWith('050')) {
+      operatorId = 6; // Telecel Ghana (formerly Vodafone)
+    } 
+    // AirtelTigo Ghana: 026, 027, 056, 057
+    else if (cleanNumber.startsWith('026') || cleanNumber.startsWith('027') || cleanNumber.startsWith('056') || 
+               cleanNumber.startsWith('057')) {
+      operatorId = 1; // AirtelTigo Ghana
+    } 
+    // Glo Ghana: Note - 055 conflict resolved in favor of MTN (official assignment)
+    // Using other Glo prefixes if they exist
+    else if (cleanNumber.startsWith('021') || cleanNumber.startsWith('022') || cleanNumber.startsWith('023')) {
+      operatorId = 3; // Glo Ghana (landline prefixes, if mobile service exists)
+    } 
+    else {
       return throwError(() => new Error('Unable to detect operator for this number'));
     }
 
@@ -416,6 +424,53 @@ export class EnhancedAirtimeService {
   }
 
   /**
+   * Validate Ghana phone number format
+   */
+  isValidGhanaPhoneNumber(phoneNumber: string): boolean {
+    if (!phoneNumber) return false;
+    
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    
+    // Ghana phone number rules:
+    // 1. 10 digits starting with 0 (e.g., 0244588584)
+    // 2. 9 digits (e.g., 244588584) 
+    // 3. 12-13 digits starting with 233 (e.g., 233244588584)
+    // 4. NOT 11 digits starting with 00 (e.g., 00244588584) - INVALID
+    
+    if (cleanNumber.length === 11 && cleanNumber.startsWith('00')) {
+      return false; // Invalid: double 0 prefix
+    }
+    
+    if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
+      const prefix = cleanNumber.substring(0, 3);
+      const validPrefixes = ['020', '024', '025', '026', '027', '030', '050', '053', '054', '055', '056', '057', '059'];
+      return validPrefixes.includes(prefix);
+    }
+    
+    if (cleanNumber.length === 9) {
+      const prefix = cleanNumber.substring(0, 2);
+      const validPrefixes = ['20', '24', '25', '26', '27', '30', '50', '53', '54', '55', '56', '57', '59'];
+      return validPrefixes.includes(prefix);
+    }
+    
+    if (cleanNumber.length === 12 && cleanNumber.startsWith('233')) {
+      const nineDigitNumber = cleanNumber.slice(3);
+      const prefix = nineDigitNumber.substring(0, 2);
+      const validPrefixes = ['20', '24', '25', '26', '27', '30', '50', '53', '54', '55', '56', '57', '59'];
+      return validPrefixes.includes(prefix);
+    }
+    
+    if (cleanNumber.length === 13 && cleanNumber.startsWith('233')) {
+      const nineDigitNumber = cleanNumber.slice(3);
+      const prefix = nineDigitNumber.substring(0, 2);
+      const validPrefixes = ['20', '24', '25', '26', '27', '30', '50', '53', '54', '55', '56', '57', '59'];
+      return validPrefixes.includes(prefix);
+    }
+    
+    return false;
+  }
+
+  /**
    * Format phone number for API calls (no spaces, proper format)
    */
   formatPhoneNumberForAPI(phoneNumber: string, countryIso: string): string {
@@ -438,13 +493,13 @@ export class EnhancedAirtimeService {
     if (countryIso === this.GHANA_ISO) {
       console.log('Processing Ghana phone number...');
       
-      // Valid Ghana mobile prefixes (2025)
-      const validGhanaPrefixes = ['20', '24', '26', '27', '54', '55', '56', '57'];
+      // Valid Ghana mobile prefixes (2025) - UPDATED to use 3-digit prefixes
+      const validGhanaPrefixes = ['020', '024', '025', '026', '027', '030', '050', '053', '054', '055', '056', '057', '059'];
       
       // For Ghana: use local format (like 0240000000) for Prymo API
       if (cleanNumber.length === 10 && cleanNumber.startsWith('0')) {
-        // Check if the prefix after 0 is valid
-        const prefix = cleanNumber.substring(1, 3);
+        // Check if the prefix including 0 is valid (3-digit prefix)
+        const prefix = cleanNumber.substring(0, 3);
         if (validGhanaPrefixes.includes(prefix)) {
           // Keep as is: 0244588584 (perfect for Prymo API)
           console.log('Ghana 10-digit format kept as is:', cleanNumber);
@@ -452,14 +507,17 @@ export class EnhancedAirtimeService {
         } else {
           // Invalid prefix, remove the 0 and check if it's valid
           const nineDigitNumber = cleanNumber.substring(1);
-          if (validGhanaPrefixes.includes(nineDigitNumber.substring(0, 2))) {
+          const nineDigitPrefix = nineDigitNumber.substring(0, 2);
+          // Check against 2-digit prefixes (without the 0)
+          const validTwoDigitPrefixes = ['20', '24', '25', '26', '27', '30', '50', '53', '54', '55', '56', '57', '59'];
+          if (validTwoDigitPrefixes.includes(nineDigitPrefix)) {
             console.log('Ghana invalid 10-digit format corrected:', cleanNumber, '->', nineDigitNumber);
             return nineDigitNumber;
           }
         }
       } else if (cleanNumber.length === 9) {
         // Check if the 9-digit number has a valid Ghana prefix
-        const prefix = cleanNumber.substring(0, 2);
+        const prefix = cleanNumber.substring(0, 3);
         if (validGhanaPrefixes.includes(prefix)) {
           // Convert 244588584 -> 0244588584 (for Prymo API)
           const result = `0${cleanNumber}`;
@@ -492,6 +550,17 @@ export class EnhancedAirtimeService {
           return result;
         } else {
           console.log('Ghana 13-digit format has invalid prefix:', cleanNumber);
+          return cleanNumber;
+        }
+      } else if (cleanNumber.length === 11 && cleanNumber.startsWith('00')) {
+        // Convert 00244588584 -> 0244588584 (remove extra 0)
+        const tenDigitNumber = cleanNumber.substring(1);
+        const prefix = tenDigitNumber.substring(0, 3);
+        if (validGhanaPrefixes.includes(prefix)) {
+          console.log('Ghana 11-digit format with 00 corrected:', cleanNumber, '->', tenDigitNumber);
+          return tenDigitNumber;
+        } else {
+          console.log('Ghana 11-digit format with 00 has invalid prefix:', cleanNumber);
           return cleanNumber;
         }
       } else if (cleanNumber.length === 11 && cleanNumber.startsWith('233')) {

@@ -25,7 +25,7 @@ export class StateService {
         this.storage.getStorage('userId'),
         this.storage.getStorage('token'),
         this.storage.getStorage('refreshToken'),
-        this.storage.getStorage('userProfile')
+        this.storage.getStorage('profile')
       ]);
 
       if (token) {
@@ -52,7 +52,7 @@ export class StateService {
         state.userId && this.storage.setStorage('userId', state.userId),
         state.token && this.storage.setStorage('token', state.token),
         state.refreshToken && this.storage.setStorage('refreshToken', state.refreshToken),
-        state.profile && this.storage.setStorage('userProfile', state.profile)
+        state.profile && this.storage.setStorage('profile', state.profile)
       ]);
 
       // Update behavior subject

@@ -1,13 +1,164 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>condition</ion-title>
+  <ion-toolbar class="header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/privacy" text="" icon="arrow-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Terms & Conditions</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="shareTerms()">
+        <ion-icon name="share-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">condition</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="terms-content">
+  <div class="content-wrapper">
+    <!-- Header Section -->
+    <div class="terms-header">
+      <ion-icon name="document-text-outline" class="header-icon"></ion-icon>
+      <h1>Terms &amp; Conditions</h1>
+      <p class="last-updated">Last updated: {{ lastUpdated | date:"longDate" }}</p>
+    </div>
+
+    <!-- Terms Content -->
+    <div class="terms-body">
+      <ion-card class="terms-card">
+        <ion-card-content>
+          <div class="section">
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing and using LidaPay, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+          </div>
+
+          <div class="section">
+            <h2>2. Description of Service</h2>
+            <p>LidaPay provides digital financial services including but not limited to:</p>
+            <ul>
+              <li>Mobile money transfers</li>
+              <li>Airtime and data purchases</li>
+              <li>Bill payments</li>
+              <li>Digital wallet services</li>
+              <li>International remittances</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>3. User Registration</h2>
+            <p>To use our services, you must:</p>
+            <ul>
+              <li>Be at least 18 years old</li>
+              <li>Provide accurate and complete information</li>
+              <li>Maintain the security of your account credentials</li>
+              <li>Notify us immediately of any unauthorized use</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>4. Financial Transactions</h2>
+            <p>All transactions are subject to:</p>
+            <ul>
+              <li>Available balance verification</li>
+              <li>Transaction limits and restrictions</li>
+              <li>Processing fees as disclosed</li>
+              <li>Regulatory compliance requirements</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>5. Security & Privacy</h2>
+            <p>We are committed to protecting your information through:</p>
+            <ul>
+              <li>Encryption of sensitive data</li>
+              <li>Secure authentication protocols</li>
+              <li>Regular security audits</li>
+              <li>Compliance with data protection laws</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>6. Prohibited Activities</h2>
+            <p>Users are prohibited from:</p>
+            <ul>
+              <li>Fraudulent or illegal transactions</li>
+              <li>Money laundering activities</li>
+              <li>Unauthorized access to accounts</li>
+              <li>Violation of applicable laws</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>7. Fees & Charges</h2>
+            <p>Service fees are clearly displayed before each transaction. Fees may vary based on:</p>
+            <ul>
+              <li>Transaction type and amount</li>
+              <li>Payment method used</li>
+              <li>Processing speed selected</li>
+              <li>Geographic location</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>8. Dispute Resolution</h2>
+            <p>In case of disputes:</p>
+            <ul>
+              <li>Contact our customer support first</li>
+              <li>Provide detailed transaction information</li>
+              <li>Allow reasonable time for investigation</li>
+              <li>Follow our escalation procedures</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>9. Limitation of Liability</h2>
+            <p>LidaPay&apos;s liability is limited to:</p>
+            <ul>
+              <li>Direct damages caused by our negligence</li>
+              <li>Amount of the disputed transaction</li>
+              <li>Actual losses proven by the user</li>
+              <li>Exclusions as per applicable law</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>10. Changes to Terms</h2>
+            <p>We reserve the right to modify these terms. Changes will be:</p>
+            <ul>
+              <li>Communicated through the app</li>
+              <li>Posted on our website</li>
+              <li>Effective 30 days after notification</li>
+              <li>Subject to user acceptance</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <h2>11. Governing Law</h2>
+            <p>These terms are governed by the laws of Ghana and any disputes shall be resolved in the courts of Ghana.</p>
+          </div>
+
+          <div class="section">
+            <h2>12. Contact Information</h2>
+            <p>For questions about these terms, contact us:</p>
+            <div class="contact-info">
+              <p><strong>Email:</strong> legal&#64;lidapay.com</p>
+              <p><strong>Phone:</strong> +233 XX XXX XXXX</p>
+              <p><strong>Address:</strong> Accra, Ghana</p>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button expand="block" fill="outline" (click)="downloadTerms()" class="download-btn">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        Download PDF
+      </ion-button>
+      
+      <ion-button expand="block" fill="outline" (click)="printTerms()" class="print-btn">
+        <ion-icon name="print-outline" slot="start"></ion-icon>
+        Print Terms
+      </ion-button>
+    </div>
+  </div>
 </ion-content>

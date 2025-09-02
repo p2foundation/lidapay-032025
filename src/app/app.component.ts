@@ -1,19 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { of, throwError } from 'rxjs';
-import {
-  IonApp,
-  IonRouterOutlet,
-  Platform,
-  NavController,
-} from '@ionic/angular/standalone';
-import { environment } from '../environments/environment';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Platform, NavController } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
-import { StatusBar } from '@capacitor/status-bar';
-import { SplashScreen } from '@capacitor/splash-screen';
 import { Keyboard } from '@capacitor/keyboard';
 import { App } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { AdvansisPayService } from './services/payments/advansis-pay.service';
 import { GlobalService } from './services/global.service';
+import { StorageService } from './services/storage.service';
+import { LoadingController } from '@ionic/angular/standalone';
 import { ThemeService } from './services/theme.service';
+import { of, throwError } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
+import { environment } from '../environments/environment';
 import { addIcons } from 'ionicons';
 import {
   sendOutline,
@@ -27,11 +29,6 @@ import {
   logoApple,
   logoFacebook,
 } from 'ionicons/icons';
-import { Router } from '@angular/router';
-import { AdvansisPayService } from './services/payments/advansis-pay.service';
-import { StorageService } from './services/storage.service';
-import { LoadingController, LoadingOptions } from '@ionic/angular';
-import { catchError, firstValueFrom } from 'rxjs';
 
 interface TransactionResponse {
   status: 'COMPLETED' | 'PENDING' | 'FAILED';
@@ -49,6 +46,8 @@ interface TransactionResponse {
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent implements OnInit, OnDestroy {
+  private keyboardHeight: number = 0;
+  
   constructor(
     private platform: Platform,
     private navCtrl: NavController,
@@ -94,22 +93,67 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private async setupKeyboardListeners() {
     if (Capacitor.isNativePlatform()) {
-      Keyboard.addListener('keyboardWillShow', () => {
-        console.log('Keyboard will show');
-      });
+      try {
+        // Configure keyboard behavior
+        await Keyboard.setResizeMode({ mode: 'body' as any });
+        await Keyboard.setScroll({ isDisabled: false });
+        
+        // Set keyboard appearance for iOS
+        if (Capacitor.getPlatform() === 'ios') {
+          await Keyboard.setAccessoryBarVisible({ isVisible: false });
+        }
+        
+        // Listen for keyboard events
+        Keyboard.addListener('keyboardWillShow', (info) => {
+          console.log('Keyboard will show:', info);
+          this.handleKeyboardShow(info);
+        });
 
-      Keyboard.addListener('keyboardDidShow', () => {
-        console.log('Keyboard did show');
-      });
+        Keyboard.addListener('keyboardDidShow', (info) => {
+          console.log('Keyboard did show:', info);
+          this.handleKeyboardShow(info);
+        });
 
-      Keyboard.addListener('keyboardWillHide', () => {
-        console.log('Keyboard will hide');
-      });
+        Keyboard.addListener('keyboardWillHide', () => {
+          console.log('Keyboard will hide');
+          this.handleKeyboardHide();
+        });
 
-      Keyboard.addListener('keyboardDidHide', () => {
-        console.log('Keyboard did hide');
-      });
+        Keyboard.addListener('keyboardDidHide', () => {
+          console.log('Keyboard did hide');
+          this.handleKeyboardHide();
+        });
+
+        console.log('✅ Keyboard listeners setup complete');
+      } catch (error) {
+        console.error('❌ Error setting up keyboard:', error);
+      }
     }
+  }
+
+  private handleKeyboardShow(info: any) {
+    // Store keyboard height for layout adjustments
+    this.keyboardHeight = info.keyboardHeight || 0;
+    
+    // Add keyboard-aware class to body
+    document.body.classList.add('keyboard-open');
+    
+    // Trigger haptic feedback
+    Haptics.impact({ style: ImpactStyle.Light });
+    
+    // Emit event for other components to listen to
+    this.global.showToast('Keyboard opened', 'primary', 'bottom', 2000);
+  }
+
+  private handleKeyboardHide() {
+    // Reset keyboard height
+    this.keyboardHeight = 0;
+    
+    // Remove keyboard-aware class
+    document.body.classList.remove('keyboard-open');
+    
+    // Emit event for other components
+    this.global.showToast('Keyboard closed', 'primary', 'bottom', 2000);
   }
 
   private async setupAppStateListeners() {

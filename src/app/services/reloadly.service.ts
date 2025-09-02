@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment.prod';
   providedIn: 'root',
 })
 export class ReloadlyService {
-  private apiUrl = environment.baseURL;
+  private apiUrl = environment.vercelURL;
   // private apiUrl = environment.localURL;
 
   constructor(private http: HttpClient) {}
@@ -30,9 +30,23 @@ export class ReloadlyService {
     };
 
     console.log('AutoDetectOperator input >>>>', apiParams);
+    console.log(`[AutoDetectOperator PARAM] phone: ${params.phone}`);
+    console.log(`[AutoDetectOperator PARAM] countryIsoCode: ${params.countryIsoCode}`);
+
+    // Validate parameters
+    if (!params.phone || !params.countryIsoCode) {
+      console.error('Missing required parameters:', { phone: params.phone, countryIsoCode: params.countryIsoCode });
+      return throwError(() => new Error('Missing required parameters: phone and countryIsoCode'));
+    }
+
+    // Use the correct POST endpoint as shown in successful Postman test
+    const url = `${this.apiUrl}/api/v1/reloadly/operator/autodetect`;
+
+    console.log(`[AutoDetectOperator] Using POST endpoint: ${url}`);
+    console.log(`[AutoDetectOperator] Request body:`, apiParams);
 
     return this.http
-      .post(`${this.apiUrl}/api/v1/reloadly/operator/autodetect`, apiParams)
+      .post(url, apiParams)
       .pipe(
         tap((response) => console.log('Auto detect response:', response)),
         catchError((error) => {

@@ -129,13 +129,11 @@ interface Transaction {
     IonCol,
     IonChip,
     IonSpinner,
-    IonList,
     IonBadge,
     IonSelect,
     IonSelectOption,
     IonFab,
-    IonFabButton,
-    TransactionDetailsModalComponent
+    IonFabButton
   ],
 })
 export class PendingTransactionsPage implements OnInit, OnDestroy {
@@ -147,6 +145,11 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
   // Filter options
   filterStatus: 'ALL' | 'PENDING' | 'COMPLETED' | 'FAILED' = 'ALL';
   searchTerm = '';
+
+  // Safe setter for filter status
+  setFilterStatus(status: 'ALL' | 'PENDING' | 'COMPLETED' | 'FAILED'): void {
+    this.filterStatus = status || 'ALL';
+  }
   
   // Pagination
   currentPage = 1;
@@ -206,6 +209,14 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Ensure filter status is properly initialized
+    if (!this.filterStatus) {
+      this.filterStatus = 'ALL';
+    }
+    
+    // Disable verbose phone validation logging to reduce console clutter
+    this.phoneValidationService.setVerboseLogging(false);
+    
     this.loadPendingTransactions();
   }
 
@@ -234,15 +245,15 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
       console.log('API Response:', response);
 
       if (response && response.transactions) {
-        // Filter for pending transactions based on status.transaction
-        const pendingTransactions = response.transactions.filter((tx: Transaction) => 
-          tx.status?.transaction === 'pending'
+        // Filter for pending or failed transactions based on status.transaction
+        const pendingOrFailedTransactions = response.transactions.filter((tx: Transaction) => 
+          tx.status?.transaction === 'pending' || tx.status?.transaction === 'failed'
         );
 
         if (append) {
-          this.pendingTransactions = [...this.pendingTransactions, ...pendingTransactions];
+          this.pendingTransactions = [...this.pendingTransactions, ...pendingOrFailedTransactions];
         } else {
-          this.pendingTransactions = pendingTransactions;
+          this.pendingTransactions = pendingOrFailedTransactions;
         }
 
         // Update pagination info
@@ -250,11 +261,17 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
         this.totalPages = response.totalPages || 1;
         this.hasMoreData = page < this.totalPages;
 
-        console.log('Filtered pending transactions:', this.pendingTransactions);
+        console.log('Filtered pending/failed transactions:', this.pendingTransactions);
         console.log('Total pages:', this.totalPages, 'Current page:', this.currentPage);
+        
+        // Update the count in storage for home page
+        await this.updatePendingTransactionsCount();
       } else {
         this.pendingTransactions = [];
         this.hasMoreData = false;
+        
+        // Update the count in storage for home page
+        await this.updatePendingTransactionsCount();
       }
     } catch (error: any) {
       console.error('Error loading pending transactions:', error);
@@ -298,36 +315,161 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
 
       if (statusResponse.success) {
         const transactionStatus = statusResponse.status;
-
-        if (transactionStatus === 'completed') {
-          // Transaction is complete, forward to checkout for crediting
-          await this.forwardToCheckout(transaction);
-        } else if (transactionStatus === 'failed') {
-          // Transaction failed
-          await this.showTransactionFailedAlert(transaction);
-        } else if (transactionStatus === 'pending') {
-          // Still pending, show current status
-          await this.showCurrentStatus(transaction, statusResponse);
+        
+        // Check if transaction is completed
+        if (transactionStatus === 'completed' || statusResponse.data?.status === 'COMPLETED') {
+          console.log('Transaction completed, processing airtime crediting...');
+          
+          // Process the completed transaction for airtime crediting
+          await this.processCompletedTransaction(transaction, statusResponse.data);
+        } else {
+          // Update transaction status in local storage/state
+          await this.updateTransactionStatus(transaction._id, transactionStatus);
+          this.notificationService.showSuccess(`Transaction status: ${transactionStatus}`);
         }
       } else {
-        throw new Error(statusResponse.message || 'Status query failed');
+        this.notificationService.showError('Failed to check transaction status');
       }
     } catch (error: any) {
       console.error('Error checking transaction status:', error);
       this.notificationService.showError(
-        error.message || 'Failed to check transaction status'
+        error.error?.message || error.message || 'Failed to check transaction status'
       );
     } finally {
+      await loading.dismiss();
       this.isCheckingStatus = false;
       this.checkingTransactionId = null;
-      await loading.dismiss();
+      
+      // Refresh the transactions list
+      await this.loadPendingTransactions();
     }
   }
 
-  private async forwardToCheckout(transaction: Transaction) {
+  /**
+   * Process completed transaction for airtime crediting
+   */
+  private async processCompletedTransaction(transaction: Transaction, statusData: any) {
     try {
-      // Prepare airtimeTopup params for checkout
-      const airtimeTopupParams = {
+      console.log('Processing completed transaction for airtime crediting:', statusData);
+      
+      // Extract airtime parameters based on transaction type
+      const airtimeParams = this.extractAirtimeParams(transaction, statusData);
+      
+      if (airtimeParams) {
+        // Navigate to checkout page for airtime crediting
+        await this.navigateToCheckout(airtimeParams);
+      } else {
+        this.notificationService.showError('Unable to extract airtime parameters');
+      }
+    } catch (error: any) {
+      console.error('Error processing completed transaction:', error);
+      this.notificationService.showError('Failed to process completed transaction');
+    }
+  }
+
+  /**
+   * Extract airtime parameters from completed transaction
+   */
+  private extractAirtimeParams(transaction: Transaction, statusData: any): any {
+    try {
+      const transType = transaction.transType?.toUpperCase();
+      
+      // Check if this is an airtime transaction
+      if (transType === 'GLOBALAIRTIMETOPUP' || transType === 'AIRTIMETOPUP' || transType === 'DATABUNDLELIST') {
+        return {
+          orderId: statusData.orderId || transaction.transId,
+          token: statusData.token || transaction.expressToken,
+          amount: statusData.amount || transaction.monetary.amount,
+          recipientNumber: transaction.recipientNumber,
+          network: statusData.network || 'auto-detect',
+          transType: transType,
+          transactionId: statusData.transactionId || transaction.transId,
+          currency: statusData.currency || transaction.monetary.currency,
+          description: `Airtime recharge for ${transaction.recipientNumber}`,
+          timestamp: new Date().toISOString()
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error extracting airtime parameters:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Navigate to checkout page for airtime crediting
+   */
+  private async navigateToCheckout(airtimeParams: any) {
+    try {
+      // Store the airtime parameters for checkout
+      await this.storage.setStorage('pendingAirtimeCrediting', JSON.stringify(airtimeParams));
+      
+      // Navigate to checkout page
+      this.router.navigate(['/tabs/checkout'], {
+        queryParams: airtimeParams
+      });
+      
+      this.notificationService.showSuccess('Redirecting to checkout for airtime crediting...');
+    } catch (error: any) {
+      console.error('Error navigating to checkout:', error);
+      this.notificationService.showError('Failed to navigate to checkout');
+    }
+  }
+
+  /**
+   * Update transaction status in local storage/state
+   */
+  private async updateTransactionStatus(transactionId: string, status: string) {
+    try {
+      // Update the transaction in the local array
+      const transactionIndex = this.pendingTransactions.findIndex(t => t._id === transactionId);
+      if (transactionIndex !== -1) {
+        // Initialize status object if it doesn't exist
+        if (!this.pendingTransactions[transactionIndex].status) {
+          this.pendingTransactions[transactionIndex].status = {
+            transaction: 'pending',
+            service: 'pending',
+            payment: 'pending'
+          };
+        }
+        
+        // Convert status to lowercase and map to valid status values
+        const normalizedStatus = status.toLowerCase() as 'pending' | 'completed' | 'failed';
+        this.pendingTransactions[transactionIndex].status.transaction = normalizedStatus;
+        
+        // If completed, remove from pending list
+        if (status === 'COMPLETED') {
+          this.pendingTransactions.splice(transactionIndex, 1);
+        }
+        
+        // Update the count in storage for home page
+        await this.updatePendingTransactionsCount();
+      }
+    } catch (error) {
+      console.error('Error updating transaction status:', error);
+    }
+  }
+
+  /**
+   * Update pending transactions count in storage
+   */
+  private async updatePendingTransactionsCount() {
+    try {
+      const count = this.getPendingTransactionsCount();
+      await this.storage.setStorage('pendingTransactionsCount', count.toString());
+      console.log('Updated pending transactions count in storage:', count);
+    } catch (error) {
+      console.error('Error updating pending transactions count:', error);
+    }
+  }
+
+
+
+  private async storeCompletedTransactionForCrediting(transaction: Transaction, statusResponse: any) {
+    try {
+      // Prepare transaction details for crediting
+      const creditingData = {
         transType: transaction.transType,
         amount: transaction.monetary.amount,
         currency: transaction.monetary.currency,
@@ -339,26 +481,66 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
         result: 'Transaction completed successfully',
         orderId: transaction.transId,
         transactionId: transaction._id,
-        // Add any other required fields for checkout
+        statusResponse: statusResponse,
+        timestamp: new Date().toISOString(),
+        // Add any other required fields for crediting
       };
 
-      console.log('Forwarding to checkout with params:', airtimeTopupParams);
+      // Store in local storage with a unique key
+      const storageKey = `completedTransaction_${transaction._id}`;
+      await this.storage.setStorage(storageKey, creditingData);
+
+      console.log('Stored completed transaction for crediting:', storageKey, creditingData);
+      
+      // Show success message
+      this.notificationService.showSuccess('Transaction completed! Storing details for crediting.');
+      
+    } catch (error) {
+      console.error('Error storing completed transaction for crediting:', error);
+      this.notificationService.showError('Failed to store transaction details for crediting');
+    }
+  }
+
+  private async clearCompletedTransactionStorage(transaction: Transaction) {
+    try {
+      const storageKey = `completedTransaction_${transaction._id}`;
+      await this.storage.removeStorage(storageKey);
+      console.log('Cleared completed transaction storage:', storageKey);
+    } catch (error) {
+      console.error('Error clearing completed transaction storage:', error);
+    }
+  }
+
+  private async forwardToCheckout(transaction: Transaction) {
+    try {
+      // Retrieve the stored crediting data
+      const storageKey = `completedTransaction_${transaction._id}`;
+      const creditingData = await this.storage.getStorage(storageKey);
+      
+      if (!creditingData) {
+        throw new Error('Crediting data not found. Please check transaction status again.');
+      }
+
+      console.log('Forwarding to checkout with crediting data:', creditingData);
 
       // Navigate to checkout with the transaction data
       const navigationExtras = {
         queryParams: {
-          special: JSON.stringify(airtimeTopupParams)
+          special: JSON.stringify(creditingData)
         }
       };
 
       await this.router.navigate(['/tabs/checkout'], navigationExtras);
       
+      // Clear the storage after successful navigation
+      await this.clearCompletedTransactionStorage(transaction);
+      
       // Show success message
       this.notificationService.showSuccess('Transaction completed! Redirecting to checkout for crediting.');
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error forwarding to checkout:', error);
-      this.notificationService.showError('Failed to forward to checkout');
+      this.notificationService.showError('Failed to forward to checkout: ' + (error?.message || 'Unknown error'));
     }
   }
 
@@ -391,12 +573,52 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
   }
 
   /**
+   * Test method to check if modal component can be created
+   */
+  async testModalCreation(): Promise<void> {
+    console.log('Testing modal creation...');
+    
+    try {
+      // Test with a simple modal first
+      const testModal = await this.modalController.create({
+        component: 'ion-alert',
+        componentProps: {
+          header: 'Test Modal',
+          message: 'This is a test modal to check if modal creation works.',
+          buttons: ['OK']
+        }
+      });
+      
+      console.log('Test modal created successfully');
+      await testModal.present();
+      console.log('Test modal presented successfully');
+      
+      // Dismiss after 2 seconds
+      setTimeout(() => {
+        testModal.dismiss();
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Error creating test modal:', error);
+    }
+  }
+
+  /**
    * View transaction details in a modal
    */
   async viewTransactionDetails(transaction: Transaction): Promise<void> {
     console.log('Opening transaction details modal for:', transaction);
     
+    if (!transaction) {
+      console.error('No transaction provided to viewTransactionDetails');
+      this.notificationService.showError('No transaction details available');
+      return;
+    }
+    
     try {
+      console.log('Creating modal with component:', TransactionDetailsModalComponent);
+      console.log('Modal component type:', typeof TransactionDetailsModalComponent);
+      
       const modal = await this.modalController.create({
         component: TransactionDetailsModalComponent,
         componentProps: {
@@ -405,34 +627,61 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
         cssClass: 'transaction-details-modal',
         breakpoints: [0, 1],
         initialBreakpoint: 1,
-        backdropDismiss: true
+        backdropDismiss: true,
+        showBackdrop: true
       });
 
       console.log('Modal created successfully');
+      
+      // Add error handling for modal presentation
+      modal.onDidDismiss().then((result) => {
+        console.log('Modal dismissed with result:', result);
+      }).catch((error) => {
+        console.error('Error in modal dismiss handler:', error);
+      });
+
       await modal.present();
       console.log('Modal presented successfully');
     } catch (error) {
       console.error('Error opening transaction details modal:', error);
-      this.notificationService.showError('Failed to open transaction details');
+      
+      // Provide more specific error messages
+      if (error instanceof Error) {
+        this.notificationService.showError(`Failed to open transaction details: ${error.message}`);
+      } else {
+        this.notificationService.showError('Failed to open transaction details. Please try again.');
+      }
+      
+      // Try to create a simple alert instead as fallback
+      try {
+        const alert = await this.alertController.create({
+          header: 'Transaction Details',
+          message: `Transaction ID: ${transaction.transId}\nAmount: ${transaction.monetary?.currency} ${transaction.monetary?.amount}\nRecipient: ${transaction.recipientNumber}\nStatus: ${transaction.status?.transaction || 'pending'}`,
+          buttons: ['Close']
+        });
+        await alert.present();
+      } catch (alertError) {
+        console.error('Error creating fallback alert:', alertError);
+      }
     }
   }
 
   get filteredTransactions(): Transaction[] {
     let filtered = this.pendingTransactions;
 
-    // Filter by status
-    if (this.filterStatus !== 'ALL') {
-      filtered = filtered.filter(t => t.status?.transaction === this.filterStatus.toLowerCase());
+    // Filter by status - add safety check
+    if (this.filterStatus && this.filterStatus !== 'ALL') {
+      filtered = filtered.filter(t => t.status?.transaction === this.filterStatus?.toLowerCase());
     }
 
-    // Filter by search term
-    if (this.searchTerm.trim()) {
+    // Filter by search term - add safety checks
+    if (this.searchTerm && this.searchTerm.trim()) {
       const search = this.searchTerm.toLowerCase();
       filtered = filtered.filter(t => 
-        t.recipientNumber.toLowerCase().includes(search) ||
-        t.transType.toLowerCase().includes(search) ||
-        t.transId.toLowerCase().includes(search) ||
-        t.retailer.toLowerCase().includes(search)
+        (t.recipientNumber && t.recipientNumber.toLowerCase().includes(search)) ||
+        (t.transType && t.transType.toLowerCase().includes(search)) ||
+        (t.transId && t.transId.toLowerCase().includes(search)) ||
+        (t.retailer && t.retailer.toLowerCase().includes(search))
       );
     }
 
@@ -442,6 +691,14 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
   async refreshTransactions() {
     await this.loadPendingTransactions(1, false);
     this.notificationService.showSuccess('Transactions refreshed');
+  }
+
+  async refreshTransactionsAfterStatusChange() {
+    console.log('Refreshing transactions after status change...');
+    await this.loadPendingTransactions(1, false);
+    
+    // Show success message
+    this.notificationService.showSuccess('Transaction list updated');
   }
 
   async loadMoreTransactions() {
@@ -557,5 +814,43 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
    */
   toggleStatusBreakdown(): void {
     this.isStatusBreakdownOpen = !this.isStatusBreakdownOpen;
+  }
+
+  /**
+   * Get current transaction counts for home page
+   */
+  getCurrentTransactionCounts(): { pending: number; completed: number } {
+    const pendingCount = this.pendingTransactions.length;
+    // This would need to be implemented based on your requirements
+    // For now, returning the current pending count
+    return {
+      pending: pendingCount,
+      completed: 0 // This would need to be calculated from the API
+    };
+  }
+
+  /**
+   * Get pending transactions count for home page display
+   */
+  getPendingTransactionsCount(): number {
+    return this.pendingTransactions.length;
+  }
+
+  /**
+   * Refresh pending transactions count and notify home page
+   */
+  async refreshPendingTransactionsCount(): Promise<number> {
+    try {
+      await this.loadPendingTransactions();
+      const count = this.getPendingTransactionsCount();
+      
+      // Store the count for home page access
+      await this.storage.setStorage('pendingTransactionsCount', count.toString());
+      
+      return count;
+    } catch (error) {
+      console.error('Error refreshing pending transactions count:', error);
+      return 0;
+    }
   }
 }

@@ -65,6 +65,16 @@ export class HistoryService {
         catchError(this.handleError('getTransactionStatisticsByUserId', []))
       );
   }
+
+  // Get transaction counts by status for a user
+  public getTransactionCountsByUserId(userId: string): Observable<any> {
+    return this.http
+      .get(`${this.hsURL}/api/v1/transactions/counts/user/${userId}`)
+      .pipe(
+        tap((_) => this.log(`fetched transaction counts by userId`)),
+        catchError(this.handleError('getTransactionCountsByUserId', []))
+      );
+  }
   // Get transactions by date range
   public getTransactionsByDateRange(
     userId: string,

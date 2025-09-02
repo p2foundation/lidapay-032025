@@ -26,21 +26,28 @@ export class StorageService {
   }
 
   async setStorage(key: string, value: any): Promise<void> {
+    console.log(`Setting storage key: ${key}`, value);
     await Preferences.set({
       key,
       value: typeof value === 'string' ? value : JSON.stringify(value)
     });
+    console.log(`Storage key ${key} set successfully`);
   }
 
   async getStorage(key: string): Promise<any> {
     const { value } = await Preferences.get({ key });
+    console.log(`Getting storage key: ${key}`, value);
     if (value) {
       try {
-        return JSON.parse(value);
+        const parsed = JSON.parse(value);
+        console.log(`Parsed value for ${key}:`, parsed);
+        return parsed;
       } catch {
+        console.log(`Raw value for ${key}:`, value);
         return value;
       }
     }
+    console.log(`No value found for key: ${key}`);
     return null;
   }
 

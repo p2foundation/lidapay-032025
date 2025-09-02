@@ -1,76 +1,60 @@
-# Lidapay Android Testing Quick Start Script
-# Run this script from PowerShell
+# Quick Start Android Testing Script for LidaPay
+# This script prepares your app for Android Studio emulator testing
 
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "    Lidapay Android Testing Quick Start" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host ""
+Write-Host "🚀 LidaPay Android Testing Setup" -ForegroundColor Green
+Write-Host "=================================" -ForegroundColor Green
 
-Write-Host "[1/4] Building project..." -ForegroundColor Yellow
-try {
-    npm run build
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "❌ Build failed! Please check errors above." -ForegroundColor Red
-        Read-Host "Press Enter to continue..."
-        exit 1
-    }
-    Write-Host "✅ Build completed successfully!" -ForegroundColor Green
-} catch {
-    Write-Host "❌ Build failed with error: $_" -ForegroundColor Red
-    Read-Host "Press Enter to continue..."
+# Check if we're in the right directory
+if (-not (Test-Path "package.json")) {
+    Write-Host "❌ Error: Please run this script from the LidaPay project root directory" -ForegroundColor Red
     exit 1
 }
 
-Write-Host ""
-Write-Host "[2/4] Syncing with Capacitor..." -ForegroundColor Yellow
-try {
-    npm run cap:sync
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "❌ Sync failed! Please check errors above." -ForegroundColor Red
-        Read-Host "Press Enter to continue..."
-        exit 1
-    }
-    Write-Host "✅ Sync completed successfully!" -ForegroundColor Green
-} catch {
-    Write-Host "❌ Sync failed with error: $_" -ForegroundColor Red
-    Read-Host "Press Enter to continue..."
+Write-Host "📦 Building Angular application..." -ForegroundColor Yellow
+npm run build
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Build failed! Please fix the errors and try again." -ForegroundColor Red
     exit 1
 }
 
-Write-Host ""
-Write-Host "[3/4] Opening Android Studio..." -ForegroundColor Yellow
-try {
-    npm run cap:open:android
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "❌ Failed to open Android Studio!" -ForegroundColor Red
-        Read-Host "Press Enter to continue..."
-        exit 1
-    }
-    Write-Host "✅ Android Studio opened!" -ForegroundColor Green
-} catch {
-    Write-Host "❌ Failed to open Android Studio with error: $_" -ForegroundColor Red
-    Read-Host "Press Enter to continue..."
+Write-Host "✅ Angular build completed successfully!" -ForegroundColor Green
+
+Write-Host "🔄 Syncing with Capacitor..." -ForegroundColor Yellow
+npm run cap:sync
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Capacitor sync failed! Please check the errors and try again." -ForegroundColor Red
     exit 1
 }
 
+Write-Host "✅ Capacitor sync completed successfully!" -ForegroundColor Green
+
+Write-Host "🧹 Cleaning Android project..." -ForegroundColor Yellow
+cd android
+./gradlew clean
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "❌ Android clean failed! Please check the errors and try again." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "✅ Android project cleaned successfully!" -ForegroundColor Green
+
+cd ..
+
+Write-Host "🚪 Opening project in Android Studio..." -ForegroundColor Yellow
+npm run cap:open:android
+
 Write-Host ""
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "🎯 Setup Complete!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "🎉 Setup Complete! Your project is now ready for testing." -ForegroundColor Green
 Write-Host ""
-Write-Host "📋 Next Steps in Android Studio:" -ForegroundColor Yellow
-Write-Host "1. Wait for project to load"
-Write-Host "2. Click 'Sync Project with Gradle Files' (elephant icon)"
-Write-Host "3. Wait for sync to complete"
-Write-Host "4. Right-click on test folders to run tests:"
-Write-Host "   - android/app/src/test/ (Unit Tests)" -ForegroundColor Cyan
-Write-Host "   - android/app/src/androidTest/ (Instrumented Tests)" -ForegroundColor Cyan
+Write-Host "📱 Next Steps:" -ForegroundColor Cyan
+Write-Host "1. Wait for Android Studio to open the project" -ForegroundColor White
+Write-Host "2. Let Gradle sync complete" -ForegroundColor White
+Write-Host "3. Create/start an Android emulator (API 35 recommended)" -ForegroundColor White
+Write-Host "4. Build and run the app (Shift+F10)" -ForegroundColor White
 Write-Host ""
-Write-Host "🚀 Quick Test Commands (from project root):" -ForegroundColor Yellow
-Write-Host "- npm run test:android:unit" -ForegroundColor Cyan
-Write-Host "- npm run test:android:instrumented" -ForegroundColor Cyan
-Write-Host "- npm run test:android:all" -ForegroundColor Cyan
+Write-Host "📋 Use the testing checklist: ANDROID_EMULATOR_TESTING_CHECKLIST.md" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "📚 See ANDROID_STUDIO_TESTING_GUIDE.md for details" -ForegroundColor Blue
-Write-Host ""
-Read-Host "Press Enter to continue..."
+Write-Host "Happy Testing! 🚀" -ForegroundColor Green

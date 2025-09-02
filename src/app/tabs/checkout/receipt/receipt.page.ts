@@ -112,11 +112,8 @@ export class ReceiptPage implements OnInit {
   formatTransactionId(transactionId: string): string {
     if (!transactionId) return 'N/A';
     
-    // If transaction ID is longer than 16 characters, truncate it
-    if (transactionId.length > 16) {
-      return transactionId.substring(0, 8) + '...' + transactionId.substring(transactionId.length - 8);
-    }
-    
+    // Show full transaction ID for better user experience
+    // Transaction IDs are important for support and reference
     return transactionId;
   }
 

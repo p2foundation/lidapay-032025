@@ -1,0 +1,402 @@
+:host {
+  --modal-border-radius: 20px;
+  --modal-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  --modal-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Modal Header
+.modal-header {
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+    --border-radius: var(--modal-border-radius) var(--modal-border-radius) 0 0;
+    
+    .modal-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      
+      .title-icon {
+        font-size: 24px;
+        color: var(--ion-color-primary-contrast);
+      }
+    }
+  }
+}
+
+// Modal Content
+.modal-content {
+  --background: var(--ion-background-color);
+  border-radius: 0 0 var(--modal-border-radius) var(--modal-border-radius);
+  
+  // Search Section
+  .search-section {
+    padding: 20px;
+    background: var(--ion-color-step-50);
+    border-bottom: 1px solid var(--ion-border-color);
+
+    .country-searchbar {
+      --background: var(--ion-background-color);
+      --border-radius: 12px;
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --placeholder-color: var(--ion-color-step-400);
+      --icon-color: var(--ion-color-step-400);
+      --clear-button-color: var(--ion-color-step-400);
+    }
+  }
+
+  // Popular Countries Section
+  .popular-section {
+    padding: 20px;
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ion-color-step-700);
+      margin: 0 0 16px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      ion-icon {
+        color: var(--ion-color-warning);
+        font-size: 18px;
+      }
+    }
+
+    .popular-countries {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .country-chip {
+        --background: var(--ion-color-step-100);
+        --color: var(--ion-color-step-700);
+        --border-radius: 20px;
+        --padding-start: 12px;
+        --padding-end: 12px;
+        transition: var(--modal-transition);
+        cursor: pointer;
+
+        &:hover {
+          --background: var(--ion-color-step-200);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        &.selected {
+          --background: var(--ion-color-primary);
+          --color: var(--ion-color-primary-contrast);
+          box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.3);
+        }
+
+        ion-avatar {
+          width: 24px;
+          height: 24px;
+          margin-right: 8px;
+
+          .country-flag {
+            font-size: 16px;
+            line-height: 24px;
+          }
+        }
+
+        ion-label {
+          font-size: 12px;
+          font-weight: 500;
+          margin: 0;
+
+          &.phone-code {
+            color: var(--ion-color-step-500);
+            font-size: 10px;
+            margin-left: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  // Search Results & Regional Sections
+  .search-results,
+  .regional-section {
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ion-color-step-700);
+      margin: 0 0 16px 0;
+      padding: 0 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      ion-icon {
+        color: var(--ion-color-primary);
+        font-size: 18px;
+      }
+    }
+
+    .country-list {
+      .country-item {
+        --background: transparent;
+        --border-color: transparent;
+        --padding-start: 20px;
+        --padding-end: 20px;
+        --min-height: 72px;
+        transition: var(--modal-transition);
+        cursor: pointer;
+        margin: 0 0 4px 0;
+        border-radius: 8px;
+
+        &:hover {
+          --background: var(--ion-color-step-50);
+          transform: translateX(4px);
+        }
+
+        &.selected {
+          --background: var(--ion-color-primary-50);
+          border-left: 4px solid var(--ion-color-primary);
+        }
+
+        .country-avatar {
+          width: 36px;
+          height: 36px;
+          margin-right: 16px;
+
+          .country-flag {
+            font-size: 24px;
+            line-height: 36px;
+          }
+        }
+
+        ion-label {
+          .country-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ion-color-step-800);
+            margin: 0 0 4px 0;
+            line-height: 1.2;
+          }
+
+          .country-details {
+            font-size: 13px;
+            color: var(--ion-color-step-500);
+            margin: 0;
+            line-height: 1.3;
+          }
+        }
+
+        ion-icon {
+          font-size: 24px;
+          margin-left: 12px;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+
+  // Regional Section Specific
+  .regional-section {
+    .region-group {
+      margin-bottom: 24px;
+
+      .region-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-step-700);
+        margin: 0 0 16px 0;
+        padding: 12px 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: var(--ion-color-step-100);
+        border-radius: 8px;
+        margin-left: 20px;
+        margin-right: 20px;
+
+        ion-icon {
+          color: var(--ion-color-secondary);
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  // No Results
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ion-color-step-500);
+
+    .no-results-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+      color: var(--ion-color-step-300);
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      color: var(--ion-color-step-600);
+    }
+
+    p {
+      font-size: 16px;
+      margin: 0;
+      opacity: 0.8;
+    }
+  }
+}
+
+// Dark Mode Adjustments
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    .search-section {
+      background: var(--ion-color-step-100);
+    }
+
+    .popular-countries .country-chip {
+      --background: var(--ion-color-step-200);
+      --color: var(--ion-color-step-300);
+
+      &:hover {
+        --background: var(--ion-color-step-300);
+      }
+    }
+
+    .region-title {
+      background: var(--ion-color-step-200) !important;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .modal-content {
+    .search-section {
+      padding: 16px;
+    }
+
+    .popular-section,
+    .search-results,
+    .regional-section {
+      padding: 16px;
+
+      .section-title {
+        padding: 0 16px;
+        font-size: 14px;
+      }
+    }
+
+    .popular-countries {
+      gap: 6px;
+
+      .country-chip {
+        --padding-start: 8px;
+        --padding-end: 8px;
+
+        ion-avatar {
+          width: 20px;
+          height: 20px;
+          margin-right: 6px;
+
+          .country-flag {
+            font-size: 14px;
+            line-height: 20px;
+          }
+        }
+
+        ion-label {
+          font-size: 11px;
+
+          &.phone-code {
+            font-size: 9px;
+          }
+        }
+      }
+    }
+
+    .country-item {
+      --min-height: 64px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+
+      .country-avatar {
+        width: 32px;
+        height: 32px;
+
+        .country-flag {
+          font-size: 20px;
+          line-height: 32px;
+        }
+      }
+
+      ion-label .country-name {
+        font-size: 15px;
+      }
+    }
+
+    .region-title {
+      margin-left: 16px !important;
+      margin-right: 16px !important;
+      padding: 10px 16px !important;
+      font-size: 14px;
+    }
+  }
+}
+
+// Animation Classes
+.modal-content {
+  .country-item {
+    animation: slideInRight 0.3s ease-out;
+    animation-fill-mode: both;
+
+    @for $i from 1 through 50 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.02}s;
+      }
+    }
+  }
+
+  .country-chip {
+    animation: fadeInScale 0.3s ease-out;
+    animation-fill-mode: both;
+
+    @for $i from 1 through 20 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.05}s;
+      }
+    }
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

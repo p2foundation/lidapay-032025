@@ -1,13 +1,653 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>walletManagement</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Wallet Management</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshWalletData()" fill="clear">
+        <ion-icon name="refresh" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="showSettingsModal = true" fill="clear">
+        <ion-icon name="settings" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">walletManagement</ion-title>
+      <ion-title size="large">Wallet Management</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Balance Overview Card -->
+  <ion-card class="balance-card" *ngIf="balance">
+    <ion-card-content>
+      <div class="balance-header">
+        <div class="balance-info">
+          <h2>Available Balance</h2>
+          <div class="balance-amount" [class.hidden]="!showBalance">
+            <span class="currency">{{ balance.currency }}</span>
+            <span class="amount">{{ formatAmount(balance.available, balance.currency) }}</span>
+          </div>
+          <div class="balance-amount hidden" [class.hidden]="showBalance">
+            <span class="currency">{{ balance.currency }}</span>
+            <span class="amount">••••••••</span>
+          </div>
+        </div>
+        <ion-button fill="clear" (click)="toggleBalanceVisibility()">
+          <ion-icon [name]="showBalance ? 'eye-off' : 'eye'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div class="balance-details">
+        <div class="balance-item">
+          <span class="label">Pending</span>
+          <span class="value">{{ formatAmount(balance.pending, balance.currency) }}</span>
+        </div>
+        <div class="balance-item">
+          <span class="label">Reserved</span>
+          <span class="value">{{ formatAmount(balance.reserved, balance.currency) }}</span>
+        </div>
+        <div class="balance-item total">
+          <span class="label">Total</span>
+          <span class="value">{{ formatAmount(balance.total, balance.currency) }}</span>
+        </div>
+      </div>
+      
+      <div class="last-updated">
+        Last updated: {{ getRelativeTime(balance.lastUpdated) }}
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Quick Actions -->
+  <ion-card class="quick-actions-card">
+    <ion-card-header>
+      <ion-card-title>Quick Actions</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" fill="outline" color="success" (click)="showRechargeModal = true">
+              <ion-icon name="add" slot="start"></ion-icon>
+              Recharge
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" fill="outline" color="danger" (click)="showWithdrawalModal = true">
+              <ion-icon name="remove" slot="start"></ion-icon>
+              Withdraw
+            </ion-button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" fill="outline" color="primary" (click)="showTransferModal = true">
+              <ion-icon name="swap-horizontal" slot="start"></ion-icon>
+              Transfer
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" fill="outline" color="secondary" (click)="exportTransactions('csv')">
+              <ion-icon name="download" slot="start"></ion-icon>
+              Export
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Quick Recharge Amounts -->
+  <ion-card class="quick-recharge-card">
+    <ion-card-header>
+      <ion-card-title>Quick Recharge</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <div class="quick-amounts">
+        <ion-chip 
+          *ngFor="let amount of quickAmounts" 
+          (click)="onQuickRecharge(amount)"
+          [color]="amount <= 100 ? 'primary' : amount <= 500 ? 'secondary' : 'tertiary'"
+          class="amount-chip"
+        >
+          {{ formatAmount(amount, balance?.currency || 'GHS') }}
+        </ion-chip>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Tab Navigation -->
+  <ion-segment [(ngModel)]="currentTab" (ionChange)="onTabChange($event)" scrollable="true">
+    <ion-segment-button value="overview">
+      <ion-icon name="wallet"></ion-icon>
+      <ion-label>Overview</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="transactions">
+      <ion-icon name="time"></ion-icon>
+      <ion-label>Transactions</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="analytics">
+      <ion-icon name="analytics"></ion-icon>
+      <ion-label>Analytics</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="settings">
+      <ion-icon name="settings"></ion-icon>
+      <ion-label>Settings</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Overview Tab -->
+  <div *ngIf="currentTab === 'overview'">
+    <!-- Wallet Stats -->
+    <ion-card class="stats-card" *ngIf="stats">
+      <ion-card-header>
+        <ion-card-title>This Month</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="trending-down" color="danger"></ion-icon>
+                <div class="stat-content">
+                  <span class="stat-value">{{ formatAmount(stats.monthlySpending, balance?.currency || 'GHS') }}</span>
+                  <span class="stat-label">Spent</span>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="trending-up" color="success"></ion-icon>
+                <div class="stat-content">
+                  <span class="stat-value">{{ formatAmount(stats.monthlyReceiving, balance?.currency || 'GHS') }}</span>
+                  <span class="stat-label">Received</span>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <div class="stat-item">
+                <ion-icon name="wallet" color="primary"></ion-icon>
+                <div class="stat-content">
+                  <span class="stat-value">{{ stats.totalTransactions }}</span>
+                  <span class="stat-label">Total Transactions</span>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Top Spending Categories -->
+    <ion-card class="categories-card" *ngIf="stats?.topCategories?.length">
+      <ion-card-header>
+        <ion-card-title>Top Spending Categories</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="category-item" *ngFor="let category of stats?.topCategories || []">
+          <div class="category-info">
+            <ion-chip [color]="getTransactionCategoryColor(category.category)">
+              {{ category.category | titlecase }}
+            </ion-chip>
+            <span class="category-amount">{{ formatAmount(category.amount, balance?.currency || 'GHS') }}</span>
+          </div>
+          <div class="category-bar">
+            <div class="bar-fill" [style.width.%]="category.percentage"></div>
+          </div>
+          <span class="category-percentage">{{ category.percentage }}%</span>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Transactions Tab -->
+  <div *ngIf="currentTab === 'transactions'">
+    <!-- Search and Filters -->
+    <ion-card class="search-card">
+      <ion-card-content>
+        <ion-searchbar 
+          [(ngModel)]="searchQuery" 
+          placeholder="Search transactions..."
+          (ionInput)="onSearchTransactions()"
+          show-clear-button="true"
+        ></ion-searchbar>
+        
+        <div class="filters-row">
+          <ion-select [(ngModel)]="selectedFilters.type" placeholder="Type" (ionChange)="onSearchTransactions()">
+            <ion-select-option value="">All Types</ion-select-option>
+            <ion-select-option value="credit">Credit</ion-select-option>
+            <ion-select-option value="debit">Debit</ion-select-option>
+            <ion-select-option value="transfer">Transfer</ion-select-option>
+            <ion-select-option value="refund">Refund</ion-select-option>
+          </ion-select>
+          
+          <ion-select [(ngModel)]="selectedFilters.category" placeholder="Category" (ionChange)="onSearchTransactions()">
+            <ion-select-option value="">All Categories</ion-select-option>
+            <ion-select-option value="airtime">Airtime</ion-select-option>
+            <ion-select-option value="data">Data</ion-select-option>
+            <ion-select-option value="transfer">Transfer</ion-select-option>
+            <ion-select-option value="payment">Payment</ion-select-option>
+          </ion-select>
+          
+          <ion-select [(ngModel)]="selectedFilters.status" placeholder="Status" (ionChange)="onSearchTransactions()">
+            <ion-select-option value="">All Status</ion-select-option>
+            <ion-select-option value="completed">Completed</ion-select-option>
+            <ion-select-option value="pending">Pending</ion-select-option>
+            <ion-select-option value="failed">Failed</ion-select-option>
+          </ion-select>
+        </div>
+        
+        <ion-button fill="clear" size="small" (click)="clearSearchAndFilters()">
+          <ion-icon name="close" slot="start"></ion-icon>
+          Clear Filters
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Transactions List -->
+    <ion-card class="transactions-card">
+      <ion-card-content>
+        <div class="transactions-header">
+          <h3>Recent Transactions</h3>
+          <ion-button fill="clear" size="small" (click)="exportTransactions('csv')">
+            <ion-icon name="download" slot="start"></ion-icon>
+            Export
+          </ion-button>
+        </div>
+        
+        <div class="transactions-list" *ngIf="transactions.length > 0; else noTransactions">
+          <div 
+            class="transaction-item" 
+            *ngFor="let transaction of transactions"
+            (click)="showTransactionOptions(transaction)"
+          >
+            <div class="transaction-icon">
+              <ion-icon [name]="getTransactionTypeIcon(transaction.type)" [color]="getTransactionCategoryColor(transaction.category)"></ion-icon>
+            </div>
+            
+            <div class="transaction-details">
+              <div class="transaction-main">
+                <span class="transaction-description">{{ transaction.description }}</span>
+                <span class="transaction-amount" [class.credit]="transaction.type === 'credit'" [class.debit]="transaction.type === 'debit'">
+                  {{ transaction.type === 'credit' ? '+' : '-' }}{{ formatAmount(transaction.amount, transaction.currency) }}
+                </span>
+              </div>
+              
+              <div class="transaction-meta">
+                <ion-chip [color]="getTransactionCategoryColor(transaction.category)" size="small">
+                  {{ transaction.category | titlecase }}
+                </ion-chip>
+                <ion-badge [color]="getTransactionStatusColor(transaction.status)">
+                  {{ transaction.status | titlecase }}
+                </ion-badge>
+                <span class="transaction-time">{{ getRelativeTime(transaction.createdAt) }}</span>
+              </div>
+            </div>
+            
+            <ion-icon name="chevron-forward" class="transaction-arrow"></ion-icon>
+          </div>
+        </div>
+        
+        <ng-template #noTransactions>
+          <div class="no-transactions">
+            <ion-icon name="wallet" size="large" color="medium"></ion-icon>
+            <p>No transactions found</p>
+            <ion-button fill="outline" (click)="loadTransactions()">Refresh</ion-button>
+          </div>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Infinite Scroll -->
+    <ion-infinite-scroll (ionInfinite)="onInfiniteScroll($event)" *ngIf="hasMoreTransactions">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Loading more transactions...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+
+  <!-- Analytics Tab -->
+  <div *ngIf="currentTab === 'analytics'">
+    <ion-card class="analytics-card" *ngIf="stats">
+      <ion-card-header>
+        <ion-card-title>Spending Trends</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="trend-item" *ngFor="let trend of stats.spendingTrend">
+          <div class="trend-date">{{ formatDate(trend.date) }}</div>
+          <div class="trend-amounts">
+            <span class="spent">-{{ formatAmount(trend.spent, balance?.currency || 'GHS') }}</span>
+            <span class="received">+{{ formatAmount(trend.received, balance?.currency || 'GHS') }}</span>
+          </div>
+          <div class="trend-net" [class.positive]="trend.net >= 0" [class.negative]="trend.net < 0">
+            {{ trend.net >= 0 ? '+' : '' }}{{ formatAmount(trend.net, balance?.currency || 'GHS') }}
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Settings Tab -->
+  <div *ngIf="currentTab === 'settings'">
+    <ion-card class="settings-card">
+      <ion-card-header>
+        <ion-card-title>Wallet Settings</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button expand="block" (click)="showSettingsModal = true">
+          <ion-icon name="settings" slot="start"></ion-icon>
+          Configure Settings
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="showRechargeModal = true">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
+
+<!-- Recharge Modal -->
+<ion-modal [isOpen]="showRechargeModal" [presentingElement]="presentingElement" (didDismiss)="showRechargeModal = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Recharge Wallet</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModals()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content>
+      <form [formGroup]="rechargeForm" (ngSubmit)="onSubmitRecharge()">
+        <ion-item>
+          <ion-label position="stacked">Amount</ion-label>
+          <ion-input 
+            type="number" 
+            formControlName="amount" 
+            placeholder="Enter amount"
+            min="1"
+            step="0.01">
+          </ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Payment Method</ion-label>
+          <ion-select formControlName="paymentMethod">
+            <ion-select-option value="card">Credit/Debit Card</ion-select-option>
+            <ion-select-option value="mobile_money">Mobile Money</ion-select-option>
+            <ion-select-option value="bank_transfer">Bank Transfer</ion-select-option>
+            <ion-select-option value="crypto">Cryptocurrency</ion-select-option>
+          </ion-select>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Description (Optional)</ion-label>
+          <ion-textarea 
+            formControlName="description" 
+            placeholder="Enter description"
+            rows="3">
+          </ion-textarea>
+        </ion-item>
+        
+        <div class="modal-actions">
+          <ion-button expand="block" type="submit" [disabled]="rechargeForm.invalid || isLoading">
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Recharge Wallet</span>
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- Withdrawal Modal -->
+<ion-modal [isOpen]="showWithdrawalModal" [presentingElement]="presentingElement" (didDismiss)="showWithdrawalModal = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Withdraw from Wallet</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModals()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content>
+      <form [formGroup]="withdrawalForm" (ngSubmit)="onSubmitWithdrawal()">
+        <ion-item>
+          <ion-label position="stacked">Amount</ion-label>
+          <ion-input 
+            type="number" 
+            formControlName="amount" 
+            placeholder="Enter amount"
+            min="1"
+            step="0.01">
+          </ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Destination</ion-label>
+          <ion-select formControlName="destination">
+            <ion-select-option value="mobile_money">Mobile Money</ion-select-option>
+            <ion-select-option value="bank_account">Bank Account</ion-select-option>
+            <ion-select-option value="crypto_wallet">Crypto Wallet</ion-select-option>
+          </ion-select>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Account Details</ion-label>
+          <ion-input 
+            formControlName="accountDetails" 
+            placeholder="Enter account number or phone number">
+          </ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Description (Optional)</ion-label>
+          <ion-textarea 
+            formControlName="description" 
+            placeholder="Enter description"
+            rows="3">
+          </ion-textarea>
+        </ion-item>
+        
+        <div class="modal-actions">
+          <ion-button expand="block" type="submit" [disabled]="withdrawalForm.invalid || isLoading">
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Withdraw from Wallet</span>
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- Transfer Modal -->
+<ion-modal [isOpen]="showTransferModal" [presentingElement]="presentingElement" (didDismiss)="showTransferModal = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Transfer to Another Wallet</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModals()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content>
+      <form [formGroup]="transferForm" (ngSubmit)="onSubmitTransfer()">
+        <ion-item>
+          <ion-label position="stacked">Amount</ion-label>
+          <ion-input 
+            type="number" 
+            formControlName="amount" 
+            placeholder="Enter amount"
+            min="1"
+            step="0.01">
+          </ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Recipient Wallet ID</ion-label>
+          <ion-input 
+            formControlName="recipientWallet" 
+            placeholder="Enter recipient wallet ID">
+          </ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Description</ion-label>
+          <ion-textarea 
+            formControlName="description" 
+            placeholder="Enter transfer description"
+            rows="3">
+          </ion-textarea>
+        </ion-item>
+        
+        <div class="modal-actions">
+          <ion-button expand="block" type="submit" [disabled]="transferForm.invalid || isLoading">
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Transfer Funds</span>
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<!-- Settings Modal -->
+<ion-modal [isOpen]="showSettingsModal" [presentingElement]="presentingElement" (didDismiss)="showSettingsModal = false">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Wallet Settings</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeModals()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content>
+      <form [formGroup]="settingsForm" (ngSubmit)="onSubmitSettings()">
+        <!-- Notifications -->
+        <ion-list-header>
+          <ion-label>Notifications</ion-label>
+        </ion-list-header>
+        
+        <ion-item>
+          <ion-label>Low Balance Alerts</ion-label>
+          <ion-toggle formControlName="notifications.lowBalance"></ion-toggle>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label>Large Transaction Alerts</ion-label>
+          <ion-toggle formControlName="notifications.largeTransactions"></ion-toggle>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label>Failed Transaction Alerts</ion-label>
+          <ion-toggle formControlName="notifications.failedTransactions"></ion-toggle>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label>Successful Transaction Alerts</ion-label>
+          <ion-toggle formControlName="notifications.successfulTransactions"></ion-toggle>
+        </ion-item>
+        
+        <!-- Limits -->
+        <ion-list-header>
+          <ion-label>Spending Limits</ion-label>
+        </ion-list-header>
+        
+        <ion-item>
+          <ion-label position="stacked">Daily Spending Limit</ion-label>
+          <ion-input 
+            type="number" 
+            formControlName="limits.dailySpending" 
+            placeholder="Enter daily limit">
+          </ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Monthly Spending Limit</ion-label>
+          <ion-input 
+            type="number" 
+            formControlName="limits.monthlySpending" 
+            placeholder="Enter monthly limit">
+          </ion-input>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Single Transaction Limit</ion-label>
+          <ion-input 
+            type="number" 
+            formControlName="limits.singleTransaction" 
+            placeholder="Enter single transaction limit">
+          </ion-input>
+        </ion-item>
+        
+        <!-- Security -->
+        <ion-list-header>
+          <ion-label>Security</ion-label>
+        </ion-list-header>
+        
+        <ion-item>
+          <ion-label>Require PIN for Transactions</ion-label>
+          <ion-toggle formControlName="security.requirePin"></ion-toggle>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label>Require Biometric Authentication</ion-label>
+          <ion-toggle formControlName="security.requireBiometric"></ion-toggle>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label>Auto-lock Wallet</ion-label>
+          <ion-toggle formControlName="security.autoLock"></ion-toggle>
+        </ion-item>
+        
+        <ion-item>
+          <ion-label position="stacked">Auto-lock Timeout (minutes)</ion-label>
+          <ion-input 
+            type="number" 
+            formControlName="security.lockTimeout" 
+            placeholder="Enter timeout in minutes">
+          </ion-input>
+        </ion-item>
+        
+        <div class="modal-actions">
+          <ion-button expand="block" type="submit" [disabled]="settingsForm.invalid || isLoading">
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Save Settings</span>
+          </ion-button>
+        </div>
+      </form>
+    </ion-content>
+  </ng-template>
+</ion-modal>

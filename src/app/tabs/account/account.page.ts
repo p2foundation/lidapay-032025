@@ -6,7 +6,6 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
-  IonBackButton,
   IonCard,
   IonList,
   IonItem,
@@ -18,6 +17,7 @@ import {
   IonLabel,
   IonAvatar,
   IonCardContent,
+  IonSkeletonText,
   LoadingController,
   ToastController,
   AlertController,
@@ -69,7 +69,9 @@ import {
   logOutOutline,
   heartOutline,
   ellipsisHorizontalOutline,
-  arrowBackOutline
+  arrowBackOutline,
+  shieldOutline,
+  chevronBackOutline
 } from 'ionicons/icons';
 
 interface AppConfig {
@@ -108,7 +110,6 @@ interface ExtendedProfile extends Profile {
     IonHeader,
     IonTitle,
     IonToolbar,
-    IonBackButton,
     IonCard,
     IonCardContent,
     IonList,
@@ -120,6 +121,7 @@ interface ExtendedProfile extends Profile {
     IonButtons,
     IonLabel,
     IonAvatar,
+    IonSkeletonText,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
@@ -187,7 +189,9 @@ export class AccountPage implements OnInit, OnDestroy {
       logOutOutline,
       heartOutline,
       ellipsisHorizontalOutline,
-      arrowBackOutline
+      arrowBackOutline,
+      shieldOutline,
+      chevronBackOutline
     });
   }
 
@@ -234,6 +238,7 @@ export class AccountPage implements OnInit, OnDestroy {
 
   async loadProfile() {
     try {
+      this.isLoading = true;
       const response = await firstValueFrom(
         this.accountService.getProfile().pipe(
           catchError((error: Error) => {
@@ -250,11 +255,67 @@ export class AccountPage implements OnInit, OnDestroy {
       );
 
       if (response) {
-        this.profile = response;
+        this.profile = {
+          _id: response._id || 'default',
+          username: response.username || 'user',
+          email: response.email || 'user@example.com',
+          firstName: response.firstName || 'User',
+          lastName: response.lastName || 'Name',
+          phoneNumber: response.phoneNumber || '',
+          roles: response.roles || [],
+          points: response.points || 0,
+          status: response.status || 'Active',
+          emailVerified: response.emailVerified || false,
+          phoneVerified: response.phoneVerified || false,
+          qrCodeUsageCount: response.qrCodeUsageCount || 0,
+          invitationLink: response.invitationLink || '',
+          invitationLinkUsageCount: response.invitationLinkUsageCount || 0,
+          totalPointsEarned: response.totalPointsEarned || 0,
+          createdAt: response.createdAt || '',
+          updatedAt: response.updatedAt || '',
+          account: response.account || '',
+          wallet: response.wallet || '',
+          qrCode: response.qrCode || '',
+          isVerified: response.isVerified || false,
+          isOnline: false,
+          gravatar: this.generateGravatarUrl(response.email || '')
+        };
+        
+        // Load additional profile data
+        await this.loadProfileStats();
       }
     } catch (error) {
       console.error('Error loading profile:', error);
       this.notificationService.showError('Failed to load profile');
+      
+      // Set default profile on error
+      this.profile = {
+        _id: 'default',
+        username: 'user',
+        email: 'user@example.com',
+        firstName: 'User',
+        lastName: 'Name',
+        phoneNumber: '',
+        roles: [],
+        points: 0,
+        status: 'Active',
+        emailVerified: false,
+        phoneVerified: false,
+        qrCodeUsageCount: 0,
+        invitationLink: '',
+        invitationLinkUsageCount: 0,
+        totalPointsEarned: 0,
+        createdAt: '',
+        updatedAt: '',
+        account: '',
+        wallet: '',
+        qrCode: '',
+        isVerified: false,
+        isOnline: false,
+        gravatar: this.defaultAvatarUrl
+      };
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -265,7 +326,7 @@ export class AccountPage implements OnInit, OnDestroy {
 
   // Essential methods for enhanced functionality
   editProfile() {
-    this.router.navigate(['/tabs/account/my-profile']);
+    this.router.navigate(['/tabs/account/profile']);
   }
 
   getWalletBalance(): number {
@@ -278,7 +339,7 @@ export class AccountPage implements OnInit, OnDestroy {
   }
 
   sendMoney() {
-    this.router.navigate(['/tabs/pay-or-send']);
+    this.router.navigate(['/tabs/recharge/remitstar']);
   }
 
   buyAirtime() {
@@ -290,11 +351,11 @@ export class AccountPage implements OnInit, OnDestroy {
   }
 
   walletManagement() {
-    this.router.navigate(['/tabs/account/wallet-management']);
+    this.router.navigate(['/tabs/wallet-management']);
   }
 
   securitySettings() {
-    this.router.navigate(['/tabs/account/user-settings']);
+    this.router.navigate(['/tabs/account/settings']);
   }
 
   privacyPolicy() {
@@ -304,7 +365,10 @@ export class AccountPage implements OnInit, OnDestroy {
   // Enhanced theme toggle with better UX
   async toggleTheme() {
     try {
-      // For now, just toggle the local state
+      // Toggle theme through the theme service
+      await this.themeService.toggleTheme();
+      
+      // Update local state
       this.isDarkMode = !this.isDarkMode;
       
       // Show success message with theme name
@@ -318,32 +382,36 @@ export class AccountPage implements OnInit, OnDestroy {
   }
 
   // Navigation methods
+  goBack() {
+    this.router.navigate(['/tabs/home']);
+  }
+
   goToSettings() {
-    this.router.navigate(['./settings']);
+    this.router.navigate(['/tabs/account/settings']);
   }
 
   myProfile() {
-    this.router.navigate(['./my-profile']);
+    this.router.navigate(['/tabs/account/profile']);
   }
 
   goToTransactionPage() {
-    this.router.navigate(['./transaction-details']);
+    this.router.navigate(['/tabs/orders']);
   }
 
   gotoAdvansRewards() {
-    this.router.navigate(['./reward']);
+    this.router.navigate(['/tabs/account/reward']);
   }
 
   notification() {
-    this.router.navigate(['./notifications']);
+    this.router.navigate(['/tabs/account/notifications']);
   }
 
   change_language() {
-    this.router.navigate(['./user-settings']);
+    this.router.navigate(['/tabs/account/settings']);
   }
 
   help() {
-    this.router.navigate(['./support']);
+    this.router.navigate(['/tabs/account/support']);
   }
 
   inviteFriends() {
@@ -351,18 +419,18 @@ export class AccountPage implements OnInit, OnDestroy {
   }
 
   contactUs() {
-    this.router.navigate(['./support/contact-us']);
+    this.router.navigate(['/tabs/account/support/contact-us']);
   }
 
   condition() {
-    this.router.navigate(['./privacy/condition']);
+    this.router.navigate(['/tabs/account/privacy/condition']);
   }
 
   developed_by() {
     this.notificationService.showSuccess('Developed by Advansis Technologies');
   }
   favorited() {
-    this.router.navigate(['./transactions']);
+    this.router.navigate(['/tabs/transactions']);
   }
   // Remove old invitation link methods - they're not needed for the new UI
   
@@ -428,81 +496,7 @@ export class AccountPage implements OnInit, OnDestroy {
     }
   }
 
-  // Enhanced profile loading with better error handling
-  private async loadUserProfile() {
-    try {
-      this.isLoading = true;
-      
-      const response = await firstValueFrom(this.accountService.getProfile());
-      
-      if (response) {
-        this.profile = {
-          _id: response._id || 'default',
-          username: response.username || 'user',
-          email: response.email || 'user@example.com',
-          firstName: response.firstName || 'User',
-          lastName: response.lastName || 'Name',
-          phoneNumber: response.phoneNumber || '',
-          roles: response.roles || [],
-          points: response.points || 0,
-          status: response.status || 'Active',
-          emailVerified: response.emailVerified || false,
-          phoneVerified: response.phoneVerified || false,
-          qrCodeUsageCount: response.qrCodeUsageCount || 0,
-          invitationLink: response.invitationLink || '',
-          invitationLinkUsageCount: response.invitationLinkUsageCount || 0,
-          totalPointsEarned: response.totalPointsEarned || 0,
-          createdAt: response.createdAt || '',
-          updatedAt: response.updatedAt || '',
-          account: response.account || '',
-          wallet: response.wallet || '',
-          qrCode: response.qrCode || '',
-          isVerified: response.isVerified || false,
-          isOnline: false,
-          gravatar: this.generateGravatarUrl(response.email || '')
-        };
-        
-        // Load additional profile data
-        await this.loadProfileStats();
-        
-        } else {
-        throw new Error('Invalid profile response');
-      }
-      
-    } catch (error) {
-      console.error('Error loading profile:', error);
-      this.notificationService.showError('Failed to load profile');
-      
-      // Set default profile
-      this.profile = {
-        _id: 'default',
-        username: 'user',
-        email: 'user@example.com',
-        firstName: 'User',
-        lastName: 'Name',
-        phoneNumber: '',
-        roles: [],
-        points: 0,
-        status: 'Active',
-        emailVerified: false,
-        phoneVerified: false,
-        qrCodeUsageCount: 0,
-        invitationLink: '',
-        invitationLinkUsageCount: 0,
-        totalPointsEarned: 0,
-        createdAt: '',
-        updatedAt: '',
-        account: '',
-        wallet: '',
-        qrCode: '',
-        isVerified: false,
-        isOnline: false,
-        gravatar: this.defaultAvatarUrl
-      };
-    } finally {
-      this.isLoading = false;
-    }
-  }
+
 
   // Load profile statistics
   private async loadProfileStats() {

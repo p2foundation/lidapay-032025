@@ -23,6 +23,16 @@ export interface Profile {
   wallet: string;
   qrCode: string;
   isVerified: boolean;
+  // Additional profile properties
+  bio?: string;
+  location?: string;
+  website?: string;
+  company?: string;
+  jobTitle?: string;
+  education?: string;
+  interests?: string;
+  avatarUrl?: string;
+  isOnline?: boolean;
 }
 
 interface InvitationLink {

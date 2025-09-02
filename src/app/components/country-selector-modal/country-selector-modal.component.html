@@ -1,0 +1,127 @@
+<ion-header class="modal-header">
+  <ion-toolbar>
+    <ion-title class="modal-title">
+      <ion-icon name="globe-outline" class="title-icon"></ion-icon>
+      Select Your Country
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="modal-content">
+  <!-- Search Bar -->
+  <div class="search-section">
+    <ion-searchbar
+      [(ngModel)]="searchQuery"
+      (ionInput)="onSearchChange($event)"
+      placeholder="Search countries..."
+      show-clear-button="focus"
+      (ionClear)="clearSearch()"
+      class="country-searchbar"
+    ></ion-searchbar>
+  </div>
+
+  <!-- Popular Countries -->
+  <div class="popular-section" *ngIf="!isSearching">
+    <h3 class="section-title">
+      <ion-icon name="star-outline"></ion-icon>
+      Popular Countries
+    </h3>
+    <div class="popular-countries">
+      <ion-chip
+        *ngFor="let country of popularCountries; trackBy: trackByCountryId"
+        [class.selected]="selectedCountry?.id === country.id"
+        (click)="selectCountry(country)"
+        class="country-chip"
+      >
+        <ion-avatar>
+          <span class="country-flag">{{ country.flag }}</span>
+        </ion-avatar>
+        <ion-label>{{ country.name }}</ion-label>
+        <ion-label class="phone-code">{{ country.phoneCode }}</ion-label>
+      </ion-chip>
+    </div>
+  </div>
+
+  <!-- Search Results -->
+  <div class="search-results" *ngIf="isSearching">
+    <h3 class="section-title">
+      <ion-icon name="search-outline"></ion-icon>
+      Search Results
+    </h3>
+    <div class="country-list">
+      <ion-item
+        *ngFor="let country of filteredCountries; trackBy: trackByCountryId"
+        [class.selected]="selectedCountry?.id === country.id"
+        (click)="selectCountry(country)"
+        class="country-item"
+        button
+      >
+        <ion-avatar slot="start" class="country-avatar">
+          <span class="country-flag">{{ country.flag }}</span>
+        </ion-avatar>
+        <ion-label>
+          <h3 class="country-name">{{ country.name }}</h3>
+          <p class="country-details">
+            {{ country.phoneCode }} • {{ country.currency }} ({{ country.currencySymbol }})
+          </p>
+        </ion-label>
+        <ion-icon
+          *ngIf="selectedCountry?.id === country.id"
+          name="checkmark-circle"
+          color="primary"
+          slot="end"
+        ></ion-icon>
+      </ion-item>
+    </div>
+  </div>
+
+  <!-- Regional Countries -->
+  <div class="regional-section" *ngIf="!isSearching">
+    <div
+      *ngFor="let region of regions; trackBy: trackByRegionName"
+      class="region-group"
+    >
+      <h3 class="region-title">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ region.name }}
+      </h3>
+      <div class="country-list">
+        <ion-item
+          *ngFor="let country of region.countries; trackBy: trackByCountryId"
+          [class.selected]="selectedCountry?.id === country.id"
+          (click)="selectCountry(country)"
+          class="country-item"
+          button
+        >
+          <ion-avatar slot="start" class="country-avatar">
+            <span class="country-flag">{{ country.flag }}</span>
+          </ion-avatar>
+          <ion-label>
+            <h3 class="country-name">{{ country.name }}</h3>
+            <p class="country-details">
+              {{ country.phoneCode }} • {{ country.currency }} ({{ country.currencySymbol }})
+            </p>
+          </ion-label>
+          <ion-icon
+            *ngIf="selectedCountry?.id === country.id"
+            name="checkmark-circle"
+            color="primary"
+            slot="end"
+          ></ion-icon>
+        </ion-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results" *ngIf="isSearching && filteredCountries.length === 0">
+    <ion-icon name="search-outline" class="no-results-icon"></ion-icon>
+    <h3>No countries found</h3>
+    <p>Try adjusting your search terms</p>
+  </div>
+</ion-content>

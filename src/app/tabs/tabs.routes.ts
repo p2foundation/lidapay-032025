@@ -102,6 +102,41 @@ export const routes: Routes = [
                 (m) => m.ProfileUpdatePage
               ),
           },
+          {
+            path: 'reward',
+            loadComponent: () =>
+              import('./reward/reward.page').then((m) => m.RewardPage),
+          },
+          {
+            path: 'notifications',
+            loadComponent: () =>
+              import('./notifications/notifications.page').then((m) => m.NotificationsPage),
+          },
+          {
+            path: 'support',
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import('./support/support.page').then((m) => m.SupportPage),
+              },
+              {
+                path: 'contact-us',
+                loadComponent: () =>
+                  import('./support/contact-us/contact-us.page').then((m) => m.ContactUsPage),
+              },
+            ],
+          },
+          {
+            path: 'privacy',
+            children: [
+              {
+                path: 'condition',
+                loadComponent: () =>
+                  import('./privacy/condition/condition.page').then((m) => m.ConditionPage),
+              },
+            ],
+          },
         ],
       },
       {
@@ -155,6 +190,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./wallet-management/wallet-management.page').then(
             (m) => m.WalletManagementPage
+          ),
+      },
+      {
+        path: 'pay-or-send',
+        loadComponent: () =>
+          import('./pay-or-send/pay-or-send.page').then(
+            (m) => m.PayOrSendPage
           ),
       },
       {
@@ -236,6 +278,10 @@ export const routes: Routes = [
       },
       {
         path: 'pending-transactions',
+        loadComponent: () => import('./pending-transactions/pending-transactions.page').then( m => m.PendingTransactionsPage)
+      },
+      {
+        path: 'transactions',
         loadComponent: () => import('./pending-transactions/pending-transactions.page').then( m => m.PendingTransactionsPage)
       },
       {

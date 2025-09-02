@@ -605,6 +605,7 @@ export class CheckoutPage implements OnInit {
 
   // Process global airtime topup
   private async makeReloadlyAirtimeTopup(data: any): Promise<any> {
+    console.log("Reloadly airtime topup data:", data)
     try {
       this.processingMessage = 'Processing global airtime topup...';
       return await firstValueFrom(this.reloadlyAirtimeService.makeAirtimeTopup(data));
@@ -617,13 +618,59 @@ export class CheckoutPage implements OnInit {
 
   // Process global airtime purchase
   private async buyGlobalAirtime(data: any): Promise<any> {
+    console.log("Global airtime purchase data:", data)
     try {
       this.processingMessage = 'Processing global airtime purchase...';
-      return await firstValueFrom(this.reloadlyAirtimeService.makeAirtimeTopup(data));
-    } catch (error) {
+      const result: any = await firstValueFrom(this.reloadlyAirtimeService.makeAirtimeTopup(data));
+      
+      // Check if the result indicates success
+      if (result && (result.status === 'SUCCESS' || result.status === 'SUCCESSFUL' || result.status === 'OK')) {
+        return {
+          status: 'SUCCESS',
+          message: result.message || 'Global airtime purchase successful',
+          transactionId: result.transactionId || result.trxn || data.payTransRef,
+          orderId: data.orderId || data.payTransRef,
+          amount: data.amount,
+          currency: data.currency || 'GHS',
+          recipientNumber: data.recipientNumber,
+          network: data.network || data.operatorId,
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        // Handle failed airtime crediting but successful payment
+        console.warn('Airtime crediting failed but payment was successful:', result);
+        return {
+          status: 'PAYMENT_SUCCESS_CREDITING_FAILED',
+          message: `Payment successful but airtime crediting failed: ${result?.message || 'Unknown error'}`,
+          transactionId: data.payTransRef, // Use payment reference as transaction ID
+          orderId: data.orderId || data.payTransRef,
+          amount: data.amount,
+          currency: data.currency || 'GHS',
+          recipientNumber: data.recipientNumber,
+          network: data.network || data.operatorId,
+          timestamp: new Date().toISOString(),
+          errorCode: result?.errorCode || 'NG0203',
+          errorDetails: result?.message || 'Airtime crediting failed'
+        };
+      }
+    } catch (error: any) {
       console.error('Global airtime purchase error:', error);
       try { console.error('Global airtime purchase error (JSON):', JSON.stringify(error, Object.getOwnPropertyNames(error))); } catch (e) {}
-      throw error;
+      
+      // Handle error but still return data for receipt
+      return {
+        status: 'PAYMENT_SUCCESS_CREDITING_FAILED',
+        message: `Payment successful but airtime crediting failed: ${error?.message || 'Service error'}`,
+        transactionId: data.payTransRef, // Use payment reference as transaction ID
+        orderId: data.orderId || data.payTransRef,
+        amount: data.amount,
+        currency: data.currency || 'GHS',
+        recipientNumber: data.recipientNumber,
+        network: data.network || data.operatorId,
+        timestamp: new Date().toISOString(),
+        errorCode: 'NG0203',
+        errorDetails: error?.message || 'Airtime service error'
+      };
     }
   }
 

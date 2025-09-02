@@ -1,0 +1,731 @@
+:host {
+  --search-padding: 16px;
+  --card-border-radius: 16px;
+  --transition-duration: 0.3s;
+}
+
+// Header Styles
+.search-header {
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+    --border-width: 0;
+    --min-height: 60px;
+    --padding-top: 8px;
+    --padding-bottom: 8px;
+    
+         // Back button styling - simplified to prevent duplication
+     ion-buttons {
+       ion-back-button {
+         // Override any global transformations that might cause duplication
+         transform: none !important;
+         transform-origin: center !important;
+         
+         // Ensure proper positioning
+         position: relative !important;
+         z-index: 1000 !important;
+       }
+     }
+    
+    // Title styling
+    ion-title {
+      padding: 0;
+      
+      .title-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        
+        .header-icon {
+          margin-right: 8px;
+          font-size: 20px;
+        }
+        
+        span {
+          font-size: 18px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// Content Styles
+.search-content {
+  --background: var(--ion-background-color);
+}
+
+// Global back button styling for search page - SINGLE RULE
+ion-back-button {
+  --color: white !important;
+  --color-hover: rgba(255, 255, 255, 0.8) !important;
+  --color-focused: rgba(255, 255, 255, 0.8) !important;
+  --icon-font-size: 24px !important;
+  --min-width: 44px;
+  --min-height: 44px;
+  --opacity: 1 !important;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  transform: none !important;
+  visibility: visible !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 999 !important;
+  
+  // Remove ::part(native) to prevent duplicate rendering
+  color: white !important;
+  
+  &:hover, &:focus {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+// Override global RTL rotation that causes double back button effect
+ion-app[dir="rtl"] ion-back-button {
+  transform: none !important;
+}
+
+// Ensure search page back button is never rotated
+.search-header ion-back-button,
+.search-content ion-back-button {
+  transform: none !important;
+}
+
+// Search Container
+.search-container {
+  padding: var(--search-padding);
+  background: var(--ion-color-primary);
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 16px;
+}
+
+.search-bar-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+// Smart Search Bar
+.smart-searchbar {
+  --background: var(--ion-color-primary-contrast);
+  --color: var(--ion-color-primary);
+  --border-radius: 16px;
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --placeholder-color: var(--ion-color-medium);
+  --padding-start: 48px;  // Space for left search icon
+  --padding-end: 48px;    // Space for right clear button
+  
+  &.active {
+    --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+    transition: all var(--transition-duration) ease;
+  }
+  
+  // Ensure proper spacing for search icon
+  ion-searchbar {
+    --icon-color: var(--ion-color-primary);
+    --icon-margin-start: 16px;
+    --icon-margin-end: 0;
+    
+    // Position the search icon properly
+    &::part(searchbar-input-container) {
+      padding-left: 48px;
+    }
+    
+    &::part(searchbar-input) {
+      padding-left: 0;
+      padding-right: 48px;
+    }
+  }
+  
+  // Style the clear button properly
+  .clear-button {
+    --color: var(--ion-color-medium);
+    margin: 0;
+    padding: 8px;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    
+    &:hover {
+      --color: var(--ion-color-primary);
+    }
+  }
+  
+  // Ensure text doesn't overlap with icons
+  &::part(native) {
+    padding-left: 48px !important;
+    padding-right: 48px !important;
+  }
+  
+  // Additional styling to prevent icon overlap
+  &::part(searchbar-input) {
+    margin-left: 48px !important;
+    margin-right: 48px !important;
+  }
+  
+  // Ensure the search icon is properly positioned
+  &::part(searchbar-search-icon) {
+    left: 16px !important;
+    position: absolute !important;
+  }
+}
+
+// Search Actions
+.search-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  
+  .action-button {
+    --color: var(--ion-color-primary-contrast);
+    --background: rgba(255, 255, 255, 0.2);
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    height: 40px;
+    transition: all var(--transition-duration) ease;
+    
+    &:hover {
+      --background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    &.active {
+      --background: var(--ion-color-primary-contrast);
+      --color: var(--ion-color-primary);
+    }
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+// Search Filters
+.search-filters {
+  background: var(--ion-color-primary-contrast);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  
+  .filter-item {
+    --background: transparent;
+    --border-color: var(--ion-color-light);
+    margin-bottom: 12px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    ion-label {
+      --color: var(--ion-color-primary);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .filter-select {
+      --color: var(--ion-color-dark);
+      font-weight: 500;
+    }
+  }
+}
+
+// Search Suggestions
+.search-suggestions {
+  padding: 0 var(--search-padding);
+  margin-bottom: 24px;
+  
+  .suggestion-item {
+    --background: var(--ion-color-light);
+    --border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all var(--transition-duration) ease;
+    
+    &:hover {
+      --background: var(--ion-color-primary);
+      --color: var(--ion-color-primary-contrast);
+      transform: translateX(4px);
+    }
+    
+    .suggestion-icon {
+      color: var(--ion-color-primary);
+      font-size: 18px;
+    }
+    
+    ion-label {
+      h3 {
+        font-weight: 600;
+        margin: 0;
+        font-size: 16px;
+      }
+      
+      p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--ion-color-medium);
+      }
+    }
+    
+    .arrow-icon {
+      color: var(--ion-color-medium);
+      font-size: 16px;
+    }
+  }
+}
+
+// Section Headers
+.section-header {
+  padding: 0 var(--search-padding);
+  margin-bottom: 16px;
+  
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-text-color);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ion-color-step-600);
+    line-height: 1.4;
+  }
+  
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+
+// Quick Actions Section
+.quick-actions-section {
+  margin-bottom: 32px;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 0 var(--search-padding);
+}
+
+.quick-action-card {
+  --background: var(--ion-card-background);
+  --border-radius: var(--card-border-radius);
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin: 0;
+  cursor: pointer;
+  transition: all var(--transition-duration) ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  &.category-services {
+    border-left: 4px solid var(--ion-color-success);
+  }
+  
+  &.category-history {
+    border-left: 4px solid var(--ion-color-warning);
+  }
+  
+  &.category-settings {
+    border-left: 4px solid var(--ion-color-primary);
+  }
+  
+  &.category-help {
+    border-left: 4px solid var(--ion-color-medium);
+  }
+  
+  .action-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    
+    .action-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+      
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+    
+    .action-details {
+      flex: 1;
+      
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-text-color);
+      }
+      
+      p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--ion-color-step-600);
+        line-height: 1.4;
+      }
+    }
+    
+    .action-arrow {
+      color: var(--ion-color-medium);
+      font-size: 20px;
+    }
+  }
+}
+
+// Recent Searches Section
+.recent-searches-section {
+  margin-bottom: 32px;
+}
+
+.recent-searches-list {
+  padding: 0 var(--search-padding);
+}
+
+.recent-search-item {
+  --background: var(--ion-color-light);
+  --border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all var(--transition-duration) ease;
+  
+  &:hover {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+    transform: translateX(4px);
+  }
+  
+  .recent-icon {
+    font-size: 20px;
+  }
+  
+  ion-label {
+    h3 {
+      font-weight: 600;
+      margin: 0;
+      font-size: 16px;
+    }
+    
+    p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .category-chip {
+    font-size: 10px;
+    font-weight: 500;
+  }
+}
+
+// Search Results Section
+.search-results-section {
+  padding: 0 var(--search-padding);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px 20px;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+  
+  .results-count {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+  }
+}
+
+.search-result-item {
+  --background: var(--ion-color-light);
+  --border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all var(--transition-duration) ease;
+  
+  &:hover {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+    transform: translateX(4px);
+  }
+  
+  .result-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+    
+    &.type-service {
+      background: rgba(var(--ion-color-success-rgb), 0.1);
+    }
+    
+    &.type-transaction {
+      background: rgba(var(--ion-color-warning-rgb), 0.1);
+    }
+    
+    &.type-help {
+      background: rgba(var(--ion-color-medium-rgb), 0.1);
+    }
+    
+    ion-icon {
+      font-size: 20px;
+      color: var(--ion-color-primary);
+    }
+  }
+  
+  .result-details {
+    h3 {
+      margin: 0 0 4px 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    p {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: var(--ion-color-step-600);
+      line-height: 1.4;
+    }
+    
+    .result-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .relevance-score {
+        font-size: 12px;
+        color: var(--ion-color-medium);
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .action-button {
+    --color: var(--ion-color-primary);
+    font-size: 12px;
+    font-weight: 500;
+    
+    ion-icon {
+      margin-left: 4px;
+      font-size: 14px;
+    }
+  }
+}
+
+// No Results State
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .no-results-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+  
+  p {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: var(--ion-color-step-600);
+    line-height: 1.4;
+  }
+  
+  ion-button {
+    --border-radius: 12px;
+    font-weight: 500;
+  }
+}
+
+// Floating Action Button
+ion-fab {
+  ion-fab-button {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+    --border-radius: 16px;
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all var(--transition-duration) ease;
+    
+    &:hover {
+      transform: scale(1.1);
+      --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    &.active {
+      --background: var(--ion-color-success);
+      transform: rotate(180deg);
+    }
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-container {
+    margin-bottom: 12px;
+  }
+  
+  .search-actions {
+    gap: 4px;
+    
+    .action-button {
+      --padding-start: 8px;
+      --padding-end: 8px;
+      height: 36px;
+      
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  :host {
+    --search-padding: 12px;
+  }
+  
+  .quick-action-card .action-content {
+    padding: 16px;
+    gap: 12px;
+    
+    .action-icon {
+      width: 40px;
+      height: 40px;
+      
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+    
+    .action-details h3 {
+      font-size: 14px;
+    }
+    
+    .action-details p {
+      font-size: 12px;
+    }
+  }
+}
+
+// Dark Mode Support - Consolidated
+@media (prefers-color-scheme: dark) {
+  .search-header {
+    ion-toolbar {
+      --background: #1a1a2e;
+      --color: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
+  
+  .search-container {
+    background: #1a1a2e;
+  }
+  
+  .quick-action-card {
+    --background: var(--ion-card-background);
+    --border-color: var(--ion-border-color);
+  }
+  
+  .search-result-item,
+  .recent-search-item,
+  .suggestion-item {
+    --background: var(--ion-item-background);
+    --border-color: var(--ion-border-color);
+  }
+  
+  .smart-searchbar {
+    --background: rgba(255, 255, 255, 0.1);
+    --color: #ffffff;
+    --placeholder-color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .search-content {
+    --background: #121212;
+  }
+}
+
+// Animation Classes
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+

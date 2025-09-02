@@ -79,9 +79,102 @@ ion-input {
   }
 }
 
+// Text utility classes
+.text-heading-3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ion-text-color);
+  margin: 0;
+}
+
+.text-body {
+  font-size: 1rem;
+  color: var(--ion-text-color);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.text-body-small {
+  font-size: 0.875rem;
+  color: var(--ion-color-step-600);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.text-gray-600 {
+  color: var(--ion-color-step-600);
+}
+
+// Enhanced input styling for native-like behavior
+.search-input,
+.phone-input {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --min-height: 56px;
+  --color: var(--ion-text-color);
+  --placeholder-color: var(--ion-color-medium);
+  --background: transparent;
+  font-size: 16px; // Prevents zoom on iOS
+  
+  // Native-like focus behavior
+  &:focus {
+    outline: none;
+  }
+  
+  // Improve touch targets
+  &::part(native) {
+    padding: 16px;
+    min-height: 56px;
+  }
+}
+
+// Enhanced form item styling
+.form-item {
+  --border-radius: 12px;
+  --border-width: 1px;
+  --border-color: var(--ion-color-light);
+  --border-style: solid;
+  --background: var(--ion-background-color);
+  transition: all 0.2s ease;
+  
+  &:focus-within {
+    --border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.1);
+    transform: translateY(-1px);
+  }
+  
+  // Improve spacing for mobile
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 16px;
+  margin-bottom: 20px;
+}
+
+// Search container styling
+.search-container {
+  margin-bottom: var(--space-4);
+  
+  .search-item {
+    --border-radius: 12px;
+    --border-width: 1px;
+    --border-color: var(--ion-color-light);
+    --border-style: solid;
+    --background: var(--ion-background-color);
+    transition: all 0.2s ease;
+    
+    &:focus-within {
+      --border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.1);
+      transform: translateY(-1px);
+    }
+  }
+}
+
 // Progress Bar
 .progress-container {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-3);
   
   .progress-bar {
     height: 4px;
@@ -165,7 +258,7 @@ ion-input {
 
 // Step Description
 .step-description {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-3);
   text-align: center;
   
   .step-title {
@@ -183,7 +276,7 @@ ion-input {
 
 // Search Container
 .search-container {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-3);
   
   .search-item {
     --background: var(--ion-color-step-50);
@@ -200,158 +293,244 @@ ion-input {
   }
 }
 
-// Loading Container
+// Enhanced Loading Container
 .loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
+  text-align: center;
+  padding: 40px 20px;
   
-  ion-spinner {
-    margin-bottom: var(--space-4);
-    --color: var(--ion-color-primary);
+  .loading-header {
+    margin-bottom: 32px;
+    
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      --color: var(--ion-color-primary);
+    }
+    
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ion-text-color);
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 14px;
+      color: var(--ion-color-step-600);
+      margin: 0;
+      line-height: 1.4;
+    }
   }
   
-  p {
-    color: var(--ion-color-step-600);
-    font-size: 1rem;
+  .skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 100%;
+    
+    .skeleton-card {
+      background: var(--ion-color-step-50);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid var(--ion-color-step-200);
+      
+      .skeleton-flag {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(90deg, var(--ion-color-step-200) 25%, var(--ion-color-step-300) 50%, var(--ion-color-step-200) 75%);
+        background-size: 200% 100%;
+        border-radius: var(--radius-sm);
+        animation: skeleton-loading 1.5s infinite;
+      }
+      
+      .skeleton-content {
+        flex: 1;
+        
+        .skeleton-title {
+          width: 80%;
+          height: 16px;
+          background: linear-gradient(90deg, var(--ion-color-step-200) 25%, var(--ion-color-step-300) 50%, var(--ion-color-step-200) 75%);
+          background-size: 200% 100%;
+          border-radius: 4px;
+          margin-bottom: 8px;
+          animation: skeleton-loading 1.5s infinite;
+        }
+        
+        .skeleton-subtitle {
+          width: 60%;
+          height: 12px;
+          background: linear-gradient(90deg, var(--ion-color-step-200) 25%, var(--ion-color-step-300) 50%, var(--ion-color-step-200) 75%);
+          background-size: 200% 100%;
+          border-radius: 4px;
+          animation: skeleton-loading 1.5s infinite;
+        }
+      }
+    }
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }
 
 // Step Content
 .step-content {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-3);
   
   &.fade-in {
     animation: fadeInUp 0.4s ease-out;
   }
 }
 
-// Countries Grid
-.countries-grid {
-  display: grid;
-  gap: 16px;
+// Countries Grid with Ionic Grid System
+ion-grid {
+  padding: 0;
   
-  .country-card {
-    --background: var(--ion-color-step-50);
-    --border-radius: var(--radius-lg);
-    --border-width: 1px;
-    --border-color: var(--ion-color-step-200);
-    transition: var(--transition-normal);
-    cursor: pointer;
+  ion-row {
+    margin: 0;
     
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    &.selected {
-      --border-color: var(--ion-color-primary);
-      --background: var(--ion-color-primary-tint);
-      box-shadow: var(--shadow-md);
-    }
-    
-    .country-info {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
+    ion-col {
+      padding: 8px; // Reduced padding for tighter spacing
       
-      .country-flag {
-        .flag-emoji {
-          font-size: 2rem;
+      .country-card {
+        --background: var(--ion-color-step-50);
+        --border-radius: var(--radius-lg);
+        --border-width: 1px;
+        --border-color: var(--ion-color-step-200);
+        transition: var(--transition-normal);
+        cursor: pointer;
+        margin: 0; // Remove any default margins
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-lg);
         }
         
-        .flag-image {
-          width: 48px;
-          height: 36px;
-          object-fit: cover;
-          border-radius: var(--radius-sm);
-          border: 1px solid var(--ion-color-step-200);
-        }
-      }
-      
-      .country-details {
-        flex: 1;
-        
-        .country-name {
-          font-size: 1.125rem;
-          font-weight: 600;
-          color: var(--ion-text-color);
-          margin: 0 0 var(--space-1) 0;
+        &.selected {
+          --border-color: var(--ion-color-primary);
+          --background: var(--ion-color-primary-tint);
+          box-shadow: var(--shadow-md);
         }
         
-        .country-currency {
-          font-size: 0.875rem;
-          color: var(--ion-color-step-600);
-          margin: 0;
+        .country-info {
+          display: flex;
+          align-items: center;
+          gap: var(--space-4);
+          
+          .country-flag {
+            .flag-emoji {
+              font-size: 2rem;
+            }
+            
+            .flag-image {
+              width: 48px;
+              height: 36px;
+              object-fit: cover;
+              border-radius: var(--radius-sm);
+              border: 1px solid var(--ion-color-step-200);
+            }
+          }
+          
+          .country-details {
+            flex: 1;
+            
+            .country-name {
+              font-size: 1.125rem;
+              font-weight: 600;
+              color: var(--ion-text-color);
+              margin: 0 0 var(--space-1) 0;
+            }
+            
+            .country-currency {
+              font-size: 0.875rem;
+              color: var(--ion-color-step-600);
+              margin: 0;
+            }
+          }
+          
+          .arrow-icon {
+            color: var(--ion-color-step-400);
+            font-size: 1.25rem;
+          }
         }
-      }
-      
-      .arrow-icon {
-        color: var(--ion-color-step-400);
-        font-size: 1.25rem;
       }
     }
   }
 }
 
-// Operators Grid
-.operators-grid {
-  display: grid;
-  gap: 16px;
+// Operators Grid with Ionic Grid System
+ion-grid {
+  padding: 0;
   
-  .operator-card {
-    --background: var(--ion-color-step-50);
-    --border-radius: var(--radius-lg);
-    --border-width: 1px;
-    --border-color: var(--ion-color-step-200);
-    transition: var(--transition-normal);
-    cursor: pointer;
+  ion-row {
+    margin: 0;
     
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    &.selected {
-      --border-color: var(--ion-color-primary);
-      --background: var(--ion-color-primary-tint);
-      box-shadow: var(--shadow-md);
-    }
-    
-    .operator-info {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
+    ion-col {
+      padding: 8px; // Reduced padding for tighter spacing
       
-      .operator-logo {
-        width: 48px;
-        height: 48px;
-        object-fit: contain;
-        border-radius: var(--radius-md);
-      }
-      
-      .operator-details {
-        flex: 1;
+      .operator-card {
+        --background: var(--ion-color-step-50);
+        --border-radius: var(--radius-lg);
+        --border-width: 1px;
+        --border-color: var(--ion-color-step-200);
+        transition: var(--transition-normal);
+        cursor: pointer;
+        margin: 0; // Remove any default margins
         
-        .operator-name {
-          font-size: 1.125rem;
-          font-weight: 600;
-          color: var(--ion-text-color);
-          margin: 0 0 var(--space-1) 0;
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-lg);
         }
         
-        .operator-currency {
-          font-size: 0.875rem;
-          color: var(--ion-color-step-600);
-          margin: 0;
+        &.selected {
+          --border-color: var(--ion-color-primary);
+          --background: var(--ion-color-primary-tint);
+          box-shadow: var(--shadow-md);
         }
-      }
-      
-      .check-icon {
-        color: var(--ion-color-success);
-        font-size: 1.5rem;
+        
+        .operator-info {
+          display: flex;
+          align-items: center;
+          gap: var(--space-4);
+          
+          .operator-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+          }
+          
+          .operator-details {
+            flex: 1;
+            
+            .operator-name {
+              font-size: 1.125rem;
+              font-weight: 600;
+              color: var(--ion-text-color);
+              margin: 0 0 var(--space-1) 0;
+            }
+            
+            .operator-currency {
+              font-size: 0.875rem;
+              color: var(--ion-color-step-600);
+              margin: 0;
+            }
+          }
+          
+          .check-icon {
+            color: var(--ion-color-success);
+            font-size: 1.5rem;
+          }
+        }
       }
     }
   }
@@ -373,7 +552,7 @@ ion-input {
   }
   
   .auto-detect-toggle {
-    margin: var(--space-4) 0;
+    margin: var(--space-2) 0;
     
     ion-toggle {
       --background: var(--ion-color-step-200);
@@ -392,7 +571,7 @@ ion-input {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    margin: var(--space-4) 0;
+    margin: var(--space-2) 0;
     
     ion-spinner {
       --color: var(--ion-color-primary);
@@ -405,7 +584,24 @@ ion-input {
   }
   
   .detected-operator {
-    margin: var(--space-4) 0;
+    margin: var(--space-2) 0;
+  }
+  
+  // Auto-detection indicator styling
+  .auto-detection {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-3) 0;
+    
+    ion-spinner {
+      --color: var(--ion-color-primary);
+    }
+    
+    span {
+      color: var(--ion-color-step-600);
+      font-size: 0.875rem;
+    }
   }
 }
 
@@ -584,7 +780,7 @@ ion-input {
   display: flex;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-top: var(--space-6);
+  margin-top: var(--space-2);
   
   .nav-button {
     flex: 1;
@@ -601,6 +797,82 @@ ion-input {
     &:disabled {
       --opacity: 0.5;
     }
+  }
+}
+
+// Auto-detection message for international countries
+.auto-detection-message {
+  margin: var(--space-6) 0;
+  
+  .modern-card {
+    --background: var(--ion-color-primary-tint);
+    --border-color: var(--ion-color-primary);
+    
+    ion-card-content {
+      padding: var(--space-6);
+      
+      .text-center {
+        text-align: center;
+        
+        ion-icon {
+          margin-bottom: var(--space-4);
+          color: var(--ion-color-primary);
+        }
+        
+        h3 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: var(--ion-text-color);
+          margin: 0 0 var(--space-3) 0;
+        }
+        
+        p {
+          color: var(--ion-color-step-600);
+          font-size: 1rem;
+          margin: 0 0 var(--space-4) 0;
+          line-height: 1.5;
+        }
+        
+        .modern-button {
+          --background: var(--ion-color-primary);
+          --color: var(--ion-color-primary-contrast);
+          --border-radius: 12px;
+          --padding-start: var(--space-6);
+          --padding-end: var(--space-6);
+          --padding-top: var(--space-3);
+          --padding-bottom: var(--space-3);
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// Loading states for operators
+.loading-operators {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  
+  .loading-spinner {
+    margin-bottom: var(--space-4);
+    color: var(--ion-color-primary);
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--ion-text-color);
+    margin: 0 0 var(--space-2) 0;
+  }
+  
+  p {
+    color: var(--ion-color-step-600);
+    font-size: 1rem;
+    margin: 0;
   }
 }
 
@@ -648,8 +920,12 @@ ion-input {
 
 // Responsive Design
 @media (max-width: 768px) {
-  .countries-grid,
-  .operators-grid,
+  ion-grid {
+    ion-col {
+      padding: 4px; // Even tighter spacing on mobile
+    }
+  }
+  
   .bundles-grid {
     grid-template-columns: 1fr;
   }
@@ -689,4 +965,126 @@ ion-input {
     --border-color: var(--ion-color-step-300);
   }
 }
+
+// Mobile-specific optimizations
+@media (max-width: 768px) {
+  .search-input,
+  .phone-input {
+    font-size: 16px; // Prevents zoom on iOS
+  }
+  
+  .form-item {
+    margin-bottom: 24px; // More spacing on mobile
+  }
+  
+  // Improve touch targets
+  ion-button {
+    min-height: 48px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+  }
+  
+  // Better spacing for mobile
+  .step-content {
+    padding: 16px;
+  }
+  
+  .navigation-buttons {
+    padding: 16px;
+    gap: 12px;
+  }
+}
+
+// Keyboard-aware scrolling
+.step-content {
+  padding-bottom: 100px; // Add bottom padding for keyboard
+}
+
+// Smooth scrolling for better UX
+ion-content {
+  --overflow: auto;
+  scroll-behavior: smooth;
+}
+
+/* Debug Section Styles */
+.debug-section {
+  margin: 16px 0;
+  text-align: center;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  
+  .debug-button,
+  .manual-populate-button {
+    --border-color: var(--ion-color-medium);
+    --color: var(--ion-color-medium);
+    --background: transparent;
+    font-size: 12px;
+    height: 32px;
+    
+    &:hover {
+      --background: var(--ion-color-medium-tint);
+      --color: var(--ion-color-medium-contrast);
+    }
+    
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+  
+  .manual-populate-button {
+    --border-color: var(--ion-color-primary);
+    --color: var(--ion-color-primary);
+    
+    &:hover {
+      --background: var(--ion-color-primary-tint);
+      --color: var(--ion-color-primary-contrast);
+    }
+  }
+}
+
+/* Enhanced phone number info styling */
+.user-phone-info {
+  margin: 8px 0;
+  
+  ion-chip {
+    --background: var(--ion-color-success-tint);
+    --color: var(--ion-color-success-contrast);
+    font-size: 12px;
+    height: 28px;
+  }
+}
+
+.help-note {
+  margin: 8px 0;
+  
+  ion-note {
+    font-size: 12px;
+    line-height: 1.4;
+    
+    ion-icon {
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+  }
+}
+
+  .clear-phone-section {
+    margin-top: 8px;
+    text-align: center;
+    
+    .clear-phone-button {
+      --color: var(--ion-color-medium);
+      --border-radius: 6px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      font-size: 12px;
+      height: 32px;
+      
+      ion-icon {
+        margin-right: 4px;
+      }
+    }
+  }
 

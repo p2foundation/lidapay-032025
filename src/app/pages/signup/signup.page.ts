@@ -3,6 +3,8 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   OnDestroy,
   OnInit,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -30,17 +32,19 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardSubtitle,
-  IonBadge,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, firstValueFrom } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { CountrySelectorModalComponent } from '../../components/country-selector-modal/country-selector-modal.component';
 import { MyEvent } from 'src/app/services/myevent.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { EmailService } from 'src/app/services/email.service';
+import { CountryService, Country } from 'src/app/services/utils/country.service';
 import { addIcons } from 'ionicons';
 import {
   peopleOutline,
@@ -56,8 +60,8 @@ import {
   arrowForwardOutline,
   arrowBackOutline,
   homeOutline,
-  sparklesOutline,
-} from 'ionicons/icons';
+  sparklesOutline, globeOutline, chevronDownOutline, ellipseOutline } from 'ionicons/icons';
+import { KeyboardService } from 'src/app/services/keyboard.service';
 
 // Register all icons used in this component
 addIcons({
@@ -89,8 +93,6 @@ addIcons({
     IonToolbar,
     IonInput,
     IonButton,
-    IonSelect,
-    IonSelectOption,
     IonIcon,
     IonProgressBar,
     IonCard,
@@ -98,7 +100,6 @@ addIcons({
     IonCardHeader,
     IonCardTitle,
     IonCardSubtitle,
-    IonBadge,
     IonSpinner,
     CommonModule,
     FormsModule,
@@ -121,6 +122,10 @@ export class SignupPage implements OnInit, OnDestroy {
   stepProgress: number = 25;
   isStepValid: boolean = false;
   showSuccessMessage: boolean = false;
+
+  // Country selection
+  selectedCountry: Country | null = null;
+  countries: Country[] = [];
 
   // Step titles and descriptions
   stepInfo = [
@@ -155,12 +160,16 @@ export class SignupPage implements OnInit, OnDestroy {
     private notification: NotificationService,
     private translate: TranslateService,
     private myEvent: MyEvent,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private countryService: CountryService,
+    private modalController: ModalController,
+    private keyboardService: KeyboardService,
   ) {
     this.signUpForm = this.formBuilder.group({
       firstName: ['', [Validators.required, Validators.minLength(3)]],
       lastName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
+      country: ['', [Validators.required]],
       mobile: ['', [Validators.required, Validators.minLength(10)]],
       role: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -195,6 +204,9 @@ export class SignupPage implements OnInit, OnDestroy {
       controls: Object.keys(this.signUpForm.controls)
     });
     
+    // Load countries for registration
+    this.countries = this.countryService.getCountriesForRegistration();
+    
     this.validateCurrentStep();
     console.log('✅ ngOnInit COMPLETED');
   }
@@ -228,6 +240,48 @@ export class SignupPage implements OnInit, OnDestroy {
     this.stepProgress = (this.currentStep / this.totalSteps) * 100;
   }
 
+  onCountrySelected(country: Country) {
+    console.log('🌍 COUNTRY SELECTED:', country);
+    console.log('🌍 FORM BEFORE UPDATE:', this.signUpForm.value);
+    
+    this.selectedCountry = country;
+    this.signUpForm.patchValue({ country: country.code });
+    
+    console.log('🌍 FORM AFTER UPDATE:', this.signUpForm.value);
+    console.log('🌍 COUNTRY FIELD VALID:', this.signUpForm.get('country')?.valid);
+    console.log('🌍 COUNTRY FIELD VALUE:', this.signUpForm.get('country')?.value);
+    console.log('🌍 COUNTRY FIELD ERRORS:', this.signUpForm.get('country')?.errors);
+  }
+
+  async openCountrySelector() {
+    console.log('🔍 OPENING COUNTRY SELECTOR');
+    console.log('🔍 CURRENT SELECTED COUNTRY:', this.selectedCountry);
+    console.log('🔍 FORM COUNTRY VALUE:', this.signUpForm.get('country')?.value);
+    
+    const modal = await this.modalController.create({
+      component: CountrySelectorModalComponent,
+      componentProps: {
+        selectedCountry: this.selectedCountry
+      },
+      breakpoints: [0, 0.5, 0.8, 1],
+      initialBreakpoint: 0.8,
+      backdropDismiss: true,
+      cssClass: 'country-selector-modal'
+    });
+
+    console.log('🔍 MODAL CREATED:', modal);
+    modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    console.log('🔍 MODAL DISMISSED WITH DATA:', data);
+    
+    if (data) {
+      this.onCountrySelected(data);
+    } else {
+      console.log('🔍 NO COUNTRY SELECTED FROM MODAL');
+    }
+  }
+
   validateCurrentStep() {
     console.log('🔍 VALIDATING STEP:', this.currentStep);
     
@@ -253,12 +307,15 @@ export class SignupPage implements OnInit, OnDestroy {
         break;
       case 3:
         this.isStepValid = this.signUpForm.get('email')?.valid && 
-                          this.signUpForm.get('mobile')?.valid || false;
+                          this.signUpForm.get('mobile')?.valid &&
+                          this.signUpForm.get('country')?.valid || false;
         console.log('🔍 STEP 3 VALIDATION:', {
           emailValid: this.signUpForm.get('email')?.valid,
           emailValue: this.signUpForm.get('email')?.value,
           mobileValid: this.signUpForm.get('mobile')?.valid,
           mobileValue: this.signUpForm.get('mobile')?.value,
+          countryValid: this.signUpForm.get('country')?.valid,
+          countryValue: this.signUpForm.get('country')?.value,
           isStepValid: this.isStepValid
         });
         break;
@@ -291,7 +348,8 @@ export class SignupPage implements OnInit, OnDestroy {
                this.signUpForm.get('lastName')?.valid || false;
       case 3:
         return this.signUpForm.get('email')?.valid && 
-               this.signUpForm.get('mobile')?.valid || false;
+               this.signUpForm.get('mobile')?.valid &&
+               this.signUpForm.get('country')?.valid || false;
       case 4:
         return this.signUpForm.get('password')?.valid || false;
       default:
@@ -315,6 +373,25 @@ export class SignupPage implements OnInit, OnDestroy {
       touched: this.signUpForm.touched,
       value: this.signUpForm.value
     });
+    
+    // Log individual field validation
+    Object.keys(this.signUpForm.controls).forEach(key => {
+      const control = this.signUpForm.get(key);
+      console.log(`🎯 Field ${key}:`, {
+        value: control?.value,
+        valid: control?.valid,
+        errors: control?.errors,
+        touched: control?.touched,
+        dirty: control?.dirty
+      });
+    });
+    
+    // Additional validation for country selection
+    if (!this.selectedCountry) {
+      console.log('❌ NO COUNTRY SELECTED');
+      this.notification.showError('Please select your country');
+      return;
+    }
     
     if (this.signUpForm.valid) {
       this.signupFormSubmit(this.signUpForm.value);
@@ -364,6 +441,7 @@ export class SignupPage implements OnInit, OnDestroy {
         phoneNumber: form.mobile,
         password: form.password,
         roles: form.role,
+        country: form.country, // Add the country field
       };
 
       // Log the processed signup parameters
@@ -375,7 +453,8 @@ export class SignupPage implements OnInit, OnDestroy {
         email: typeof this.signupParams.email,
         phoneNumber: typeof this.signupParams.phoneNumber,
         password: typeof this.signupParams.password,
-        roles: typeof this.signupParams.roles
+        roles: typeof this.signupParams.roles,
+        country: typeof this.signupParams.country
       });
 
       // Log the API call details
@@ -454,21 +533,47 @@ export class SignupPage implements OnInit, OnDestroy {
   }
 
   private handleRegistrationError(error: any) {
+    console.log('🔍 HANDLING REGISTRATION ERROR:', error);
+    
     if (error.status === 409) {
       this.notification.showError(
         'This email or phone number is already registered'
       );
     } else if (error.status === 400) {
-      if (error.error?.message?.includes('email')) {
-        this.notification.showError('Please enter a valid email address');
-      } else if (error.error?.message?.includes('password')) {
-        this.notification.showError(
-          'Password must be at least 8 characters long'
-        );
+      // Handle validation errors from the API
+      if (error.error?.message) {
+        const errorMessage = error.error.message;
+        
+        // Check if it's a structured error message
+        if (typeof errorMessage === 'object' && errorMessage.message) {
+          // Handle nested error structure
+          const messages = errorMessage.message;
+          if (Array.isArray(messages)) {
+            // Show the first error message
+            this.notification.showError(messages[0]);
+          } else if (typeof messages === 'string') {
+            this.notification.showError(messages);
+          } else {
+            this.notification.showError('Invalid input data');
+          }
+        } else if (typeof errorMessage === 'string') {
+          // Handle simple string error message
+          if (errorMessage.toLowerCase().includes('email')) {
+            this.notification.showError('Please enter a valid email address');
+          } else if (errorMessage.toLowerCase().includes('password')) {
+            this.notification.showError(
+              'Password must be at least 8 characters long'
+            );
+          } else if (errorMessage.toLowerCase().includes('country')) {
+            this.notification.showError('Please select a valid country');
+          } else {
+            this.notification.showError(errorMessage);
+          }
+        } else {
+          this.notification.showError('Invalid input data');
+        }
       } else {
-        this.notification.showError(
-          error.error?.message || 'Invalid input data'
-        );
+        this.notification.showError('Invalid input data');
       }
     } else if (error.error?.message) {
       this.notification.showError(error.error.message);
@@ -523,8 +628,99 @@ export class SignupPage implements OnInit, OnDestroy {
         const fieldName = this.translate.instant(field);
         return `${fieldName} is too short`;
       }
+      if (field === 'country' && control.errors['required']) {
+        return 'Please select your country';
+      }
     }
     return '';
+  }
+
+  selectRole(role: string) {
+    this.signUpForm.patchValue({ role });
+    this.signUpForm.get('role')?.markAsTouched();
+  }
+
+  // Enhanced keyboard handling methods
+  onInputFocus(event: any, fieldName: string) {
+    // Scroll to the focused input with keyboard awareness
+    const inputElement = event.target;
+    if (inputElement) {
+      setTimeout(() => {
+        // Get keyboard height for better positioning
+        const keyboardHeight = this.keyboardService.getKeyboardHeight();
+        
+        inputElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add additional offset for keyboard
+        if (keyboardHeight > 0) {
+          const currentScroll = window.pageYOffset;
+          window.scrollTo({
+            top: currentScroll - (keyboardHeight / 2),
+            behavior: 'smooth'
+          });
+        }
+      }, 300);
+    }
+    
+    // Mark field as touched for validation
+    this.signUpForm.get(fieldName)?.markAsTouched();
+  }
+
+  onInputBlur() {
+    // Handle any blur logic if needed
+    // This method is called when input loses focus
+  }
+
+  // Enhanced keyboard event handling
+  onKeyPress(event: KeyboardEvent, fieldName: string) {
+    // Handle Enter key for form navigation
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      
+      // Find next input field based on current step
+      const nextField = this.getNextFieldInStep(fieldName);
+      
+      if (nextField) {
+        // Focus next field
+        const nextInput = document.querySelector(`[formControlName="${nextField}"]`) as HTMLElement;
+        if (nextInput) {
+          nextInput.focus();
+        }
+      } else {
+        // Last field in step, try to go to next step
+        this.nextStep();
+      }
+    }
+  }
+
+  private getNextFieldInStep(fieldName: string): string | null {
+    const stepFieldOrder = {
+      1: ['firstName', 'lastName'],
+      2: ['email', 'country', 'mobile'],
+      3: ['password', 'confirmPassword']
+    };
+    
+    const currentStepFields = stepFieldOrder[this.currentStep as keyof typeof stepFieldOrder] || [];
+    const currentIndex = currentStepFields.indexOf(fieldName);
+    const nextIndex = currentIndex + 1;
+    
+    return nextIndex < currentStepFields.length ? currentStepFields[nextIndex] : null;
+  }
+
+  onInputChange(event: any, fieldName: string) {
+    // Handle real-time validation or other input change logic
+    const value = event.detail.value;
+    
+    // Trigger validation
+    const control = this.signUpForm.get(fieldName);
+    if (control) {
+      control.setValue(value, { emitEvent: false });
+      control.markAsTouched();
+    }
   }
 
   register_now() {

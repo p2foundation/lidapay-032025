@@ -1,0 +1,221 @@
+// Modern Profile Update Page Styles with Theme Support
+.modern-profile-content {
+  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  
+  // Dark theme background
+  body.dark & {
+    --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+}
+
+// Modern Header
+.modern-header {
+  .header-toolbar {
+    --background: rgba(255, 255, 255, 0.95);
+    --color: var(--ion-color-dark);
+    --border-color: transparent;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    body.dark & {
+      --background: rgba(26, 26, 46, 0.95);
+      --color: var(--ion-color-light);
+    }
+    
+    .back-button {
+      --color: var(--ion-color-dark);
+      --color-hover: var(--ion-color-primary);
+      --color-focused: var(--ion-color-primary);
+      --icon-font-size: 24px;
+      --min-width: 44px;
+      --min-height: 44px;
+      --opacity: 1;
+      font-weight: 600;
+      transform: none !important;
+      
+      // Dark theme back button
+      body.dark & {
+        --color: var(--ion-color-light);
+        --color-hover: var(--ion-color-primary);
+        --color-focused: var(--ion-color-primary);
+      }
+      
+      // Light theme back button
+      body.light & {
+        --color: var(--ion-color-dark);
+        --color-hover: var(--ion-color-primary);
+        --color-focused: var(--ion-color-primary);
+      }
+      
+      // System theme (auto) back button
+      @media (prefers-color-scheme: dark) {
+        --color: var(--ion-color-light);
+        --color-hover: var(--ion-color-primary);
+        --color-focused: var(--ion-color-primary);
+      }
+      
+      @media (prefers-color-scheme: light) {
+        --color: var(--ion-color-dark);
+        --color-hover: var(--ion-color-primary);
+        --color-focused: var(--ion-color-primary);
+      }
+    }
+    
+    .header-title {
+      .title-content {
+        text-align: center;
+        
+        .main-title {
+          margin: 0;
+          font-size: 1.75rem;
+          font-weight: 800;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+          margin: 4px 0 0 0;
+          font-size: 0.9rem;
+          color: var(--ion-color-step-600);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Content Wrapper
+.content-wrapper {
+  padding: 24px;
+  
+  .form-section-card {
+    --background: rgba(255, 255, 255, 0.9);
+    --border-radius: 20px;
+    --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    body.dark & {
+      --background: rgba(26, 26, 46, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 20px 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ion-color-primary);
+      
+      ion-icon {
+        font-size: 1.75rem;
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--ion-color-step-600);
+      line-height: 1.6;
+    }
+  }
+}
+
+// Additional Back Button Styling for Better Visibility
+ion-back-button {
+  // Ensure back button is always visible
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  z-index: 1000 !important;
+  position: relative !important;
+  
+  // Override any global transformations
+  transform: none !important;
+  
+  // Ensure proper touch target
+  --min-width: 44px;
+  --min-height: 44px;
+  
+  // Theme-aware colors
+  &:not(.custom-transform) {
+    --color: var(--ion-color-dark);
+    
+    body.dark & {
+      --color: var(--ion-color-light);
+    }
+    
+    body.light & {
+      --color: var(--ion-color-dark);
+    }
+  }
+}
+
+// Global back button override for this page
+.modern-header ion-back-button,
+ion-header ion-back-button,
+ion-toolbar ion-back-button {
+  --color: var(--ion-color-dark) !important;
+  --opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  transform: none !important;
+  
+  body.dark & {
+    --color: var(--ion-color-light) !important;
+  }
+  
+  body.light & {
+    --color: var(--ion-color-dark) !important;
+  }
+}
+
+// Dark Theme Enhancements
+body.dark {
+  .modern-profile-content {
+    --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  
+  .modern-header .header-toolbar {
+    --background: rgba(26, 26, 46, 0.95);
+    --color: var(--ion-color-light);
+  }
+  
+  .content-wrapper .form-section-card {
+    --background: rgba(26, 26, 46, 0.9);
+    --border-color: var(--ion-border-color);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding: 20px;
+  }
+  
+  .modern-header .header-toolbar .header-title .title-content .main-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-wrapper {
+    padding: 16px;
+  }
+  
+  .modern-header .header-toolbar .header-title .title-content .main-title {
+    font-size: 1.25rem;
+  }
+  
+  .content-wrapper .form-section-card .section-title {
+    font-size: 1.25rem;
+  }
+}

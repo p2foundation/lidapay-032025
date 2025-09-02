@@ -1,30 +1,156 @@
-// Settings Page Styles
-.settings-content {
-  --background: var(--ion-background-color);
+// Modern Settings Page Styles with Theme Support
+.modern-settings-content {
+  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   
+  // Dark theme background
+  body.dark & {
+    --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+}
+
+// Modern Header
+.modern-header {
   .header-toolbar {
-    --background: var(--ion-toolbar-background);
-    --color: var(--ion-text-color);
-    --border-color: var(--ion-border-color);
+    --background: rgba(255, 255, 255, 0.95);
+    --color: var(--ion-color-dark);
+    --border-color: transparent;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     
-    ion-back-button {
-      --color: var(--ion-text-color);
-      --icon-font-size: 24px;
+    body.dark & {
+      --background: rgba(26, 26, 46, 0.95);
+      --color: var(--ion-color-light);
     }
     
-    .header-title {
-      .title-content {
-        h1 {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: 700;
+    .back-button {
+      --color: var(--ion-color-primary);
+      --icon-font-size: 24px;
+      font-weight: 600;
+    }
+
+    .refresh-button {
+      --color: var(--ion-color-primary);
+      --icon-font-size: 20px;
+    }
+  }
+
+  .header-title {
+    .title-content {
+      .main-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--ion-text-color);
+        letter-spacing: -0.5px;
+      }
+      
+      .subtitle {
+        margin: 4px 0 0 0;
+        font-size: 0.875rem;
+        color: var(--ion-color-step-600);
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+// Loading Skeleton
+.skeleton-wrapper {
+  padding: 20px;
+  
+  .settings-skeleton {
+    .section-skeleton {
+      height: 24px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+    
+    .item-skeleton {
+      height: 72px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+    }
+  }
+}
+
+// Settings Content
+.settings-content {
+  padding: 20px;
+}
+
+// Overview Card
+.overview-card {
+  margin-bottom: 24px;
+  
+  .overview-card-inner {
+    --background: rgba(255, 255, 255, 0.9);
+    --color: var(--ion-color-dark);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    body.dark & {
+      --background: rgba(26, 26, 46, 0.9);
+      --color: var(--ion-color-light);
+    }
+    
+    .overview-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      
+      .overview-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        ion-icon {
+          font-size: 24px;
+          color: white;
+        }
+      }
+      
+      .overview-info {
+        flex: 1;
+        
+        h3 {
+          margin: 0 0 4px 0;
+          font-size: 1.125rem;
+          font-weight: 600;
           color: var(--ion-text-color);
         }
         
         p {
-          margin: 4px 0 0 0;
+          margin: 0;
           font-size: 0.875rem;
           color: var(--ion-color-step-600);
+        }
+      }
+      
+      .progress-badge {
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 8px 12px;
+        border-radius: 20px;
+      }
+    }
+    
+    .overview-actions {
+      .reset-button {
+        --border-color: var(--ion-color-medium);
+        --color: var(--ion-color-medium);
+        font-weight: 500;
+        border-radius: 8px;
+        
+        &:hover {
+          --background: var(--ion-color-medium);
+          --color: white;
         }
       }
     }
@@ -33,86 +159,144 @@
 
 // Settings Sections
 .settings-sections {
-  padding: 20px;
-}
-
-.settings-section {
-  margin-bottom: 24px;
-  
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 12px 0;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--ion-color-step-600);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  .settings-section {
+    margin-bottom: 32px;
     
-    ion-icon {
-      font-size: 1rem;
-      color: var(--ion-color-primary);
-    }
-  }
-  
-  .settings-list {
-    background: transparent;
-    padding: 0;
-    
-    .setting-item {
-      --background: var(--ion-card-background);
-      --color: var(--ion-text-color);
-      --border-color: var(--ion-border-color);
-      --border-radius: 12px;
-      --padding-start: 16px;
-      --padding-end: 16px;
-      --min-height: 72px;
-      margin-bottom: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease;
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 16px 0;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--ion-color-step-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       
-      &:active {
-        transform: scale(0.98);
-      }
-      
-      .setting-icon {
-        font-size: 1.25rem;
+      ion-icon {
+        font-size: 1.125rem;
         color: var(--ion-color-primary);
       }
+    }
+    
+    .settings-list {
+      background: transparent;
+      padding: 0;
       
-      ion-label {
-        h4 {
-          margin: 0 0 4px 0;
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: var(--ion-text-color);
+      .setting-item {
+        --background: rgba(255, 255, 255, 0.8);
+        --color: var(--ion-text-color);
+        --border-color: transparent;
+        --border-radius: 16px;
+        --padding-start: 20px;
+        --padding-end: 20px;
+        --min-height: 80px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        body.dark & {
+          --background: rgba(26, 26, 46, 0.8);
         }
         
-        p {
-          margin: 0;
-          font-size: 0.75rem;
-          color: var(--ion-color-step-600);
-          line-height: 1.3;
+        &:active {
+          transform: scale(0.98);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
         }
-      }
-      
-      .arrow-icon {
-        font-size: 1rem;
-        color: var(--ion-color-step-500);
-      }
-      
-      ion-toggle {
-        --background: var(--ion-color-step-300);
-        --background-checked: var(--ion-color-primary);
-        --handle-background: var(--ion-color-step-100);
-        --handle-background-checked: var(--ion-color-primary-contrast);
-      }
-      
-      ion-select {
-        --background: var(--ion-item-background);
-        --color: var(--ion-text-color);
-        --border-color: var(--ion-border-color);
+        
+        &:hover {
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+          transform: translateY(-2px);
+        }
+        
+        .setting-icon {
+          font-size: 1.375rem;
+          color: var(--ion-color-primary);
+          margin-right: 16px;
+        }
+        
+        ion-label {
+          h4 {
+            margin: 0 0 6px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ion-text-color);
+            line-height: 1.3;
+          }
+          
+          p {
+            margin: 0;
+            font-size: 0.813rem;
+            color: var(--ion-color-step-600);
+            line-height: 1.4;
+          }
+        }
+        
+        .arrow-icon {
+          font-size: 1.125rem;
+          color: var(--ion-color-step-400);
+        }
+        
+        // Modern Toggle
+        ion-toggle {
+          --background: var(--ion-color-medium);
+          --background-checked: var(--ion-color-primary);
+          --handle-background: white;
+          --handle-background-checked: white;
+          --handle-width: 20px;
+          --handle-height: 20px;
+          --handle-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          --border-radius: 12px;
+          --width: 44px;
+          --height: 24px;
+        }
+        
+        // Modern Select
+        ion-select {
+          --placeholder-color: var(--ion-color-step-400);
+          --placeholder-opacity: 1;
+          font-weight: 500;
+          color: var(--ion-color-primary);
+          min-width: 120px;
+          
+          &::part(icon) {
+            color: var(--ion-color-primary);
+          }
+        }
+        
+        // Badges
+        ion-badge {
+          font-weight: 500;
+          font-size: 0.75rem;
+          padding: 6px 10px;
+          border-radius: 12px;
+          
+          &.last-backup-badge {
+            --background: var(--ion-color-light);
+            --color: var(--ion-color-step-600);
+          }
+          
+          &.version-badge {
+            font-weight: 600;
+          }
+        }
+        
+        // Info Items
+        &.info-item {
+          --background: rgba(var(--ion-color-primary-rgb), 0.05);
+          border-left: 4px solid var(--ion-color-primary);
+          
+          .info-icon {
+            color: var(--ion-color-primary);
+          }
+          
+          ion-label p {
+            color: var(--ion-color-step-500);
+            font-style: italic;
+          }
+        }
       }
     }
   }
@@ -120,14 +304,21 @@
 
 // Quick Actions
 .quick-actions {
+  margin-top: 32px;
   padding: 0 20px 20px;
   
   .quick-action-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    padding: 20px;
-    color: white;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    --background: rgba(255, 255, 255, 0.9);
+    --color: var(--ion-color-dark);
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    body.dark & {
+      --background: rgba(26, 26, 46, 0.9);
+      --color: var(--ion-color-light);
+    }
     
     .quick-action-content {
       display: flex;
@@ -136,7 +327,8 @@
       
       .quick-action-icon {
         font-size: 2rem;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--ion-color-primary);
+        flex-shrink: 0;
       }
       
       .quick-action-text {
@@ -144,50 +336,74 @@
         
         h4 {
           margin: 0 0 4px 0;
-          font-size: 1rem;
+          font-size: 1.125rem;
           font-weight: 600;
+          color: var(--ion-text-color);
         }
         
         p {
           margin: 0;
           font-size: 0.875rem;
-          opacity: 0.9;
+          color: var(--ion-color-step-600);
+          line-height: 1.4;
         }
       }
       
-      ion-button {
-        --color: white;
-        --background: rgba(255, 255, 255, 0.2);
-        --border-radius: 8px;
+      .contact-button {
+        --color: var(--ion-color-primary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         font-size: 0.875rem;
-        font-weight: 500;
+        
+        &:hover {
+          --background: var(--ion-color-primary);
+          --color: white;
+        }
       }
     }
   }
 }
 
 // Responsive Design
-@media (max-width: 480px) {
-  .settings-sections {
+@media (max-width: 576px) {
+  .settings-content {
     padding: 16px;
+  }
+  
+  .overview-card {
+    .overview-card-inner {
+      .overview-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        
+        .overview-info {
+          text-align: center;
+        }
+      }
+    }
   }
   
   .settings-section {
     .settings-list {
       .setting-item {
-        --min-height: 64px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        --min-height: 72px;
         
         .setting-icon {
-          font-size: 1.125rem;
+          font-size: 1.25rem;
+          margin-right: 12px;
         }
         
         ion-label {
           h4 {
-            font-size: 0.875rem;
+            font-size: 0.938rem;
           }
           
           p {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
           }
         }
       }
@@ -198,106 +414,129 @@
     padding: 0 16px 16px;
     
     .quick-action-card {
-      padding: 16px;
-      
       .quick-action-content {
+        flex-direction: column;
+        text-align: center;
         gap: 12px;
         
-        .quick-action-icon {
-          font-size: 1.5rem;
-        }
-        
         .quick-action-text {
-          h4 {
-            font-size: 0.9rem;
-          }
-          
-          p {
-            font-size: 0.8rem;
-          }
+          text-align: center;
         }
       }
     }
   }
 }
 
-// Dark mode specific overrides
-@media (prefers-color-scheme: dark) {
-  .settings-content {
-    --background: var(--ion-background-color);
+// Animation Classes
+.animate__animated {
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+
+.animate__fadeIn {
+  animation-name: fadeIn;
+}
+
+.animate__fadeInUp {
+  animation-name: fadeInUp;
+}
+
+.animate__delay-1s {
+  animation-delay: 0.1s;
+}
+
+.animate__delay-2s {
+  animation-delay: 0.2s;
+}
+
+.animate__delay-3s {
+  animation-delay: 0.3s;
+}
+
+.animate__delay-4s {
+  animation-delay: 0.4s;
+}
+
+.animate__delay-5s {
+  animation-delay: 0.5s;
+}
+
+.animate__delay-6s {
+  animation-delay: 0.6s;
+}
+
+// Keyframe Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
-  .settings-section {
-    .settings-list {
-      .setting-item {
-        --background: var(--ion-card-background);
-        --color: var(--ion-text-color);
-        --border-color: var(--ion-border-color);
-        
-        ion-label {
-          h4 {
-            color: var(--ion-text-color);
-          }
-          
-          p {
-            color: var(--ion-color-step-600);
-          }
-        }
-      }
-    }
+  to {
+    opacity: 1;
   }
 }
 
-// Manual dark mode override
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+// Theme-specific Enhancements
 body.dark {
-  .settings-content {
-    --background: var(--ion-background-color);
+  .modern-settings-content {
+    --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   }
   
-  .settings-section {
-    .settings-list {
-      .setting-item {
-        --background: var(--ion-card-background);
-        --color: var(--ion-text-color);
-        --border-color: var(--ion-border-color);
-        
-        ion-label {
-          h4 {
-            color: var(--ion-text-color);
-          }
-          
-          p {
-            color: var(--ion-color-step-600);
-          }
-        }
-      }
+  .overview-card .overview-card-inner {
+    --background: rgba(26, 26, 46, 0.9);
+    --color: var(--ion-color-light);
+  }
+  
+  .settings-section .settings-list .setting-item {
+    --background: rgba(26, 26, 46, 0.8);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    
+    &:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
+  }
+  
+  .quick-actions .quick-action-card {
+    --background: rgba(26, 26, 46, 0.9);
+    --color: var(--ion-color-light);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   }
 }
 
-// Manual light mode override
-body.light {
-  .settings-content {
-    --background: var(--ion-background-color);
+// High Contrast Mode Support
+@media (prefers-contrast: high) {
+  .settings-section .settings-list .setting-item {
+    --border-color: var(--ion-color-step-300);
+    border: 1px solid var(--ion-color-step-300);
   }
   
-  .settings-section {
-    .settings-list {
-      .setting-item {
-        --background: var(--ion-card-background);
-        --color: var(--ion-text-color);
-        --border-color: var(--ion-border-color);
-        
-        ion-label {
-          h4 {
-            color: var(--ion-text-color);
-          }
-          
-          p {
-            color: var(--ion-color-step-600);
-          }
-        }
-      }
+  .overview-card .overview-card-inner,
+  .quick-actions .quick-action-card {
+    border: 2px solid var(--ion-color-step-300);
+  }
+}
+
+// Reduced Motion Support
+@media (prefers-reduced-motion: reduce) {
+  .animate__animated {
+    animation-duration: 0.1s;
+  }
+  
+  .settings-section .settings-list .setting-item {
+    transition: none;
+    
+    &:hover {
+      transform: none;
     }
   }
 }

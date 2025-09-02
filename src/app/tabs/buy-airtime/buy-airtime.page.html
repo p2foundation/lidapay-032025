@@ -145,7 +145,16 @@
             type="tel"
             placeholder="Enter phone number"
             class="custom-input"
-            (ionInput)="onPhoneNumberInput($event)">
+            inputmode="tel"
+            enterkeyhint="next"
+            autocomplete="tel"
+            autocorrect="off"
+            autocapitalize="off"
+            clearInput="true"
+            maxlength="15"
+            (ionInput)="onPhoneNumberInput($event)"
+            (ionFocus)="onInputFocus($event, 'recipientNumber')"
+            (ionBlur)="onInputBlur()">
           </ion-input>
           
           <!-- Auto-detection indicator -->
@@ -174,7 +183,15 @@
             formControlName="amount"
             type="number"
             placeholder="Enter amount"
-            class="custom-input">
+            class="custom-input"
+            inputmode="decimal"
+            enterkeyhint="done"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            clearInput="true"
+            (ionFocus)="onInputFocus($event, 'amount')"
+            (ionBlur)="onInputBlur()">
           </ion-input>
           <ion-note slot="error" *ngIf="airtimeForm.get('amount')?.touched && airtimeForm.get('amount')?.invalid">
             Please enter a valid amount
@@ -194,12 +211,64 @@
         </div>
       </form>
   
+      <!-- Enhanced Operator Selection -->
+      <div class="operators-section animate__animated animate__fadeInUp animate__delay-6s" *ngIf="enhancedOperators.length > 0">
+        <h3>Available Networks</h3>
+        <p class="section-subtitle">Select your preferred network provider</p>
+        
+        <div class="operators-grid">
+          <div 
+            class="operator-card" 
+            *ngFor="let operator of enhancedOperators; let i = index"
+            [class.selected]="selectedOperator?.name === operator.name"
+            (click)="selectOperator(operator)"
+            [style.animation-delay]="(i * 0.1) + 's'">
+            
+            <div class="operator-logo">
+              <img [src]="operator.logo" [alt]="operator.displayName + ' logo'" 
+                   [title]="operator.displayName + ' logo'"
+                   [style.background-color]="operator.primaryColor"
+                   class="logo-image">
+            </div>
+            
+            <div class="operator-info">
+              <h4 class="operator-name">{{ operator.displayName }}</h4>
+              <p class="operator-services">
+                <ion-chip size="small" color="success" *ngIf="operatorSupportsService(operator, 'airtime')">
+                  <ion-icon name="call-outline"></ion-icon>
+                  <ion-label>Airtime</ion-label>
+                </ion-chip>
+                <ion-chip size="small" color="primary" *ngIf="operatorSupportsService(operator, 'data')">
+                  <ion-icon name="wifi-outline"></ion-icon>
+                  <ion-label>Data</ion-label>
+                </ion-chip>
+                <ion-chip size="small" color="warning" *ngIf="operatorSupportsService(operator, 'sms')">
+                  <ion-icon name="chatbubble-outline"></ion-icon>
+                  <ion-label>SMS</ion-label>
+                </ion-chip>
+              </p>
+              
+              <div class="operator-features" *ngIf="getOperatorFeatures(operator).length > 0">
+                <ion-chip size="small" color="medium" *ngFor="let feature of getOperatorFeatures(operator)">
+                  <ion-label>{{ feature }}</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+            
+            <div class="operator-popularity" *ngIf="operator.popularity >= 8">
+              <ion-icon name="star" color="warning"></ion-icon>
+              <span>Popular</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Quick Amount Selection -->
-      <div class="quick-amounts animate__animated animate__fadeInUp animate__delay-6s">
+      <div class="quick-amounts animate__animated animate__fadeInUp animate__delay-7s">
         <h3>Quick Amounts</h3>
         <ion-grid>
           <ion-row>
-            <ion-col size="4" *ngFor="let amount of quickAmounts">
+            <ion-col size="4" *ngFor="let amount of getQuickAmountsForOperator()">
               <div class="amount-chip" (click)="selectAmount(amount)">
                 <span>{{ selectedCountry?.currencyCode || 'GHS' }} {{amount}}</span>
               </div>

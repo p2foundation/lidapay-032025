@@ -46,10 +46,21 @@
       
       <!-- Loading State -->
       <div class="loading-container" *ngIf="isLoadingCountries">
-        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 100%; height: 80px; margin-bottom: 16px;"></ion-skeleton-text>
+        <div class="loading-header">
+          <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+          <h3>Loading Countries</h3>
+          <p>Please wait while we fetch available countries...</p>
+        </div>
+        
+        <div class="skeleton-grid">
+          <div class="skeleton-card" *ngFor="let item of [1,2,3,4,5,6,7,8]">
+            <div class="skeleton-flag"></div>
+            <div class="skeleton-content">
+              <div class="skeleton-title"></div>
+              <div class="skeleton-subtitle"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Search Bar -->
@@ -178,14 +189,16 @@
           <span>Detected: {{ detectedOperator.name }}</span>
         </div>
         
-        <!-- Debug button (only in development) -->
-        <div class="debug-section" *ngIf="true">
+        <!-- Clear phone number button -->
+        <div class="clear-phone-section" *ngIf="airtimeForm.get('recipientNumber')?.value">
           <ion-button 
             fill="clear" 
             size="small" 
-            (click)="debugValidationState()"
-            color="medium">
-            Debug Validation
+            (click)="clearPhoneNumber()"
+            color="medium"
+            class="clear-phone-button">
+            <ion-icon name="close-circle" slot="start"></ion-icon>
+            Clear Phone Number
           </ion-button>
         </div>
       </div>

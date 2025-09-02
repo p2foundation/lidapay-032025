@@ -233,20 +233,92 @@ ion-input {
   }
 }
 
-// Loading Container
+// Enhanced Loading Container
 .loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
+  text-align: center;
+  padding: 40px 20px;
   
-  ion-spinner {
-    margin-bottom: var(--space-4);
+  .loading-header {
+    margin-bottom: 32px;
+    
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      --color: var(--ion-color-primary);
+    }
+    
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ion-text-color);
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 14px;
+      color: var(--ion-color-step-600);
+      margin: 0;
+      line-height: 1.4;
+    }
   }
   
-  p {
-    color: var(--ion-color-step-600);
+  .skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 100%;
+    
+    .skeleton-card {
+      background: var(--ion-color-step-50);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid var(--ion-color-step-200);
+      
+      .skeleton-flag {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(90deg, var(--ion-color-step-200) 25%, var(--ion-color-step-300) 50%, var(--ion-color-step-200) 75%);
+        background-size: 200% 100%;
+        border-radius: var(--radius-sm);
+        animation: skeleton-loading 1.5s infinite;
+      }
+      
+      .skeleton-content {
+        flex: 1;
+        
+        .skeleton-title {
+          width: 80%;
+          height: 16px;
+          background: linear-gradient(90deg, var(--ion-color-step-200) 25%, var(--ion-color-step-300) 50%, var(--ion-color-step-200) 75%);
+          background-size: 200% 100%;
+          border-radius: 4px;
+          margin-bottom: 8px;
+          animation: skeleton-loading 1.5s infinite;
+        }
+        
+        .skeleton-subtitle {
+          width: 60%;
+          height: 12px;
+          background: linear-gradient(90deg, var(--ion-color-step-200) 25%, var(--ion-color-step-300) 50%, var(--ion-color-step-200) 75%);
+          background-size: 200% 100%;
+          border-radius: 4px;
+          animation: skeleton-loading 1.5s infinite;
+        }
+      }
+    }
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }
 

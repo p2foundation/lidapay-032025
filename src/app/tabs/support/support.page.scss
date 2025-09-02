@@ -1,0 +1,460 @@
+.support-content {
+  --background: var(--ion-color-light);
+}
+
+// Ensure back button is visible
+ion-back-button {
+  --color: var(--ion-color-primary) !important;
+  --icon-font-size: 24px !important;
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  transform: none !important;
+  position: relative !important;
+  z-index: 1000 !important;
+  
+  &::part(native) {
+    color: var(--ion-color-primary) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  &:hover, &:focus {
+    --color: var(--ion-color-primary-shade) !important;
+    
+    &::part(native) {
+      background: rgba(255, 255, 255, 1) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+  }
+}
+
+// Light theme specific styling
+@media (prefers-color-scheme: light) {
+  ion-back-button {
+    --color: var(--ion-color-primary) !important;
+    
+    &::part(native) {
+      color: var(--ion-color-primary) !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+}
+
+// Dark theme specific styling
+@media (prefers-color-scheme: dark) {
+  ion-back-button {
+    --color: var(--ion-color-light) !important;
+    
+    &::part(native) {
+      color: var(--ion-color-light) !important;
+      background: rgba(0, 0, 0, 0.8) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+}
+
+// Hero Section
+.hero-section {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+  color: white;
+  padding: 2rem 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+
+  .hero-content {
+    max-width: 600px;
+    margin: 0 auto;
+
+    .hero-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 0;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Quick Actions
+.quick-actions {
+  padding: 0 1rem 1rem;
+
+  .action-card {
+    margin: 0;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    ion-card-content {
+      text-align: center;
+      padding: 1.5rem 1rem;
+
+      .action-icon {
+        font-size: 2.5rem;
+        color: var(--ion-color-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+        color: var(--ion-color-dark);
+      }
+
+      p {
+        font-size: 0.9rem;
+        margin: 0;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// Section Styling
+.section {
+  padding: 2rem 1rem;
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 0;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// FAQ Accordion
+.faq-accordion {
+  .faq-header {
+    --background: var(--ion-color-light);
+    --border-radius: 12px;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+
+    ion-icon {
+      color: var(--ion-color-primary);
+    }
+  }
+
+  .faq-content {
+    padding: 0;
+
+    ion-list {
+      padding: 0;
+
+      ion-item {
+        --padding-start: 1rem;
+        --padding-end: 1rem;
+        --border-radius: 8px;
+        margin-bottom: 0.25rem;
+        font-size: 0.95rem;
+        color: var(--ion-color-dark);
+
+        &:hover {
+          --background: var(--ion-color-light-shade);
+        }
+
+        ion-icon {
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+}
+
+// Contact Form
+.contact-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin: 0;
+
+  ion-card-content {
+    padding: 1.5rem;
+
+    .form-item {
+      --border-radius: 12px;
+      --background: var(--ion-color-light);
+      margin-bottom: 1rem;
+      --padding-start: 1rem;
+      --padding-end: 1rem;
+
+      ion-label {
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin-bottom: 0.5rem;
+      }
+
+      ion-input,
+      ion-select,
+      ion-textarea {
+        --padding-start: 0;
+        --padding-end: 0;
+        font-size: 1rem;
+        color: var(--ion-color-dark);
+
+        &::placeholder {
+          color: var(--ion-color-medium);
+        }
+      }
+    }
+
+    .submit-btn {
+      --border-radius: 12px;
+      --padding-top: 1rem;
+      --padding-bottom: 1rem;
+      font-weight: 600;
+      margin-top: 1rem;
+      height: 3.5rem;
+
+      ion-icon {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}
+
+// Support Options
+.support-options {
+  background: transparent;
+  padding: 0;
+
+  .support-option {
+    --border-radius: 12px;
+    --background: var(--ion-color-light);
+    margin-bottom: 0.5rem;
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+
+    &:hover {
+      --background: var(--ion-color-light-shade);
+    }
+
+    .support-icon {
+      font-size: 1.5rem;
+      color: var(--ion-color-primary);
+      margin-right: 1rem;
+    }
+
+    ion-label {
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 0.25rem 0;
+        color: var(--ion-color-dark);
+      }
+
+      p {
+        font-size: 0.9rem;
+        margin: 0;
+        color: var(--ion-color-medium);
+      }
+    }
+
+    ion-icon[slot="end"] {
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+// FAQ Modal
+.faq-modal-content {
+  .faq-detail {
+    padding: 1.5rem;
+
+    h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0 0 1rem 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--ion-color-dark);
+      margin-bottom: 2rem;
+    }
+
+    .faq-helpful {
+      border-top: 1px solid var(--ion-color-light-shade);
+      padding-top: 1rem;
+
+      p {
+        font-size: 0.9rem;
+        margin: 0 0 0.5rem 0;
+        color: var(--ion-color-medium);
+      }
+
+      ion-button {
+        --color: var(--ion-color-primary);
+        margin-right: 1rem;
+
+        ion-icon {
+          margin-right: 0.25rem;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (min-width: 768px) {
+  .hero-section {
+    padding: 3rem 2rem;
+
+    .hero-content {
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .quick-actions {
+    padding: 0 2rem 2rem;
+  }
+
+  .section {
+    padding: 3rem 2rem;
+
+    .section-header {
+      h2 {
+        font-size: 1.8rem;
+      }
+    }
+  }
+
+  .contact-card {
+    ion-card-content {
+      padding: 2rem;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section {
+    padding: 4rem 3rem;
+
+    .hero-content {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      p {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .quick-actions {
+    padding: 0 3rem 3rem;
+  }
+
+  .section {
+    padding: 4rem 3rem;
+  }
+}
+
+// Dark Theme Support
+@media (prefers-color-scheme: dark) {
+  .support-content {
+    --background: var(--ion-color-dark);
+  }
+
+  .hero-section {
+    background: linear-gradient(135deg, var(--ion-color-primary-shade) 0%, var(--ion-color-primary) 100%);
+  }
+
+  .action-card,
+  .contact-card {
+    --background: var(--ion-color-dark-shade);
+    --color: var(--ion-color-light);
+  }
+
+  .faq-header,
+  .support-option {
+    --background: var(--ion-color-dark-shade);
+    --color: var(--ion-color-light);
+  }
+
+  .section-header {
+    h2 {
+      color: var(--ion-color-light);
+    }
+
+    p {
+      color: var(--ion-color-light-shade);
+    }
+  }
+}
+
+// Animation Classes
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

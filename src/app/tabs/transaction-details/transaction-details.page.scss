@@ -35,15 +35,27 @@
   --background: #ffffff;
   --border-width: 0;
   --min-height: 60px;
-  --padding-top: 0;
-  --padding-bottom: 0;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 1001;
   
   .back-button {
     --color: #1a1a2e;
     --padding-start: 8px;
     --padding-end: 8px;
     margin: 0;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    
+    ion-icon {
+      font-size: 24px;
+      color: #1a1a2e;
+    }
   }
   
   .header-title {
@@ -54,9 +66,69 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      font-size: 18px;
-      font-weight: 600;
-      color: #1a1a2e;
+      
+      .brand-title {
+        text-align: center;
+        line-height: 1.2;
+        
+        .brand-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a2e;
+          display: block;
+          
+          .brand-pay {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f093fb 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            font-weight: 700;
+            color: transparent !important;
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+            
+            /* Alternative approach - use a different method */
+            background-image: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f093fb 100%) !important;
+            
+            /* Force the gradient to show */
+            &::before {
+              content: attr(data-text);
+              position: absolute;
+              left: 0;
+              top: 0;
+              background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f093fb 100%);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              background-clip: text;
+              z-index: -1;
+            }
+            
+            /* Fallback for browsers that don't support background-clip */
+            @supports not (-webkit-background-clip: text) {
+              color: #ff6b9d !important;
+            }
+          }
+          
+          /* More specific selector to override any conflicts */
+          .header-title .title-content .brand-title .brand-name .brand-pay {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #f093fb 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            color: transparent !important;
+          }
+        }
+        
+        .brand-subtitle {
+          font-size: 10px;
+          font-weight: 400;
+          color: var(--ion-color-medium);
+          opacity: 0.8;
+          display: block;
+          margin-top: 2px;
+        }
+      }
     }
   }
   
@@ -97,9 +169,12 @@
 // Content Wrapper
 .content-wrapper {
   padding: 16px;
+  padding-top: 24px;
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
   
   &.animate-in {
     opacity: 1;
@@ -110,11 +185,13 @@
 // Transaction Header
 .transaction-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin: 16px 0 24px 0;
   padding: 24px 16px;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 1;
   
   .transaction-icon {
     width: 72px;
@@ -362,13 +439,15 @@
 .timeline-card {
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   margin-bottom: 16px;
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   
   ion-card-header {
     padding: 20px 20px 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(248, 249, 255, 0.5);
     
     ion-card-title {
       display: flex;
@@ -388,6 +467,7 @@
   
   ion-card-content {
     padding: 16px 20px 20px;
+    background: #ffffff;
     
     .notes-text {
       margin: 0;
@@ -395,6 +475,12 @@
       line-height: 1.5;
       color: #1a1a2e;
     }
+  }
+  
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
   }
 }
 
@@ -752,7 +838,9 @@
   }
   
   .details-card, .additional-card, .notes-card, .timeline-card {
-    --background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
   }
   
   .transaction-header .transaction-info .transaction-title {
@@ -761,5 +849,21 @@
   
   .details-list .detail-item ion-label .detail-row .detail-value {
     color: #ffffff;
+  }
+  
+  .additional-card ion-card-header ion-card-title,
+  .notes-card ion-card-header ion-card-title,
+  .timeline-card ion-card-header ion-card-title {
+    color: #ffffff !important;
+  }
+  
+  .additional-card ion-card-content,
+  .notes-card ion-card-content,
+  .timeline-card ion-card-content {
+    color: #ffffff !important;
+  }
+  
+  .details-list .detail-item ion-label .detail-row .detail-label {
+    color: rgba(255, 255, 255, 0.7) !important;
   }
 } 

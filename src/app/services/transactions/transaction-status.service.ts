@@ -99,9 +99,12 @@ export class TransactionStatusService {
 
     // Handle different response formats from AdvansisPayService
     if (response.success !== undefined) {
+      const statusValue = response.status || response.data?.status;
+      console.log('Status value extracted:', statusValue, 'Type:', typeof statusValue);
+      
       return {
         success: response.success,
-        status: this.mapStatus(response.status || response.data?.status),
+        status: this.mapStatus(statusValue),
         message: response.message || response.data?.message || 'Status query completed',
         data: response.data || response,
         timestamp: new Date().toISOString()
@@ -109,7 +112,9 @@ export class TransactionStatusService {
     }
 
     // Handle direct status response
-    if (response.status) {
+    if (response.status !== undefined) {
+      console.log('Direct status value:', response.status, 'Type:', typeof response.status);
+      
       return {
         success: true,
         status: this.mapStatus(response.status),
@@ -131,6 +136,7 @@ export class TransactionStatusService {
     }
 
     // Default response
+    console.log('Using default response for:', response);
     return {
       success: true,
       status: 'pending',
@@ -143,10 +149,12 @@ export class TransactionStatusService {
   /**
    * Map API status values to our internal status enum
    */
-  private mapStatus(apiStatus: string): 'pending' | 'completed' | 'failed' {
+  private mapStatus(apiStatus: any): 'pending' | 'completed' | 'failed' {
     if (!apiStatus) return 'pending';
 
-    const status = apiStatus.toLowerCase();
+    // Ensure apiStatus is a string before calling toLowerCase
+    const statusString = String(apiStatus);
+    const status = statusString.toLowerCase();
     
     if (status.includes('complete') || status.includes('success') || status.includes('done')) {
       return 'completed';

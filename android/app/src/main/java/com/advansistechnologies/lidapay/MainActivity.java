@@ -13,35 +13,35 @@ import androidx.core.view.WindowCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
-    private static final String TAG = "MainActivity"; 
+    private static final String TAG = "MainActivity";
     private static final String CUSTOM_SCHEME = "lidapay";
     private static final String CUSTOM_HOST = "redirect-url";
     private static final String HTTPS_HOST = "api.advansistechnologies.com";
-    private static final String HTTPS_PATH = "/api/v1/advansispay/redirect-url" ;
+    private static final String HTTPS_PATH = "/api/v1/advansispay/redirect-url";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "MainActivity created - waiting for payment response");
-        
+
         // Enable edge-to-edge display
         enableEdgeToEdge();
-        
+
         handleIntent(getIntent());
     }
-    
+
     private void enableEdgeToEdge() {
         // Enable edge-to-edge display
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        
+
         // Set light status bar icons for better visibility
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             View decor = getWindow().getDecorView();
             int flags = decor.getSystemUiVisibility();
             // Use light status bar if we're in light theme
-            boolean isLightTheme = (getResources().getConfiguration().uiMode 
+            boolean isLightTheme = (getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK) != Configuration.UI_MODE_NIGHT_YES;
-            
+
             if (isLightTheme) {
                 flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -55,28 +55,28 @@ public class MainActivity extends BridgeActivity {
             }
             decor.setSystemUiVisibility(flags);
         }
-        
+
         // Set up window insets listener to handle layout properly
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             getWindow().setDecorFitsSystemWindows(false);
             final WindowInsetsController controller = getWindow().getInsetsController();
             if (controller != null) {
                 // Show system bars with light or dark icons based on theme
-                boolean isDarkTheme = (getResources().getConfiguration().uiMode 
+                boolean isDarkTheme = (getResources().getConfiguration().uiMode
                     & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
-                
+
                 controller.setSystemBarsAppearance(
                     isDarkTheme ? 0 : WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                     WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                 );
-                
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     controller.setSystemBarsAppearance(
                         isDarkTheme ? 0 : WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
                     );
                 }
-                
+
                 controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
                 controller.setSystemBarsBehavior(
                     WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -89,10 +89,10 @@ public class MainActivity extends BridgeActivity {
                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            
+
             // Add light status bar flags if needed
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                boolean isLightTheme = (getResources().getConfiguration().uiMode 
+                boolean isLightTheme = (getResources().getConfiguration().uiMode
                     & Configuration.UI_MODE_NIGHT_MASK) != Configuration.UI_MODE_NIGHT_YES;
                 if (isLightTheme) {
                     flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
@@ -101,7 +101,7 @@ public class MainActivity extends BridgeActivity {
                     }
                 }
             }
-            
+
             decorView.setSystemUiVisibility(flags);
         }
     }

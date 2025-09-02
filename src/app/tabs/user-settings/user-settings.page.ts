@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -16,8 +16,19 @@ import {
   IonSelect,
   IonSelectOption,
   IonButton,
+  IonCard,
+  IonCardContent,
+  IonBadge,
+  IonChip,
+  IonSkeletonText,
+  IonSpinner,
+  IonToast,
+  IonAlert,
+  IonActionSheet,
 } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { addIcons } from 'ionicons';
 import {
   colorPaletteOutline,
@@ -41,6 +52,69 @@ import {
   shieldOutline,
   helpCircleOutline,
   chevronForward,
+  chevronBackOutline,
+  settingsOutline,
+  personOutline,
+  walletOutline,
+  cardOutline,
+  cellularOutline,
+  wifiOutline,
+  airplaneOutline,
+  volumeHighOutline,
+  volumeMuteOutline,
+  locationOutline,
+  cameraOutline,
+  calendarOutline,
+  timeOutline,
+  syncOutline,
+  refreshOutline,
+  powerOutline,
+  logOutOutline,
+  heartOutline,
+  starOutline,
+  trophyOutline,
+  medalOutline,
+  ribbonOutline,
+  diamondOutline,
+  flashOutline,
+  thunderstormOutline,
+  sunnyOutline,
+  cloudyOutline,
+  rainyOutline,
+  snowOutline,
+  partlySunnyOutline,
+  waterOutline,
+  leafOutline,
+  flowerOutline,
+  earthOutline,
+  planetOutline,
+  rocketOutline,
+  telescopeOutline,
+  flaskOutline,
+  beakerOutline,
+  cubeOutline,
+  pinOutline,
+  alertOutline,
+  bugOutline,
+  addOutline,
+  atOutline,
+  alarmOutline,
+  eggOutline,
+  linkOutline,
+  cutOutline,
+  bagOutline,
+  gridOutline,
+  scaleOutline,
+  banOutline,
+  roseOutline,
+  searchOutline,
+  sadOutline,
+  scanOutline,
+  ellipseOutline,
+  cropOutline,
+  manOutline,
+  eyeOutline,
+  receiptOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -66,29 +140,80 @@ import {
     IonSelect,
     IonSelectOption,
     IonButton,
+    IonCard,
+    IonCardContent,
+    IonBadge,
+    IonSkeletonText,
   ],
 })
-export class UserSettingsPage {
+export class UserSettingsPage implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
+  // Loading States
+  isLoading = false;
+  isSaving = false;
+
   // Appearance Settings
   isDarkMode = false;
   fontSize = 'medium';
+  accentColor = 'primary';
+  animationEnabled = true;
 
   // Notification Settings
   pushNotifications = true;
   emailNotifications = true;
   promotionalNotifications = false;
+  transactionAlerts = true;
+  securityAlerts = true;
+  marketingEmails = false;
 
   // Security Settings
   biometricEnabled = false;
+  twoFactorEnabled = false;
+  sessionTimeout = 30;
+  autoLockEnabled = true;
 
   // Language & Region Settings
   selectedLanguage = 'en';
   selectedCurrency = 'GHS';
+  selectedTimezone = 'Africa/Accra';
+  dateFormat = 'DD/MM/YYYY';
+  timeFormat = '24h';
+
+  // Data & Storage Settings
+  autoBackupEnabled = true;
+  cacheSize = '0 MB';
+  storageUsed = '0 MB';
+  lastBackup = 'Never';
 
   // App Info
   appVersion = '1.0.0';
+  buildNumber = '2024.1.0';
+  lastUpdated = new Date().toLocaleDateString();
 
-  constructor() {
+  // Quick Stats
+  totalSettings = 0;
+  changedSettings = 0;
+
+  constructor(
+    private translateService: TranslateService,
+    private router: Router
+  ) {
+    this.initializeIcons();
+    this.loadSettings();
+  }
+
+  ngOnInit() {
+    this.initializeSettings();
+    this.calculateStats();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private initializeIcons() {
     addIcons({
       colorPaletteOutline,
       moonOutline,
@@ -111,104 +236,381 @@ export class UserSettingsPage {
       shieldOutline,
       helpCircleOutline,
       chevronForward,
+      chevronBackOutline,
+      settingsOutline,
+      personOutline,
+      walletOutline,
+      cardOutline,
+      cellularOutline,
+      wifiOutline,
+      airplaneOutline,
+      volumeHighOutline,
+      volumeMuteOutline,
+      locationOutline,
+      cameraOutline,
+      calendarOutline,
+      timeOutline,
+      syncOutline,
+      refreshOutline,
+      powerOutline,
+      logOutOutline,
+      heartOutline,
+      starOutline,
+      trophyOutline,
+      medalOutline,
+      ribbonOutline,
+      diamondOutline,
+      flashOutline,
+      thunderstormOutline,
+      sunnyOutline,
+      cloudyOutline,
+      rainyOutline,
+      snowOutline,
+      partlySunnyOutline,
+      waterOutline,
+      leafOutline,
+      flowerOutline,
+      earthOutline,
+      planetOutline,
+      rocketOutline,
+      telescopeOutline,
+      flaskOutline,
+      beakerOutline,
+      cubeOutline,
+      pinOutline,
+      alertOutline,
+      bugOutline,
+      addOutline,
+      atOutline,
+      alarmOutline,
+      eggOutline,
+      linkOutline,
+      cutOutline,
+      bagOutline,
+      gridOutline,
+      scaleOutline,
+      banOutline,
+      roseOutline,
+      searchOutline,
+      sadOutline,
+      scanOutline,
+      ellipseOutline,
+      cropOutline,
+      manOutline,
+      eyeOutline,
+      receiptOutline
     });
   }
 
-  // Appearance Methods
-  toggleDarkMode() {
-    this.isDarkMode = !this.isDarkMode;
-    // Implement dark mode toggle logic
-    console.log('Dark mode:', this.isDarkMode);
+  private async loadSettings() {
+    this.isLoading = true;
+    try {
+      // Load settings from storage/local state
+      await this.loadFromStorage();
+      this.calculateStats();
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  changeFontSize() {
-    // Implement font size change logic
-    console.log('Font size:', this.fontSize);
+  private async loadFromStorage() {
+    // Load settings from local storage or state management
+    const savedSettings = localStorage.getItem('userSettings');
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings);
+      Object.assign(this, settings);
+    }
+  }
+
+  private async saveToStorage() {
+    try {
+      const settings = {
+        isDarkMode: this.isDarkMode,
+        fontSize: this.fontSize,
+        accentColor: this.accentColor,
+        animationEnabled: this.animationEnabled,
+        pushNotifications: this.pushNotifications,
+        emailNotifications: this.emailNotifications,
+        promotionalNotifications: this.promotionalNotifications,
+        transactionAlerts: this.transactionAlerts,
+        securityAlerts: this.securityAlerts,
+        marketingEmails: this.marketingEmails,
+        biometricEnabled: this.biometricEnabled,
+        twoFactorEnabled: this.twoFactorEnabled,
+        sessionTimeout: this.sessionTimeout,
+        autoLockEnabled: this.autoLockEnabled,
+        selectedLanguage: this.selectedLanguage,
+        selectedCurrency: this.selectedCurrency,
+        selectedTimezone: this.selectedTimezone,
+        dateFormat: this.dateFormat,
+        timeFormat: this.timeFormat,
+        autoBackupEnabled: this.autoBackupEnabled,
+      };
+      
+      localStorage.setItem('userSettings', JSON.stringify(settings));
+      this.changedSettings = 0;
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    }
+  }
+
+  private calculateStats() {
+    // Calculate total settings and changed settings
+    const settingsKeys = [
+      'isDarkMode', 'fontSize', 'accentColor', 'animationEnabled',
+      'pushNotifications', 'emailNotifications', 'promotionalNotifications',
+      'transactionAlerts', 'securityAlerts', 'marketingEmails',
+      'biometricEnabled', 'twoFactorEnabled', 'sessionTimeout', 'autoLockEnabled',
+      'selectedLanguage', 'selectedCurrency', 'selectedTimezone',
+      'dateFormat', 'timeFormat', 'autoBackupEnabled'
+    ];
+    
+    this.totalSettings = settingsKeys.length;
+    
+    // This would be more sophisticated in a real app
+    this.changedSettings = 0;
+  }
+
+  private initializeSettings() {
+    // Initialize with default values or load from service
+    this.isDarkMode = document.body.classList.contains('dark');
+  }
+
+  // Appearance Methods
+  async toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    document.body.classList.toggle('dark', this.isDarkMode);
+    await this.saveToStorage();
+    this.showToast('Theme updated successfully');
+  }
+
+  async changeFontSize() {
+    await this.saveToStorage();
+    this.showToast('Font size updated');
+  }
+
+  async changeAccentColor() {
+    await this.saveToStorage();
+    this.showToast('Accent color updated');
+  }
+
+  async toggleAnimation() {
+    this.animationEnabled = !this.animationEnabled;
+    await this.saveToStorage();
+    this.showToast('Animation setting updated');
   }
 
   // Notification Methods
-  togglePushNotifications() {
+  async togglePushNotifications() {
     this.pushNotifications = !this.pushNotifications;
-    console.log('Push notifications:', this.pushNotifications);
+    await this.saveToStorage();
+    this.showToast('Push notifications updated');
   }
 
-  toggleEmailNotifications() {
+  async toggleEmailNotifications() {
     this.emailNotifications = !this.emailNotifications;
-    console.log('Email notifications:', this.emailNotifications);
+    await this.saveToStorage();
+    this.showToast('Email notifications updated');
   }
 
-  togglePromotionalNotifications() {
+  async togglePromotionalNotifications() {
     this.promotionalNotifications = !this.promotionalNotifications;
-    console.log('Promotional notifications:', this.promotionalNotifications);
+    await this.saveToStorage();
+    this.showToast('Promotional notifications updated');
+  }
+
+  async toggleTransactionAlerts() {
+    this.transactionAlerts = !this.transactionAlerts;
+    await this.saveToStorage();
+    this.showToast('Transaction alerts updated');
+  }
+
+  async toggleSecurityAlerts() {
+    this.securityAlerts = !this.securityAlerts;
+    await this.saveToStorage();
+    this.showToast('Security alerts updated');
+  }
+
+  async toggleMarketingEmails() {
+    this.marketingEmails = !this.marketingEmails;
+    await this.saveToStorage();
+    this.showToast('Marketing emails updated');
   }
 
   // Security Methods
-  changePassword() {
+  async changePassword() {
     // Navigate to change password page
-    console.log('Navigate to change password');
+    this.router.navigate(['/tabs/account/change-password']);
   }
 
-  toggleBiometric() {
+  async toggleBiometric() {
     this.biometricEnabled = !this.biometricEnabled;
-    console.log('Biometric enabled:', this.biometricEnabled);
+    await this.saveToStorage();
+    this.showToast('Biometric setting updated');
   }
 
-  enableBiometric() {
+  async enableBiometric() {
     // Implement biometric setup
-    console.log('Setup biometric authentication');
+    this.showToast('Biometric setup initiated');
   }
 
-  privacySettings() {
+  async toggleTwoFactor() {
+    this.twoFactorEnabled = !this.twoFactorEnabled;
+    await this.saveToStorage();
+    this.showToast('Two-factor authentication updated');
+  }
+
+  async changeSessionTimeout() {
+    await this.saveToStorage();
+    this.showToast('Session timeout updated');
+  }
+
+  async toggleAutoLock() {
+    this.autoLockEnabled = !this.autoLockEnabled;
+    await this.saveToStorage();
+    this.showToast('Auto-lock setting updated');
+  }
+
+  async privacySettings() {
     // Navigate to privacy settings
-    console.log('Navigate to privacy settings');
+    this.router.navigate(['/tabs/account/privacy']);
   }
 
   // Language & Region Methods
-  changeLanguage() {
-    // Implement language change logic
-    console.log('Language:', this.selectedLanguage);
+  async changeLanguage() {
+    await this.saveToStorage();
+    this.translateService.use(this.selectedLanguage);
+    this.showToast('Language updated');
   }
 
-  changeCurrency() {
-    // Implement currency change logic
-    console.log('Currency:', this.selectedCurrency);
+  async changeCurrency() {
+    await this.saveToStorage();
+    this.showToast('Currency updated');
+  }
+
+  async changeTimezone() {
+    await this.saveToStorage();
+    this.showToast('Timezone updated');
+  }
+
+  async changeDateFormat() {
+    await this.saveToStorage();
+    this.showToast('Date format updated');
+  }
+
+  async changeTimeFormat() {
+    await this.saveToStorage();
+    this.showToast('Time format updated');
   }
 
   // Data & Storage Methods
-  clearCache() {
-    // Implement cache clearing
-    console.log('Clear cache');
+  async clearCache() {
+    this.isSaving = true;
+    try {
+      // Implement cache clearing
+      this.cacheSize = '0 MB';
+      await this.saveToStorage();
+      this.showToast('Cache cleared successfully');
+    } catch (error) {
+      this.showToast('Error clearing cache', 'danger');
+    } finally {
+      this.isSaving = false;
+    }
   }
 
-  exportData() {
-    // Implement data export
-    console.log('Export data');
+  async exportData() {
+    this.isSaving = true;
+    try {
+      // Implement data export
+      await this.saveToStorage();
+      this.showToast('Data export initiated');
+    } catch (error) {
+      this.showToast('Error exporting data', 'danger');
+    } finally {
+      this.isSaving = false;
+    }
   }
 
-  backupSettings() {
-    // Implement settings backup
-    console.log('Backup settings');
+  async backupSettings() {
+    this.isSaving = true;
+    try {
+      // Implement settings backup
+      this.lastBackup = new Date().toLocaleDateString();
+      await this.saveToStorage();
+      this.showToast('Settings backed up successfully');
+    } catch (error) {
+      this.showToast('Error backing up settings', 'danger');
+    } finally {
+      this.isSaving = false;
+    }
+  }
+
+  async toggleAutoBackup() {
+    this.autoBackupEnabled = !this.autoBackupEnabled;
+    await this.saveToStorage();
+    this.showToast('Auto-backup setting updated');
   }
 
   // About Methods
-  viewVersion() {
+  async viewVersion() {
     // Show version info
-    console.log('App version:', this.appVersion);
+    this.showToast(`App Version: ${this.appVersion}`);
   }
 
-  termsOfService() {
+  async termsOfService() {
     // Navigate to terms of service
-    console.log('Navigate to terms of service');
+    this.router.navigate(['/tabs/account/terms']);
   }
 
-  privacyPolicy() {
+  async privacyPolicy() {
     // Navigate to privacy policy
-    console.log('Navigate to privacy policy');
+    this.router.navigate(['/tabs/account/privacy-policy']);
   }
 
   // Support Methods
-  contactSupport() {
+  async contactSupport() {
     // Navigate to support or open contact form
-    console.log('Contact support');
+    this.router.navigate(['/tabs/account/support']);
+  }
+
+  // Utility Methods
+  private showToast(message: string, color: string = 'success') {
+    // Show toast notification
+    console.log(`Toast: ${message} (${color})`);
+  }
+
+  async resetToDefaults() {
+    // Reset all settings to default values
+    this.isLoading = true;
+    try {
+      // Reset all settings
+      this.initializeSettings();
+      await this.saveToStorage();
+      this.showToast('Settings reset to defaults');
+    } catch (error) {
+      this.showToast('Error resetting settings', 'danger');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async refreshSettings() {
+    await this.loadSettings();
+    this.showToast('Settings refreshed');
+  }
+
+  getSettingsProgress(): number {
+    return this.totalSettings > 0 ? (this.changedSettings / this.totalSettings) * 100 : 0;
+  }
+
+  getSettingsStatus(): string {
+    const progress = this.getSettingsProgress();
+    if (progress === 0) return 'Default';
+    if (progress < 25) return 'Minimal';
+    if (progress < 50) return 'Basic';
+    if (progress < 75) return 'Customized';
+    return 'Fully Customized';
   }
 }

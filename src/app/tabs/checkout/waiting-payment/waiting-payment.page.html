@@ -1,37 +1,160 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header [translucent]="true">
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button 
+        defaultHref="/tabs/home" 
+        (click)="goBack()"
+        icon="arrow-back-outline"
+        class="custom-back-button">
+      </ion-back-button>
     </ion-buttons>
-    <ion-title>Processing Payment</ion-title>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <ion-icon name="card-outline" class="title-icon"></ion-icon>
+        <span>Processing Payment</span>
+      </div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content [fullscreen]="true" class="waiting-payment-content">
+  <!-- Background Pattern -->
+  <div class="background-pattern"></div>
+  
+  <!-- Main Container -->
   <div class="waiting-container">
-    <ion-card *ngIf="loading">
-      <ion-card-header>
-        <ion-card-title>Processing Your Payment</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <div class="spinner-container">
+    <!-- Loading State -->
+    <div class="payment-card loading-card" *ngIf="loading && !error">
+      <div class="card-header">
+        <div class="status-icon loading">
           <ion-spinner name="circles"></ion-spinner>
         </div>
-        <p class="message">Please wait while we process your payment...</p>
-        <p class="note">Do not close this page or go back until the process is complete.</p>
-      </ion-card-content>
-    </ion-card>
+        <h2 class="card-title">Processing Your Payment</h2>
+        <p class="card-subtitle">{{ processingMessage }}</p>
+      </div>
+      
+      <div class="card-content">
+        <div class="progress-indicator">
+          <div class="progress-bar">
+            <div class="progress-fill"></div>
+          </div>
+          <p class="progress-text">Processing...</p>
+        </div>
+        
+        <div class="payment-info">
+          <div class="info-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>This may take a few moments</span>
+          </div>
+          <div class="info-item">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Your payment is secure</span>
+          </div>
+          <div class="info-item" *ngIf="isFirstResponse">
+            <ion-icon name="information-circle-outline"></ion-icon>
+            <span>Waiting for Express Pay authorization...</span>
+          </div>
+        </div>
+        
+        <div class="warning-note">
+          <ion-icon name="warning-outline"></ion-icon>
+          <p>Do not close this page or go back until the process is complete.</p>
+        </div>
+      </div>
+    </div>
 
-    <ion-card *ngIf="error">
-      <ion-card-header>
-        <ion-card-title>Error</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p class="error-message">{{ error }}</p>
-        <ion-button expand="block" (click)="router.navigate(['/tabs/home'])">
-          Return to Home
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
+    <!-- USSD Authorization State -->
+    <div class="payment-card ussd-card" *ngIf="loading && !error && !orderId && !token">
+      <div class="card-header">
+        <div class="status-icon ussd">
+          <ion-icon name="phone-portrait-outline"></ion-icon>
+        </div>
+        <h2 class="card-title">USSD Authorization Required</h2>
+        <p class="card-subtitle">{{ processingMessage }}</p>
+      </div>
+      
+      <div class="card-content">
+        <div class="ussd-instructions">
+          <div class="instruction-item">
+            <ion-icon name="phone-portrait-outline"></ion-icon>
+            <span>Check your phone for the USSD prompt</span>
+          </div>
+          <div class="instruction-item">
+            <ion-icon name="keypad-outline"></ion-icon>
+            <span>Enter your PIN when prompted</span>
+          </div>
+          <div class="instruction-item">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>Confirm the payment amount</span>
+          </div>
+        </div>
+        
+        <div class="payment-info">
+          <div class="info-item">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Your payment is secure</span>
+          </div>
+          <div class="info-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>Please wait while we process your authorization</span>
+          </div>
+        </div>
+        
+        <div class="warning-note">
+          <ion-icon name="warning-outline"></ion-icon>
+          <p>Do not close this page or go back until the process is complete.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="payment-card error-card" *ngIf="error && !loading">
+      <div class="card-header">
+        <div class="status-icon error">
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </div>
+        <h2 class="card-title">Payment Issue</h2>
+        <p class="card-subtitle">We encountered an issue processing your payment</p>
+      </div>
+      
+      <div class="card-content">
+        <div class="error-details">
+          <div class="error-icon">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+          </div>
+          <p class="error-message">{{ error }}</p>
+        </div>
+        
+        <div class="error-actions">
+          <ion-button 
+            expand="block" 
+            class="retry-btn"
+            (click)="retryPayment()"
+            fill="outline">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Try Again
+          </ion-button>
+          
+          <ion-button 
+            expand="block" 
+            class="home-btn"
+            (click)="goHome()">
+            <ion-icon name="home-outline" slot="start"></ion-icon>
+            Return to Home
+          </ion-button>
+        </div>
+        
+        <div class="help-section">
+          <p class="help-text">Need help? Contact our support team</p>
+          <ion-button 
+            fill="clear" 
+            class="support-btn"
+            (click)="contactSupport()">
+            <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
+            Contact Support
+          </ion-button>
+        </div>
+      </div>
+    </div>
   </div>
 </ion-content> 

@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -30,12 +30,18 @@ import {
   IonRow,
   IonCol,
   IonSkeletonText,
+  IonChip,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { NavigationExtras, Router } from '@angular/router';
 import { NotificationService } from 'src/app/services/notification.service';
 import { InternetDataService } from 'src/app/services/one4all/internet.data.service';
 import { WaitingModalComponent } from 'src/app/components/waiting-modal/waiting-modal.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { StorageService } from 'src/app/services/storage.service';
+import { CountryService } from 'src/app/services/utils/country.service';
+import { Country } from 'src/app/services/utils/country.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-buy-internet-data',
@@ -70,7 +76,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class BuyInternetDataPage implements OnInit {
+export class BuyInternetDataPage implements OnInit, OnDestroy {
   public dataBundle: any = [];
   public dataCodeForm!: FormGroup;
   loaderToShow: any;
@@ -79,6 +85,9 @@ export class BuyInternetDataPage implements OnInit {
 
   userProfile: any = {};
 
+  // Enhanced country and network data
+  countries: Country[] = [];
+  selectedCountry: Country | null = null;
   networkProviders: string[] = [
     'MTN',
     'Telecel',
@@ -87,6 +96,8 @@ export class BuyInternetDataPage implements OnInit {
     'Surfline',
     'Busy',
   ];
+
+  private destroy$ = new Subject<void>();
 
   // Method to get the correct image path for a provider
   getProviderImage(provider: string): string {
@@ -110,16 +121,119 @@ export class BuyInternetDataPage implements OnInit {
     private formBuilder: FormBuilder,
     private internetService: InternetDataService,
     private notification: NotificationService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private storage: StorageService,
+    private countryService: CountryService
   ) {
     this.translate.setDefaultLang('en');
     this.translate.use('en');
   }
-  ngOnInit() {
-    // internet-data page formBuild
-    this.dataCodeForm = this.formBuilder.group({
-      network: ['', Validators.required],
-    });
+
+  async ngOnInit() {
+    try {
+      // Initialize form
+      this.dataCodeForm = this.formBuilder.group({
+        countryIso: ['', Validators.required],
+        network: ['', Validators.required],
+      });
+
+      // Load countries and user preferences
+      await this.loadCountries();
+      this.setupFormListeners();
+    } catch (error) {
+      console.error('Error initializing internet data page:', error);
+      this.notification.showError('Failed to initialize page');
+    }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private async loadCountries() {
+    try {
+      // First, try to get user's saved country preference
+      const userCountry = await this.storage.getStorage('userCountry');
+      console.log('🌍 User saved country for internet data:', userCountry);
+      
+      // Load available countries
+      this.countries = this.countryService.getAllCountries();
+      
+      // Try to set user's preferred country, fallback to Ghana
+      let defaultCountry = this.countries.find(c => c.code === 'GH'); // Ghana as fallback
+      
+      if (userCountry && userCountry.code) {
+        const preferredCountry = this.countries.find(c => c.code === userCountry.code);
+        if (preferredCountry) {
+          defaultCountry = preferredCountry;
+          console.log('✅ Using user preferred country for internet data:', preferredCountry.name);
+        } else {
+          console.log('⚠️ User preferred country not found in available countries, using Ghana');
+        }
+      } else {
+        console.log('ℹ️ No user country preference found for internet data, using Ghana as default');
+      }
+      
+      if (defaultCountry) {
+        this.selectedCountry = defaultCountry;
+        this.dataCodeForm.patchValue({ countryIso: defaultCountry.code });
+        this.updateNetworkProviders(defaultCountry);
+      }
+    } catch (error) {
+      console.error('Error loading user country preference for internet data:', error);
+      // Continue with default Ghana selection
+      this.loadCountriesFallback();
+    }
+  }
+
+  private loadCountriesFallback() {
+    this.countries = this.countryService.getAllCountries();
+    const ghana = this.countries.find(c => c.code === 'GH');
+    if (ghana) {
+      this.selectedCountry = ghana;
+      this.dataCodeForm.patchValue({ countryIso: ghana.code });
+      this.updateNetworkProviders(ghana);
+    }
+  }
+
+  private updateNetworkProviders(country: Country) {
+    // Update network providers based on country
+    // This is a simplified version - in a real app, you'd fetch country-specific operators
+    if (country.code === 'GH') {
+      this.networkProviders = [
+        'MTN',
+        'Telecel',
+        'AirtelTigo',
+        'Glo',
+        'Surfline',
+        'Busy',
+      ];
+    } else {
+      // Default providers for other countries
+      this.networkProviders = [
+        'MTN',
+        'Vodafone',
+        'Airtel',
+        'Glo',
+      ];
+    }
+    console.log(`📱 Updated network providers for ${country.name}:`, this.networkProviders);
+  }
+
+  private setupFormListeners() {
+    // Listen to country changes
+    this.dataCodeForm.get('countryIso')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(countryCode => {
+        if (countryCode) {
+          const country = this.countries.find(c => c.code === countryCode);
+          if (country) {
+            this.selectedCountry = country;
+            this.updateNetworkProviders(country);
+          }
+        }
+      });
   }
 
   async getDataBundle(gdbForm: any) {

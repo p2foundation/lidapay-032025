@@ -1,163 +1,244 @@
 
+// Enhanced Tab Bar Design with AI Chat Prominence
 ion-tabs {
-	ion-tab-bar {
-		--background: white;
-		--color: #666;
-		--color-selected: var(--ion-color-primary);
-		border-top: 1px solid #e0e0e0;
-		border-radius: 16px 16px 0 0;
-		box-shadow: 0px -1px 5px rgba(0, 0, 0, 0.05);
-		padding-bottom: env(safe-area-inset-bottom);
-		position: relative;
+  .custom-tab-bar {
+    --background: var(--ion-tab-bar-background);
+    --color: var(--ion-color-step-600);
+    --color-selected: var(--ion-color-primary);
+    border-top: 1px solid var(--ion-border-color);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0px -3px 16px rgba(0, 0, 0, 0.08);
+    padding: 10px 4px 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    position: relative;
+    min-height: 68px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: var(--ion-tab-bar-background);
+    
+    // Enhanced backdrop for better visual separation
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--ion-tab-bar-background);
+      border-radius: 20px 20px 0 0;
+      z-index: -1;
+    }
 
-		ion-tab-button {
-			--color: var(--ion-color-medium);
-			--color-selected: var(--ion-color-primary);
-			--ripple-color: var(--ion-color-primary);
-			position: relative;
-			min-height: 56px;
-			padding: 8px 0;
+    // Regular tab buttons
+    .tab-button {
+      --color: var(--ion-color-step-600);
+      --color-selected: var(--ion-color-primary);
+      --ripple-color: var(--ion-color-primary);
+      position: relative;
+      min-height: 54px;
+      padding: 8px 4px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      margin: 0 2px;
 
-			ion-icon {
-				font-size: 24px;
-				margin-bottom: 4px;
-			}
+      ion-icon {
+        font-size: 24px;
+        margin-bottom: 4px;
+        transition: all 0.3s ease;
+        color: var(--ion-color-step-500);
+      }
 
-			ion-label {
-				font-size: 12px;
-				font-weight: 500;
-				margin: 4px 0 0;
-				line-height: 1.2;
-				text-transform: capitalize;
-				overflow: visible;
-			}
+      ion-label {
+        font-size: 11px;
+        font-weight: 600;
+        margin: 4px 0 0;
+        line-height: 1.2;
+        text-transform: capitalize;
+        overflow: visible;
+        color: var(--ion-color-step-600);
+        transition: all 0.3s ease;
+      }
 
-			&.tab-selected {
-				ion-icon {
-					color: var(--ion-color-primary);
-					transform: scale(1.1);
-					transition: transform 0.2s ease;
-				}
-				
-				ion-label {
-					color: var(--ion-color-primary);
-					font-weight: 600;
-					transform: translateY(0);
-				}
+      &.tab-selected {
+        background: rgba(var(--ion-color-primary-rgb), 0.1);
+        transform: translateY(-2px);
+        
+        ion-icon {
+          color: var(--ion-color-primary);
+          transform: scale(1.08);
+        }
+        
+        ion-label {
+          color: var(--ion-color-primary);
+          font-weight: 700;
+        }
 
-				&::before {
-					content: '';
-					position: absolute;
-					bottom: 0;
-					left: 25%;
-					right: 25%;
-					height: 3px;
-					background: var(--ion-color-primary);
-					border-radius: 3px 3px 0 0;
-				}
-			}
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 18px;
+          height: 2px;
+          background: var(--ion-color-primary);
+          border-radius: 2px;
+          box-shadow: 0 1px 4px rgba(var(--ion-color-primary-rgb), 0.4);
+        }
+      }
 
-			&:hover {
-				ion-icon {
-					transform: scale(1.1);
-					transition: transform 0.2s ease;
-				}
-			}
+      &:hover {
+        background: rgba(var(--ion-color-primary-rgb), 0.05);
+        transform: translateY(-1px);
+        
+        ion-icon {
+          transform: scale(1.03);
+        }
+      }
 
-			&:active {
-				opacity: 0.8;
-				transition: opacity 0.2s ease;
-			}
-		}
-	}
-}
+      &:active {
+        transform: translateY(0);
+        transition: transform 0.1s ease;
+      }
+    }
 
-// Special styling for AI Chat tab
-.ai-chat-tab {
-  --color: #ec4899;
-  --color-selected: #ec4899;
-  transform: translateY(-12px);
-  margin: 0 -6px;
-  position: relative;
-  z-index: 10;
-  min-width: 100px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  ion-label {
-    font-weight: 700;
-    font-size: 14px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    white-space: nowrap;
-    overflow: visible;
-    text-overflow: unset;
-    line-height: 1.2;
-    color: var(--text-white);
-    margin: 0;
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 6px;
-    background: linear-gradient(90deg, #4c1d95, #ec4899, #f97316);
-    border-radius: 0 0 6px 6px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    box-shadow: 0 2px 8px rgba(76, 29, 149, 0.3);
-  }
-  
-  &.tab-selected::before {
-    opacity: 1;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 80px;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(76, 29, 149, 0.1) 70%, transparent 100%);
-    border-radius: 50%;
-    z-index: -1;
-    opacity: 0;
-    transition: all 0.3s ease;
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-  
-  &.tab-selected::after {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.2);
-  }
-  
-  // Glow effect on hover
-  &:hover {
-    ion-label {
-      color: #f97316;
-      transform: scale(1.05);
+    // Featured AI Chat Tab - Center Prominent Design
+    .ai-chat-tab.featured-tab {
+      --color: #ffffff;
+      --color-selected: #ffffff;
+      transform: translateY(-14px);
+      margin: 0 -4px;
+      position: relative;
+      z-index: 20;
+      min-width: 96px;
+      height: 78px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 
+        0 5px 20px rgba(102, 126, 234, 0.4),
+        0 2px 10px rgba(118, 75, 162, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: visible;
+      
+      // AI Chat Icon Wrapper
+      .ai-chat-icon-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2px;
+        
+        ion-icon {
+          font-size: 26px;
+          color: #ffffff;
+          filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+          z-index: 2;
+        }
+        
+        // AI Badge
+        .ai-badge {
+          position: absolute;
+          top: -5px;
+          right: -8px;
+          background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+          color: white;
+          font-size: 8px;
+          font-weight: 800;
+          padding: 1px 4px;
+          border-radius: 5px;
+          box-shadow: 0 1px 4px rgba(255, 107, 107, 0.4);
+          z-index: 3;
+          animation: pulse-badge 2s ease-in-out infinite;
+        }
+      }
+      
+      ion-label {
+        font-weight: 700;
+        font-size: 11px;
+        color: #ffffff;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        white-space: nowrap;
+        overflow: visible;
+        text-overflow: unset;
+        line-height: 1.1;
+      }
+      
+      // Enhanced glow effects
+      &::before {
+        content: '';
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        border-radius: 0 0 5px 5px;
+        opacity: 0.6;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        animation: glow-pulse 3s ease-in-out infinite;
+      }
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(
+          circle, 
+          rgba(102, 126, 234, 0.1) 0%, 
+          rgba(118, 75, 162, 0.06) 50%, 
+          transparent 100%
+        );
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0;
+        transition: all 0.4s ease;
+        animation: float-glow 4s ease-in-out infinite;
+      }
+      
+      // Enhanced hover effects
+      &:hover {
+        transform: translateY(-18px) scale(1.02);
+        box-shadow: 
+          0 8px 28px rgba(102, 126, 234, 0.5),
+          0 4px 14px rgba(118, 75, 162, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        
+        .ai-chat-icon-wrapper ion-icon {
+          transform: scale(1.05);
+        }
+        
+        .ai-badge {
+          transform: scale(1.03);
+        }
+        
+        &::after {
+          opacity: 1;
+          transform: translateX(-50%) scale(1.1);
+        }
+      }
+      
+      // Active state
+      &:active {
+        transform: translateY(-12px) scale(0.98);
+        transition: all 0.1s ease;
+      }
     }
   }
 }
 
-// Animations
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-@keyframes pulse-glow {
+// Enhanced Animations
+@keyframes float-glow {
   0%, 100% {
     opacity: 0.3;
     transform: translateX(-50%) scale(1);
@@ -168,73 +249,392 @@ ion-tabs {
   }
 }
 
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 6px 24px rgba(102, 126, 234, 0.6);
+  }
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
 // AI Chat Modal Styling
 .ai-chat-modal {
-  --height: 85%;
-  --border-radius: 20px 20px 0 0;
-  --backdrop-opacity: 0.5;
+  --height: 90%;
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.6;
   
   &::part(content) {
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+    background: var(--ion-background-color);
   }
   
   &::part(backdrop) {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }
 
+// Platform-specific adjustments
 :host-context(.ios) {
-	ion-tab-bar {
-		height: calc(50px + env(safe-area-inset-bottom));
-		padding-bottom: env(safe-area-inset-bottom);
-	}
+  .custom-tab-bar {
+    height: calc(68px + env(safe-area-inset-bottom));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
 }
 
 :host-context(.md) {
-	ion-tab-bar {
-		height: 56px;
-	}
+  .custom-tab-bar {
+    height: 68px;
+  }
 }
 
-// Dark mode support
+// Medium screens and tablets
+@media (min-width: 768px) and (max-width: 1024px) {
+  .custom-tab-bar {
+    padding: 12px 6px 18px;
+    min-height: 72px;
+    
+    .tab-button {
+      min-height: 58px;
+      padding: 10px 5px;
+      margin: 0 3px;
+      
+      ion-icon {
+        font-size: 26px;
+        margin-bottom: 5px;
+      }
+      
+      ion-label {
+        font-size: 12px;
+        margin: 5px 0 0;
+      }
+    }
+    
+    .ai-chat-tab.featured-tab {
+      min-width: 104px;
+      height: 84px;
+      transform: translateY(-16px);
+      
+      .ai-chat-icon-wrapper ion-icon {
+        font-size: 28px;
+      }
+      
+      ion-label {
+        font-size: 12px;
+      }
+      
+      &::before {
+        width: 64px;
+        height: 6px;
+        top: -14px;
+      }
+      
+      &::after {
+        width: 110px;
+        height: 110px;
+        top: -10px;
+      }
+    }
+  }
+}
+
+// Enhanced Dark Mode Support
 @media (prefers-color-scheme: dark) {
-	ion-tabs ion-tab-bar {
-		--background: var(--ion-tab-bar-background);
-		box-shadow: 0px -1px 2px rgba(0, 0, 0, 0.2);
-		border-top-color: var(--ion-border-color);
-	}
+  .custom-tab-bar {
+    --background: var(--ion-tab-bar-background);
+    box-shadow: 0px -3px 16px rgba(0, 0, 0, 0.3);
+    border-top-color: var(--ion-border-color);
+    backdrop-filter: blur(20px);
+    
+    &::before {
+      background: var(--ion-tab-bar-background);
+    }
+  }
 
-	ion-tab-button {
-		--color: var(--ion-color-step-600);
-		--color-selected: var(--ion-color-primary);
-	}
+  .tab-button {
+    --color: var(--ion-color-step-400);
+    --color-selected: var(--ion-color-primary);
+    
+    &.tab-selected {
+      background: rgba(var(--ion-color-primary-rgb), 0.15);
+    }
+    
+    &:hover {
+      background: rgba(var(--ion-color-primary-rgb), 0.08);
+    }
+  }
+  
+  // Dark mode AI chat tab adjustments
+  .ai-chat-tab.featured-tab {
+    background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+    box-shadow: 
+      0 5px 20px rgba(76, 29, 149, 0.5),
+      0 2px 10px rgba(124, 58, 237, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    
+    &::before {
+      background: linear-gradient(90deg, #4c1d95, #7c3aed, #4c1d95);
+    }
+    
+    &:hover {
+      box-shadow: 
+        0 8px 28px rgba(76, 29, 149, 0.6),
+        0 4px 14px rgba(124, 58, 237, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+  }
 }
 
-// Manual dark mode override
+// Manual Dark Mode Override
 body.dark {
-	ion-tabs ion-tab-bar {
-		--background: var(--ion-tab-bar-background);
-		box-shadow: 0px -1px 2px rgba(0, 0, 0, 0.2);
-		border-top-color: var(--ion-border-color);
-	}
+  .custom-tab-bar {
+    --background: var(--ion-tab-bar-background);
+    box-shadow: 0px -3px 16px rgba(0, 0, 0, 0.3);
+    border-top-color: var(--ion-border-color);
+    backdrop-filter: blur(20px);
+    
+    &::before {
+      background: var(--ion-tab-bar-background);
+    }
+  }
 
-	ion-tab-button {
-		--color: var(--ion-color-step-600);
-		--color-selected: var(--ion-color-primary);
-	}
+  .tab-button {
+    --color: var(--ion-color-step-400);
+    --color-selected: var(--ion-color-primary);
+    
+    &.tab-selected {
+      background: rgba(var(--ion-color-primary-rgb), 0.15);
+    }
+    
+    &:hover {
+      background: rgba(var(--ion-color-primary-rgb), 0.08);
+    }
+  }
+  
+  .ai-chat-tab.featured-tab {
+    background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+    box-shadow: 
+      0 5px 20px rgba(76, 29, 149, 0.5),
+      0 2px 10px rgba(124, 58, 237, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    
+    &::before {
+      background: linear-gradient(90deg, #4c1d95, #7c3aed, #4c1d95);
+    }
+    
+    &:hover {
+      box-shadow: 
+        0 8px 28px rgba(76, 29, 149, 0.6),
+        0 4px 14px rgba(124, 58, 237, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+  }
 }
 
-// Manual light mode override
+// Manual Light Mode Override
 body.light {
-	ion-tabs ion-tab-bar {
-		--background: var(--ion-tab-bar-background);
-		box-shadow: 0px -1px 2px rgba(0, 0, 0, 0.1);
-		border-top-color: var(--ion-border-color);
-	}
+  .custom-tab-bar {
+    --background: var(--ion-tab-bar-background);
+    box-shadow: 0px -3px 16px rgba(0, 0, 0, 0.08);
+    border-top-color: var(--ion-border-color);
+    backdrop-filter: blur(20px);
+    
+    &::before {
+      background: var(--ion-tab-bar-background);
+    }
+  }
 
-	ion-tab-button {
-		--color: var(--ion-color-step-600);
-		--color-selected: var(--ion-color-primary);
-	}
+  .tab-button {
+    --color: var(--ion-color-step-600);
+    --color-selected: var(--ion-color-primary);
+    
+    &.tab-selected {
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+    
+    &:hover {
+      background: rgba(var(--ion-color-primary-rgb), 0.05);
+    }
+  }
+  
+  .ai-chat-tab.featured-tab {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 
+      0 5px 20px rgba(102, 126, 234, 0.4),
+      0 2px 10px rgba(118, 75, 162, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    
+    &::before {
+      background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+    }
+    
+    &:hover {
+      box-shadow: 
+        0 8px 28px rgba(102, 126, 234, 0.5),
+        0 4px 14px rgba(118, 75, 162, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// Responsive adjustments for different screen sizes
+@media (max-width: 480px) {
+  .custom-tab-bar {
+    padding: 8px 3px 14px;
+    min-height: 64px;
+    
+    .tab-button {
+      min-height: 50px;
+      padding: 6px 3px;
+      margin: 0 1px;
+      
+      ion-icon {
+        font-size: 22px;
+        margin-bottom: 3px;
+      }
+      
+      ion-label {
+        font-size: 10px;
+        margin: 3px 0 0;
+      }
+    }
+    
+    .ai-chat-tab.featured-tab {
+      min-width: 88px;
+      height: 72px;
+      transform: translateY(-12px);
+      
+      .ai-chat-icon-wrapper ion-icon {
+        font-size: 24px;
+      }
+      
+      ion-label {
+        font-size: 10px;
+      }
+      
+      &::before {
+        width: 56px;
+        height: 4px;
+        top: -10px;
+      }
+      
+      &::after {
+        width: 90px;
+        height: 90px;
+        top: -6px;
+      }
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .custom-tab-bar {
+    padding: 6px 2px 12px;
+    min-height: 60px;
+    
+    .tab-button {
+      min-height: 46px;
+      padding: 5px 2px;
+      margin: 0 1px;
+      
+      ion-icon {
+        font-size: 20px;
+        margin-bottom: 2px;
+      }
+      
+      ion-label {
+        font-size: 9px;
+        margin: 2px 0 0;
+      }
+    }
+    
+    .ai-chat-tab.featured-tab {
+      min-width: 80px;
+      height: 64px;
+      transform: translateY(-10px);
+      
+      .ai-chat-icon-wrapper ion-icon {
+        font-size: 22px;
+      }
+      
+      ion-label {
+        font-size: 9px;
+      }
+      
+      &::before {
+        width: 50px;
+        height: 3px;
+        top: -8px;
+      }
+      
+      &::after {
+        width: 80px;
+        height: 80px;
+        top: -5px;
+      }
+    }
+  }
+}
+
+@media (max-width: 320px) {
+  .custom-tab-bar {
+    padding: 5px 1px 10px;
+    min-height: 56px;
+    
+    .tab-button {
+      min-height: 42px;
+      padding: 4px 1px;
+      margin: 0 1px;
+      
+      ion-icon {
+        font-size: 18px;
+        margin-bottom: 2px;
+      }
+      
+      ion-label {
+        font-size: 8px;
+        margin: 2px 0 0;
+      }
+    }
+    
+    .ai-chat-tab.featured-tab {
+      min-width: 72px;
+      height: 58px;
+      transform: translateY(-8px);
+      
+      .ai-chat-icon-wrapper ion-icon {
+        font-size: 20px;
+      }
+      
+      ion-label {
+        font-size: 8px;
+      }
+      
+      &::before {
+        width: 44px;
+        height: 3px;
+        top: -6px;
+      }
+      
+      &::after {
+        width: 70px;
+        height: 70px;
+        top: -4px;
+      }
+    }
+  }
 }

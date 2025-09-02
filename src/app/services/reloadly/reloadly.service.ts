@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment.prod';
 
@@ -10,7 +10,7 @@ import { environment } from 'src/environments/environment.prod';
 export class ReloadlyService {
   private networkLocation = './reloadly/operators.json';
   private countriesLoc = `./reloadly/countries.json`;
-  private awsServer: string = environment.baseURL;
+  private awsServer: string = environment.apiUrl;
 
   constructor(private httpClient: HttpClient) {}
 
@@ -38,10 +38,23 @@ export class ReloadlyService {
   // Auto detect operator
   public autoDetectOperator(adoData: any): Observable<any> {
     console.log(`AutoDetectOperator input >>>> ${JSON.stringify(adoData)}`);
-    console.log(`[AutoDetectOperator PARAM]${adoData.phone}`);
-    console.log(`[AutoDetectOperator PARAM]${adoData.countryIsoCode}`);
+    console.log(`[AutoDetectOperator PARAM] phone: ${adoData.phone}`);
+    console.log(`[AutoDetectOperator PARAM] countryIsoCode: ${adoData.countryIsoCode}`);
+    
+    // Validate parameters
+    if (!adoData.phone || !adoData.countryIsoCode) {
+      console.error('Missing required parameters:', { phone: adoData.phone, countryIsoCode: adoData.countryIsoCode });
+      return throwError(() => new Error('Missing required parameters: phone and countryIsoCode'));
+    }
+    
+    // Use the correct POST endpoint as shown in successful Postman test
+    const url = `${this.awsServer}/api/v1/reloadly/operator/autodetect`;
+    
+    console.log(`[AutoDetectOperator] Using POST endpoint: ${url}`);
+    console.log(`[AutoDetectOperator] Request body:`, adoData);
+    
     return this.httpClient
-      .post(`${this.awsServer}/api/v1/reloadly/operator/autodetect`, adoData)
+      .post(url, adoData)
       .pipe(
         tap((adoRes) => {
           this.log(

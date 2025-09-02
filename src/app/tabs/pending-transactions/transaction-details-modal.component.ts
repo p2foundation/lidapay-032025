@@ -1,7 +1,17 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
+  IonIcon,
+  IonContent,
+  IonSpinner,
+  IonFooter
+} from '@ionic/angular/standalone';
 
 // Define the Transaction interface locally since the model file doesn't exist
 interface Transaction {
@@ -37,7 +47,18 @@ interface Transaction {
   templateUrl: './transaction-details-modal.component.html',
   styleUrls: ['./transaction-details-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [
+    CommonModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButton,
+    IonIcon,
+    IonContent,
+    IonSpinner,
+    IonFooter
+  ]
 })
 export class TransactionDetailsModalComponent implements OnChanges {
   @Input() transaction!: Transaction;

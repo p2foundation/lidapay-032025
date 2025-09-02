@@ -1,109 +1,281 @@
-<ion-content class="bg_color" [fullscreen]="true">
+<ion-content class="enhanced-login-content" [fullscreen]="true">
   <!-- Animated Background Pattern -->
   <div class="background-pattern"></div>
-
-  <!-- Logo Section -->
-  <div class="logo-container animate__animated animate__fadeIn">
-    <img src="assets/imgs/lidapay-logo-white-red.png" alt="login-logo">
-    <h1 class="welcome-text animate__animated animate__fadeInUp">
-      {{ 'login.welcome_back' | translate }}
-    </h1>
-    <p class="subtitle animate__animated animate__fadeInUp animate__delay-1s">
-      {{ 'login.subtitle' | translate }}
-    </p>
+  
+  <!-- Floating Security Badge -->
+  <div class="security-badge animate__animated animate__fadeIn animate__delay-1s">
+    <ion-icon name="shield-checkmark-outline"></ion-icon>
+    <span>Secure Login</span>
   </div>
 
-  <!-- Login Form -->
-  <div class="form-container animate__animated animate__fadeInUp animate__delay-1s">
-    <form [formGroup]="loginForm" (ngSubmit)="onLogin(loginForm.value)">
-      <!-- Phone Input -->
-      <div class="input-group">
-        <div class="input-wrapper" [class.focused]="isFocused === 'mobile'">
-          <ion-icon name="call-outline"></ion-icon>
-          <ion-input
-            formControlName="mobile"
-            type="text"
-            [placeholder]="'login.phone_number' | translate"
-            (ionFocus)="isFocused = 'mobile'"
-            (ionBlur)="isFocused = ''"
-          ></ion-input>
-        </div>
-        <div class="error-message" *ngIf="loginForm.get('mobile')?.touched && loginForm.get('mobile')?.invalid">
-          {{ getErrorMessage('mobile') }}
-        </div>
-      </div>
+  <!-- Header Section -->
+  <div class="header-section animate__animated animate__fadeIn">
+    <div class="logo-container">
+      <img src="assets/imgs/lidapay-logo-white-red.png" alt="Lidapay Logo" class="logo">
+      <h1 class="welcome-text animate__animated animate__fadeInUp">
+        Welcome Back
+      </h1>
+      <p class="subtitle animate__animated animate__fadeInUp animate__delay-1s">
+        Login to your account
+      </p>
+    </div>
 
-      <!-- Password Input -->
-      <div class="input-group">
-        <div class="input-wrapper" [class.focused]="isFocused === 'password'">
-          <ion-icon name="lock-closed-outline"></ion-icon>
-          <ion-input
-            formControlName="password"
-            [type]="showPassword ? 'text' : 'password'"
-            [placeholder]="'login.password' | translate"
-            (ionFocus)="isFocused = 'password'"
-            (ionBlur)="isFocused = ''"
-          ></ion-input>
-          <ion-icon 
-            [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
-            class="toggle-password"
-            (click)="showPassword = !showPassword">
-          </ion-icon>
-        </div>
-        <div class="error-message" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
-          {{ getErrorMessage('password') }}
-        </div>
-      </div>
-
-      <!-- Forgot Password -->
-      <div class="forgot-password">
-        <ion-text color="medium" (click)="forgotPassword()">
-          {{ 'login.forgotPassword' | translate }}
-        </ion-text>
-      </div>
-
-      <!-- Login Button -->
-      <ion-button
-        type="submit"
-        expand="block"
-        size="large"
-        class="login-button animate__animated animate__fadeInUp animate__delay-2s"
-        [disabled]="!loginForm.valid"
-        [class.button-shake]="loginForm.invalid && loginForm.touched"
-      >
-        <span *ngIf="!isLoading">{{ 'login.sign_in' | translate }}</span>
-        <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+      <ion-button fill="clear" size="small" (click)="toggleTheme()" class="theme-button">
+        <ion-icon [name]="currentTheme === 'light' ? 'sunny-outline' : currentTheme === 'dark' ? 'moon-outline' : 'contrast-outline'"></ion-icon>
       </ion-button>
-    </form>
+    </div>
+  </div>
+
+  <!-- Main Login Form -->
+  <div class="form-container animate__animated animate__fadeInUp animate__delay-1s">
+    <ion-card class="login-card">
+      <ion-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin(loginForm.value)">
+          
+          <!-- Biometric Login Option -->
+          <div class="biometric-section" *ngIf="isBiometricAvailable && loginForm.get('isBiometricEnabled')?.value">
+            <ion-button 
+              fill="clear" 
+              expand="block" 
+              class="biometric-button"
+              (click)="authenticateWithBiometric()"
+              [disabled]="isLoading"
+            >
+              <ion-icon name="fingerprint-outline" class="biometric-icon"></ion-icon>
+              <span>Login with {{ biometricType === 'fingerprint' ? 'Fingerprint' : 'Face ID' }}</span>
+            </ion-button>
+            
+            <div class="divider">
+              <span>or</span>
+            </div>
+          </div>
+
+          <!-- Mobile Number Input -->
+          <div class="input-group" [class.has-error]="validationErrors['mobile']">
+            <div class="input-wrapper" [class.focused]="isFocused === 'mobile'" [class.animating]="isAnimating">
+              <ion-icon name="call-outline" class="input-icon"></ion-icon>
+              <ion-input
+                #mobileInput
+                formControlName="mobile"
+                type="tel"
+                placeholder="Enter your phone number"
+                inputmode="tel"
+                enterkeyhint="next"
+                autocomplete="tel"
+                (ionFocus)="onInputFocus($event, 'mobile')"
+                (ionBlur)="onInputBlur()"
+                (keypress)="onKeyPress($event, 'mobile')"
+                class="login-input">
+              </ion-input>
+              <div class="input-status" *ngIf="loginForm.get('mobile')?.valid && loginForm.get('mobile')?.touched">
+                <ion-icon name="checkmark-circle-outline" class="status-icon valid"></ion-icon>
+              </div>
+            </div>
+            <div class="error-message" *ngIf="validationErrors['mobile']">
+              <ion-icon name="close-circle-outline"></ion-icon>
+              {{ validationErrors['mobile'] }}
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="input-group" [class.has-error]="validationErrors['password']">
+            <div class="input-wrapper" [class.focused]="isFocused === 'password'" [class.animating]="isAnimating">
+              <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+              <ion-input
+                #passwordInput
+                formControlName="password"
+                [type]="showPassword ? 'text' : 'password'"
+                placeholder="Enter your password"
+                inputmode="text"
+                enterkeyhint="done"
+                autocomplete="current-password"
+                (ionFocus)="onInputFocus($event, 'password')"
+                (ionBlur)="onInputBlur()"
+                (keypress)="onKeyPress($event, 'password')"
+                class="login-input">
+              </ion-input>
+              <ion-icon 
+                [name]="showPassword ? 'eye-off-outline' : 'eye-outline'" 
+                class="toggle-password"
+                (click)="togglePasswordVisibility()"
+                [class.animating]="isAnimating">
+              </ion-icon>
+              <div class="input-status" *ngIf="loginForm.get('password')?.valid && loginForm.get('password')?.touched">
+                <ion-icon name="checkmark-circle-outline" class="status-icon valid"></ion-icon>
+              </div>
+            </div>
+            <div class="error-message" *ngIf="validationErrors['password']">
+              <ion-icon name="close-circle-outline"></ion-icon>
+              {{ validationErrors['password'] }}
+            </div>
+          </div>
+
+          <!-- Enhanced Options Row -->
+          <div class="options-row">
+            <ion-item lines="none" class="remember-me-item">
+              <ion-label>Remember me</ion-label>
+              <ion-toggle 
+                [formControlName]="'rememberMe'"
+                slot="end">
+              </ion-toggle>
+            </ion-item>
+            
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              class="forgot-password-link"
+              (click)="forgotPassword()">
+              Forgot Password?
+            </ion-button>
+          </div>
+
+          <!-- Security Status -->
+          <div class="security-status" *ngIf="isAccountLocked">
+            <ion-chip color="danger" class="lockout-chip">
+              <ion-icon name="warning-outline"></ion-icon>
+              <ion-label>Account temporarily locked</ion-label>
+            </ion-chip>
+            <p class="lockout-message">
+              Too many failed attempts. Please try again in {{ getRemainingLockoutTime() }} minutes.
+            </p>
+          </div>
+
+          <!-- Login Button -->
+          <ion-button
+            type="submit"
+            expand="block"
+            size="large"
+            class="login-button animate__animated animate__fadeInUp animate__delay-2s"
+            [disabled]="!isFormValid || isLoading || isAccountLocked"
+            [class.button-shake]="!isFormValid && loginForm.touched"
+            [class.button-loading]="isLoading"
+          >
+            <span *ngIf="!isLoading">Sign In</span>
+            <ion-spinner *ngIf="isLoading" name="dots"></ion-spinner>
+          </ion-button>
+
+          <!-- Signup Prompt - Moved closer to login button -->
+          <div class="signup-prompt-inline animate__animated animate__fadeInUp animate__delay-2s">
+            <p>Don't have an account?</p>
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              class="signup-link"
+              (click)="navigateToSignup()">
+              Sign Up
+            </ion-button>
+          </div>
+
+          <!-- Login Attempts Counter -->
+          <div class="attempts-counter" *ngIf="loginAttempts > 0 && !isAccountLocked">
+            <ion-chip color="warning" size="small">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              <ion-label>{{ loginAttempts }}/{{ maxLoginAttempts }} attempts used</ion-label>
+            </ion-chip>
+          </div>
+
+          <!-- Advanced Options Section -->
+          <div class="advanced-options animate__animated animate__fadeInUp animate__delay-2s">
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              class="advanced-toggle"
+              (click)="toggleAdvancedOptions()">
+              <ion-icon name="settings-outline"></ion-icon>
+              <span>{{ showAdvancedOptions ? 'Hide' : 'Show' }} Advanced Options</span>
+              <ion-icon name="chevron-down-outline" [class.rotated]="showAdvancedOptions"></ion-icon>
+            </ion-button>
+
+            <div class="advanced-content" [class.expanded]="showAdvancedOptions">
+              <!-- Biometric Settings -->
+              <div class="advanced-section" [hidden]="!isBiometricAvailable">
+                <ion-item lines="none" class="biometric-item">
+                  <ion-icon name="fingerprint-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <h3>Biometric Authentication</h3>
+                    <p>Use {{ biometricType === 'fingerprint' ? 'fingerprint' : 'face recognition' }} to login</p>
+                  </ion-label>
+                  <ion-toggle 
+                    [formControlName]="'isBiometricEnabled'"
+                    (ionChange)="toggleBiometric()"
+                    slot="end">
+                  </ion-toggle>
+                </ion-item>
+              </div>
+
+              <!-- Security Tips -->
+              <div class="advanced-section">
+                <ion-item lines="none" class="security-tips-item" button (click)="showSecurityTips = !showSecurityTips">
+                  <ion-icon name="shield-checkmark-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <h3>Security Tips</h3>
+                    <p>Best practices for secure login</p>
+                  </ion-label>
+                  <ion-icon name="chevron-down-outline" [class.rotated]="showSecurityTips" slot="end"></ion-icon>
+                </ion-item>
+                
+                <div class="security-tips-content" [class.expanded]="showSecurityTips">
+                  <ion-chip color="success" size="small">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <ion-label>Use strong passwords</ion-label>
+                  </ion-chip>
+                  <ion-chip color="success" size="small">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <ion-label>Enable biometric auth</ion-label>
+                  </ion-chip>
+                  <ion-chip color="success" size="small">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    <ion-label>Don't share credentials</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </ion-card-content>
+    </ion-card>
   </div>
 
   <!-- Social Login Options -->
   <div class="social-login animate__animated animate__fadeInUp animate__delay-2s">
     <div class="divider">
-      <span>{{ 'login.or_continue_with' | translate }}</span>
+      <span>Or continue with</span>
     </div>
     <div class="social-buttons">
-      <ion-button fill="clear" class="social-button google">
+      <ion-button fill="clear" class="social-button google" disabled>
         <ion-icon name="logo-google"></ion-icon>
+        <span>Google</span>
       </ion-button>
-      <ion-button fill="clear" class="social-button apple">
+      <ion-button fill="clear" class="social-button apple" disabled>
         <ion-icon name="logo-apple"></ion-icon>
+        <span>Apple</span>
       </ion-button>
-      <ion-button fill="clear" class="social-button facebook">
+      <ion-button fill="clear" class="social-button facebook" disabled>
         <ion-icon name="logo-facebook"></ion-icon>
+        <span>Facebook</span>
       </ion-button>
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- Footer Section -->
   <div class="footer-container animate__animated animate__fadeInUp animate__delay-3s">
-    <div class="signup-prompt">
-      <span>{{ 'login.dont_have_account' | translate }}</span>
-      <ion-button fill="clear" (click)="register_now()">
-        {{ 'login.sign_up' | translate }}
-      </ion-button>
+    <!-- App Version & Security Info -->
+    <div class="app-info">
+      <p class="version">Lidapay v2.0</p>
+      <p class="security-note">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        Bank-grade security
+      </p>
     </div>
   </div>
-  <!-- End Footer -->
 
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-content">
+      <ion-spinner name="circular"></ion-spinner>
+      <p>Authenticating...</p>
+    </div>
+  </div>
 </ion-content>

@@ -363,9 +363,14 @@ export class BuyReloadlyPage implements OnInit {
 
       console.log('[autoDetectOperator] => response:', response);
 
-      if (!response || !response.operatorId) {
+      if (!response || !(response.operatorId || response.id)) {
         console.error('Invalid operator detection response:', response);
         throw new Error('Could not detect network operator');
+      }
+
+      // Ensure we have the operatorId field
+      if (!response.operatorId && response.id) {
+        response.operatorId = response.id;
       }
 
       return response;

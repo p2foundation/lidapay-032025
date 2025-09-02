@@ -41,200 +41,263 @@
       </div>
     </div>
 
-    <!-- Conversion Form -->
-    <div class="conversion-form">
-      <!-- Network Provider Selection -->
-      <ion-card class="form-card">
-        <ion-cardHeader>
-          <ion-cardTitle class="card-title">
-            <ion-icon name="cellular-outline"></ion-icon>
-            Network Provider
-          </ion-cardTitle>
-        </ion-cardHeader>
-        <ion-cardContent>
-          <ion-select 
-            [(ngModel)]="selectedProvider" 
-            (ionChange)="onProviderChange()"
-            placeholder="Select your network provider"
-            class="provider-select">
-            <ion-select-option 
-              *ngFor="let provider of networkProviders" 
-              [value]="provider.id"
-              [disabled]="!provider.isActive">
-              {{ provider.name }}
-            </ion-select-option>
-          </ion-select>
-        </ion-cardContent>
-      </ion-card>
-
-      <!-- Phone Number and Amount -->
-      <ion-card class="form-card">
-        <ion-cardHeader>
-          <ion-cardTitle class="card-title">
-            <ion-icon name="call-outline"></ion-icon>
-            Airtime Details
-          </ion-cardTitle>
-        </ion-cardHeader>
-        <ion-cardContent>
-          <ion-item class="form-item">
-            <ion-label position="stacked">Phone Number</ion-label>
-            <ion-input 
-              [(ngModel)]="phoneNumber"
-              type="tel"
-              placeholder="Enter phone number"
-              class="phone-input">
-            </ion-input>
-          </ion-item>
-
-          <ion-item class="form-item">
-            <ion-label position="stacked">Airtime Amount (₵)</ion-label>
-            <ion-input 
-              [(ngModel)]="airtimeAmount"
-              type="number"
-              (ionInput)="onAmountChange()"
-              placeholder="Enter amount"
-              class="amount-input">
-            </ion-input>
-          </ion-item>
-        </ion-cardContent>
-      </ion-card>
-
-      <!-- Conversion Options -->
-      <ion-card class="form-card">
-        <ion-cardHeader>
-          <ion-cardTitle class="card-title">
-            <ion-icon name="swap-horizontal-outline"></ion-icon>
-            Conversion Options
-          </ion-cardTitle>
-        </ion-cardHeader>
-        <ion-cardContent>
-          <div class="conversion-options">
-            <div 
-              *ngFor="let option of conversionOptions" 
-              class="conversion-option"
-              [class.selected]="selectedConversionOption === option.id"
-              (click)="selectedConversionOption = option.id; onConversionOptionChange()">
-              <div class="option-header">
-                <div class="option-icon">
-                  <ion-icon [name]="option.icon"></ion-icon>
+    <!-- Accordion-Style Wizard Steps -->
+    <div class="wizard-accordion">
+      <div class="accordion-container">
+        <!-- Step 1: Network Provider -->
+        <div id="step-0" class="step-card" [class.completed]="isStepCompleted(0)" [class.active]="activeStep === 0" [class.disabled]="!isStepCompleted(0) && activeStep > 0">
+          <div class="step-header" (click)="toggleStep(0)">
+            <div class="step-number">1</div>
+            <div class="step-info">
+              <h3>Network Provider</h3>
+              <p>Choose your network</p>
+            </div>
+            <div class="step-status" *ngIf="isStepCompleted(0)">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            </div>
+            <ion-icon class="expand-icon" [name]="activeStep === 0 ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          </div>
+          
+          <div class="step-content" [class.expanded]="activeStep === 0">
+            <div class="network-providers-grid">
+              <div 
+                *ngFor="let provider of networkProviders; trackBy: trackByProvider" 
+                class="provider-card"
+                [class.selected]="selectedProvider === provider.id"
+                [class.disabled]="!provider.isActive"
+                (click)="selectProvider(provider.id)">
+                <div class="provider-logo">
+                  <div class="logo-circle" [style.background]="getProviderColor(provider.id)">
+                    <span class="logo-text">{{ getProviderInitials(provider.name) }}</span>
+                  </div>
                 </div>
-                <div class="option-info">
-                  <h3 class="option-title">{{ option.name }}</h3>
-                  <p class="option-description">{{ option.description }}</p>
+                <div class="provider-info">
+                  <h4 class="provider-name">{{ provider.name }}</h4>
+                  <p class="provider-status" *ngIf="provider.isActive">Available</p>
+                  <p class="provider-status disabled" *ngIf="!provider.isActive">Coming Soon</p>
                 </div>
-                <div class="option-badges">
-                  <ion-badge *ngIf="option.isPopular" color="success" class="popular-badge">
-                    Popular
-                  </ion-badge>
-                  <ion-badge *ngIf="option.isRecommended" color="primary" class="recommended-badge">
-                    Recommended
-                  </ion-badge>
-                </div>
-              </div>
-              <div class="option-details">
-                <div class="rate-info">
-                  <span class="rate-label">Rate:</span>
-                  <span class="rate-value">{{ getRatePercentage(option.rate) }}</span>
-                </div>
-                <div class="limits-info">
-                  <span class="limits-label">Limits:</span>
-                  <span class="limits-value">₵{{ option.minAmount.toLocaleString() }} - ₵{{ option.maxAmount.toLocaleString() }}</span>
-                </div>
-                <div class="time-info">
-                  <span class="time-label">Processing:</span>
-                  <span class="time-value">{{ option.processingTime }}</span>
-                </div>
-                <div class="fees-info" *ngIf="option.fees > 0">
-                  <span class="fees-label">Fees:</span>
-                  <span class="fees-value">₵{{ option.fees.toLocaleString() }}</span>
+                <div class="provider-checkmark" *ngIf="selectedProvider === provider.id">
+                  <ion-icon name="checkmark-circle"></ion-icon>
                 </div>
               </div>
             </div>
           </div>
-        </ion-cardContent>
-      </ion-card>
+        </div>
 
-      <!-- Conversion Summary -->
-      <ion-card class="form-card summary-card" *ngIf="convertedAmount > 0">
-        <ion-cardHeader>
-          <ion-cardTitle class="card-title">
-            <ion-icon name="calculator-outline"></ion-icon>
-            Conversion Summary
-          </ion-cardTitle>
-        </ion-cardHeader>
-        <ion-cardContent>
-          <div class="summary-grid">
-            <div class="summary-item">
-              <span class="summary-label">Airtime Amount:</span>
-              <span class="summary-value">{{ formatCurrency(airtimeAmount) }}</span>
+        <!-- Step 2: Airtime Details -->
+        <div class="step-card" [class.completed]="isStepCompleted(1)" [class.active]="activeStep === 1" [class.disabled]="!isStepCompleted(0)">
+          <div class="step-header" (click)="toggleStep(1)">
+            <div class="step-number">2</div>
+            <div class="step-info">
+              <h3>Airtime Details</h3>
+              <p>Enter phone number and amount</p>
             </div>
-            <div class="summary-item">
-              <span class="summary-label">Converted Amount:</span>
-              <span class="summary-value converted">{{ formatCurrency(convertedAmount) }}</span>
+            <div class="step-status" *ngIf="isStepCompleted(1)">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
             </div>
-            <div class="summary-item" *ngIf="processingFee > 0">
-              <span class="summary-label">Processing Fee:</span>
-              <span class="summary-value fee">-{{ formatCurrency(processingFee) }}</span>
-            </div>
-            <div class="summary-item total">
-              <span class="summary-label">You'll Receive:</span>
-              <span class="summary-value total-amount">{{ formatCurrency(totalAmount) }}</span>
+            <ion-icon class="expand-icon" [name]="activeStep === 1 ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          </div>
+          
+          <div class="step-content" [class.expanded]="activeStep === 1">
+            <div class="form-section">
+              <div class="form-group">
+                <ion-label>Phone Number</ion-label>
+                <ion-input 
+                  [(ngModel)]="phoneNumber"
+                  [formControl]="phoneNumberControl"
+                  type="tel"
+                  inputmode="tel"
+                  placeholder="Enter phone number (e.g., 0241234567)"
+                  (ionInput)="validateStep(1)"
+                  [class.ion-invalid]="phoneNumberControl.invalid && phoneNumberControl.touched"
+                  class="form-input">
+                </ion-input>
+                <div *ngIf="phoneNumberControl.touched && phoneNumberControl.errors?.['required']" class="error-message">
+                  Phone number is required
+                </div>
+                <div *ngIf="phoneNumberControl.touched && phoneNumberControl.errors?.['pattern']" class="error-message">
+                  Please enter a valid Ghanaian phone number
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <ion-label>Airtime Amount (₵)</ion-label>
+                <ion-input 
+                  [(ngModel)]="airtimeAmount"
+                  [formControl]="amountControl"
+                  type="number"
+                  inputmode="decimal"
+                  min="1"
+                  placeholder="Enter amount (e.g., 100)"
+                  (ionInput)="onAmountChange(); validateStep(1)"
+                  [class.ion-invalid]="amountControl.invalid && amountControl.touched"
+                  class="form-input">
+                </ion-input>
+                <div *ngIf="amountControl.touched && amountControl.errors?.['required']" class="error-message">
+                  Amount is required
+                </div>
+                <div *ngIf="amountControl.touched && amountControl.errors?.['min']" class="error-message">
+                  Amount must be greater than 0
+                </div>
+              </div>
+              
+              <div class="quick-actions">
+                <ion-button 
+                  fill="outline" 
+                  size="small"
+                  (click)="fillSampleData()"
+                  class="quick-btn"
+                  [disabled]="isLoading">
+                  <ion-icon name="flash-outline" slot="start"></ion-icon>
+                  {{ isLoading ? 'Loading...' : 'Use Sample Data' }}
+                  <ion-spinner *ngIf="isLoading" name="crescent" slot="end"></ion-spinner>
+                </ion-button>
+              </div>
             </div>
           </div>
-        </ion-cardContent>
-      </ion-card>
+        </div>
 
-      <!-- Additional Details -->
-      <ion-card class="form-card">
-        <ion-cardHeader>
-          <ion-cardTitle class="card-title">
-            <ion-icon name="person-outline"></ion-icon>
-            Additional Details (Optional)
-          </ion-cardTitle>
-        </ion-cardHeader>
-        <ion-cardContent>
-          <ion-item class="form-item">
-            <ion-label position="stacked">Recipient Phone Number</ion-label>
-            <ion-input 
-              [(ngModel)]="recipientPhoneNumber"
-              type="tel"
-              placeholder="Enter recipient phone number">
-            </ion-input>
-          </ion-item>
+        <!-- Step 3: Conversion Method -->
+        <div class="step-card" [class.completed]="isStepCompleted(2)" [class.active]="activeStep === 2" [class.disabled]="!isStepCompleted(1)">
+          <div class="step-header" (click)="toggleStep(2)">
+            <div class="step-number">3</div>
+            <div class="step-info">
+              <h3>Conversion Method</h3>
+              <p>Choose how to receive funds</p>
+            </div>
+            <div class="step-status" *ngIf="isStepCompleted(2)">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            </div>
+            <ion-icon class="expand-icon" [name]="activeStep === 2 ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          </div>
+          
+          <div class="step-content" [class.expanded]="activeStep === 2">
+            <div class="conversion-options-grid">
+              <div 
+                *ngFor="let option of conversionOptions" 
+                class="conversion-option-card"
+                [class.selected]="selectedConversionOption === option.id"
+                [class.popular]="option.isPopular"
+                [class.recommended]="option.isRecommended"
+                (click)="selectConversionOption(option.id)">
+                
+                <div class="option-badges" *ngIf="option.isPopular || option.isRecommended">
+                  <ion-badge *ngIf="option.isRecommended" color="primary">⭐ Recommended</ion-badge>
+                  <ion-badge *ngIf="option.isPopular" color="success">🔥 Popular</ion-badge>
+                </div>
+                
+                <div class="option-header">
+                  <div class="option-icon">
+                    <ion-icon [name]="option.icon"></ion-icon>
+                  </div>
+                  <div class="option-details">
+                    <h4 class="option-title">{{ option.name }}</h4>
+                    <p class="option-description">{{ option.description }}</p>
+                  </div>
+                  <div class="option-rate">
+                    <span class="rate-value">{{ getRatePercentage(option.rate) }}</span>
+                    <span class="rate-label">Rate</span>
+                  </div>
+                </div>
+                
+                <div class="option-features">
+                  <div class="feature">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ option.processingTime }}</span>
+                  </div>
+                  <div class="feature">
+                    <ion-icon name="cash-outline"></ion-icon>
+                    <span>₵{{ option.minAmount }}-₵{{ option.maxAmount }}</span>
+                  </div>
+                  <div class="feature">
+                    <ion-icon name="card-outline"></ion-icon>
+                    <span *ngIf="option.fees > 0">Fee: ₵{{ option.fees }}</span>
+                    <span *ngIf="option.fees === 0" class="free">Free</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <ion-item class="form-item">
-            <ion-label position="stacked">Recipient Name</ion-label>
-            <ion-input 
-              [(ngModel)]="recipientName"
-              type="text"
-              placeholder="Enter recipient name">
-            </ion-input>
-          </ion-item>
+        <!-- Step 4: Review & Confirm -->
+        <div class="step-card" [class.completed]="isStepCompleted(3)" [class.active]="activeStep === 3" [class.disabled]="!isStepCompleted(2)">
+          <div class="step-header" (click)="toggleStep(3)">
+            <div class="step-number">4</div>
+            <div class="step-info">
+              <h3>Review & Confirm</h3>
+              <p>Verify your details</p>
+            </div>
+            <div class="step-status" *ngIf="isStepCompleted(3)">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            </div>
+            <ion-icon class="expand-icon" [name]="activeStep === 3 ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          </div>
+          
+          <div class="step-content" [class.expanded]="activeStep === 3">
+            <div class="review-section">
+              <div class="review-item">
+                <span class="review-label">Network Provider:</span>
+                <span class="review-value">{{ getProviderName() }}</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Phone Number:</span>
+                <span class="review-value">{{ phoneNumber || 'Not entered' }}</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Airtime Amount:</span>
+                <span class="review-value">₵{{ airtimeAmount || 0 }}</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Conversion Method:</span>
+                <span class="review-value">{{ getSelectedOptionName() }}</span>
+              </div>
+            </div>
 
-          <ion-item class="form-item">
-            <ion-label position="stacked">Notes</ion-label>
-            <ion-textarea 
-              [(ngModel)]="notes"
-              placeholder="Add any additional notes"
-              rows="3">
-            </ion-textarea>
-          </ion-item>
-        </ion-cardContent>
-      </ion-card>
+            <div class="summary-section" *ngIf="airtimeAmount > 0">
+              <h4>Conversion Summary</h4>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-label">Original Amount:</span>
+                  <span class="summary-value">₵{{ airtimeAmount.toLocaleString() }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Conversion Rate:</span>
+                  <span class="summary-value">{{ getRatePercentage(getSelectedOption()?.rate || 0) }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Processing Fee:</span>
+                  <span class="summary-value fee">₵{{ processingFee.toLocaleString() }}</span>
+                </div>
+                <div class="summary-item total">
+                  <span class="summary-label">You'll Receive:</span>
+                  <span class="summary-value total-amount">₵{{ totalAmount.toLocaleString() }}</span>
+                </div>
+              </div>
+            </div>
 
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <ion-button 
-          expand="block" 
-          size="large"
-          class="convert-btn"
-          [disabled]="!selectedProvider || !phoneNumber || !airtimeAmount || !selectedConversionOption || isProcessing"
-          (click)="processConversion()">
-          <ion-icon name="repeat-outline" slot="start"></ion-icon>
-          <span *ngIf="!isProcessing">Convert Airtime</span>
-          <span *ngIf="isProcessing">Processing...</span>
-          <ion-spinner *ngIf="isProcessing" name="crescent" slot="end"></ion-spinner>
-        </ion-button>
+            <div class="action-buttons">
+              <ion-button 
+                expand="block"
+                class="confirm-btn"
+                [disabled]="!canConfirmConversion() || isProcessing"
+                (click)="processConversion()"
+                [color]="canConfirmConversion() && !isProcessing ? 'primary' : 'medium'">
+                <ion-icon name="repeat-outline" slot="start"></ion-icon>
+                <span *ngIf="!isProcessing">
+                  {{ canConfirmConversion() ? 'Confirm Conversion' : 'Complete all steps' }}
+                </span>
+                <span *ngIf="isProcessing">Processing...</span>
+                <ion-spinner *ngIf="isProcessing" name="crescent" slot="end"></ion-spinner>
+              </ion-button>
+              
+              <div *ngIf="errorMessage" class="error-message ion-margin-top">
+                <ion-icon name="warning-outline"></ion-icon>
+                {{ errorMessage }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -276,30 +339,6 @@
 </ion-content>
 
 <!-- Alerts -->
-<ion-alert
-  [isOpen]="showSuccessAlert"
-  header="Success!"
-  [message]="alertMessage"
-  [buttons]="['OK']"
-  (didDismiss)="showSuccessAlert = false">
-</ion-alert>
-
-<ion-alert
-  [isOpen]="showErrorAlert"
-  header="Error"
-  [message]="errorMessage"
-  [buttons]="['OK']"
-  (didDismiss)="showErrorAlert = false">
-</ion-alert>
-
-<ion-alert
-  [isOpen]="showConfirmAlert"
-  header="Confirm Conversion"
-  [message]="alertMessage"
-  [buttons]="getConfirmButtons()"
-  (didDismiss)="showConfirmAlert = false">
-</ion-alert>
-
 <ion-alert
   [isOpen]="showInfoAlert"
   header="Airtime Conversion Info"

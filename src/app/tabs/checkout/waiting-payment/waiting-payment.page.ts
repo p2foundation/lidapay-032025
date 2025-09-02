@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,16 +11,8 @@ import {
   IonToolbar,
   IonButtons,
   IonBackButton,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonCardSubtitle,
   IonSpinner,
   IonButton,
-  IonList,
-  IonItem,
-  IonLabel,
   IonIcon
 } from '@ionic/angular/standalone';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -28,6 +20,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AdvansisPayService } from '../../../services/payments/advansis-pay.service';
 import { GlobalService } from '../../../services/global.service';
 import { App } from '@capacitor/app';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { addIcons } from 'ionicons';
+import { keypadOutline } from 'ionicons/icons';
+
+addIcons({ keypadOutline });
 
 @Component({
   selector: 'app-waiting-payment',
@@ -44,19 +41,18 @@ import { App } from '@capacitor/app';
     IonToolbar,
     IonButtons,
     IonBackButton,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
     IonSpinner,
     IonButton
-  ]
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class WaitingPaymentPage implements OnInit, OnDestroy {
   orderId: string | null = null;
   token: string | null = null;
   loading = true;
   error: string | null = null;
+  processingMessage = 'Waiting for USSD authorization... Please check your phone for the payment prompt.';
+  isFirstResponse = true;
   private deepLinkSubscription: any;
 
   constructor(
@@ -77,8 +73,9 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
       if (this.orderId && this.token) {
         this.startPaymentStatusCheck();
       } else {
-        this.error = 'Missing payment information';
-        this.loading = false;
+        // This is expected during USSD authorization - don't show as error
+        this.processingMessage = 'Waiting for payment authorization... Please complete USSD prompt on your phone.';
+        this.loading = true; // Keep loading state instead of showing error
       }
     });
   }
@@ -103,20 +100,47 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
 
         console.log('Extracted parameters in waiting page:', { orderId, token, status, errorMessage });
 
-        if (status === 'error' && errorMessage) {
-          this.error = decodeURIComponent(errorMessage);
-          this.loading = false;
-          this.global.showToast(this.error, 'danger', 'bottom', 3000);
-          return;
-        }
+        // Handle first response from Express Pay
+        if (this.isFirstResponse) {
+          this.isFirstResponse = false;
+          
+          if (status === 'error' && errorMessage) {
+            // First response error - show processing message instead of error
+            this.processingMessage = 'USSD authorization in progress... Please complete the prompt on your phone.';
+            this.global.showToast('Payment processing... Please wait.', 'info', 'bottom', 3000);
+            return;
+          }
 
-        if (orderId && token) {
-          this.orderId = orderId;
-          this.token = token;
-          this.startPaymentStatusCheck();
+          if (orderId && token) {
+            this.orderId = orderId;
+            this.token = token;
+            this.processingMessage = 'Payment authorized! Processing transaction...';
+            this.global.showToast('Payment authorized! Processing...', 'success', 'bottom', 3000);
+            this.startPaymentStatusCheck();
+          } else {
+            // First response missing parameters - show processing message
+            this.processingMessage = 'USSD response received. Waiting for authorization...';
+            this.global.showToast('USSD response received. Processing...', 'info', 'bottom', 3000);
+            // Don't show error yet - wait for more information
+            return;
+          }
         } else {
-          this.error = 'Invalid payment response';
-          this.loading = false;
+          // Subsequent responses - handle normally
+          if (status === 'error' && errorMessage) {
+            this.error = decodeURIComponent(errorMessage);
+            this.loading = false;
+            this.global.showToast(this.error, 'danger', 'bottom', 3000);
+            return;
+          }
+
+          if (orderId && token) {
+            this.orderId = orderId;
+            this.token = token;
+            this.startPaymentStatusCheck();
+          } else {
+            this.error = 'Invalid payment response';
+            this.loading = false;
+          }
         }
       }
     });
@@ -144,9 +168,14 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
 
           switch (transactionDetails.status) {
             case 'COMPLETED':
-              this.router.navigate(['/tabs/checkout'], navigationExtras);
+              this.processingMessage = 'Payment completed successfully! Redirecting...';
+              this.global.showToast('Payment completed!', 'success', 'bottom', 2000);
+              setTimeout(() => {
+                this.router.navigate(['/tabs/checkout'], navigationExtras);
+              }, 2000);
               break;
             case 'PENDING':
+              this.processingMessage = 'Payment is being processed. Please wait...';
               // Keep checking status
               setTimeout(() => this.startPaymentStatusCheck(), 5000);
               break;
@@ -157,26 +186,42 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
               this.router.navigate(['/tabs/home']);
               break;
             default:
-              this.error = 'Unknown transaction status';
-              this.loading = false;
-              this.global.showToast(this.error, 'warning', 'bottom', 3000);
-              this.router.navigate(['/tabs/home']);
+              this.processingMessage = 'Processing transaction status...';
+              // Wait a bit before checking again
+              setTimeout(() => this.startPaymentStatusCheck(), 3000);
           }
         },
         error: (error: any) => {
           console.error('Error checking payment status:', error);
-          this.error = 'Error checking payment status';
-          this.loading = false;
-          this.global.showToast(this.error, 'danger', 'bottom', 3000);
-          this.router.navigate(['/tabs/home']);
+          
+          // Don't immediately show error for first few attempts
+          if (this.isFirstResponse) {
+            this.processingMessage = 'USSD authorization in progress... Please complete the prompt on your phone.';
+            this.global.showToast('Payment processing... Please wait.', 'info', 'bottom', 3000);
+            // Retry after a delay
+            setTimeout(() => this.startPaymentStatusCheck(), 5000);
+          } else {
+            this.error = 'Error checking payment status';
+            this.loading = false;
+            this.global.showToast(this.error, 'danger', 'bottom', 3000);
+            this.router.navigate(['/tabs/home']);
+          }
         }
       });
     } catch (error) {
       console.error('Error in payment status check:', error);
-      this.error = 'Error processing payment';
-      this.loading = false;
-      this.global.showToast(this.error, 'danger', 'bottom', 3000);
-      this.router.navigate(['/tabs/home']);
+      
+      if (this.isFirstResponse) {
+        this.processingMessage = 'USSD authorization in progress... Please complete the prompt on your phone.';
+        this.global.showToast('Payment processing... Please wait.', 'info', 'bottom', 3000);
+        // Retry after a delay
+        setTimeout(() => this.startPaymentStatusCheck(), 5000);
+      } else {
+        this.error = 'Error processing payment';
+        this.loading = false;
+        this.global.showToast(this.error, 'danger', 'bottom', 3000);
+        this.router.navigate(['/tabs/home']);
+      }
     } finally {
       await loading.dismiss();
     }
@@ -186,5 +231,62 @@ export class WaitingPaymentPage implements OnInit, OnDestroy {
     if (this.deepLinkSubscription) {
       this.deepLinkSubscription.remove();
     }
+  }
+
+  // Navigation methods
+  async goBack() {
+    // Add haptic feedback
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (error) {
+      console.log('Haptics not available');
+    }
+    
+    // Navigate back
+    this.router.navigate(['/tabs/home']);
+  }
+
+  async retryPayment() {
+    // Add haptic feedback
+    try {
+      await Haptics.impact({ style: ImpactStyle.Medium });
+    } catch (error) {
+      console.log('Haptics not available');
+    }
+    
+    // Reset error state and retry
+    this.error = null;
+    this.loading = true;
+    
+    if (this.orderId && this.token) {
+      this.startPaymentStatusCheck();
+    } else {
+      this.error = 'Missing payment information';
+      this.loading = false;
+    }
+  }
+
+  async goHome() {
+    // Add haptic feedback
+    try {
+      await Haptics.impact({ style: ImpactStyle.Medium });
+    } catch (error) {
+      console.log('Haptics not available');
+    }
+    
+    // Navigate to home
+    this.router.navigate(['/tabs/home']);
+  }
+
+  async contactSupport() {
+    // Add haptic feedback
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (error) {
+      console.log('Haptics not available');
+    }
+    
+    // Show support contact information
+    this.global.showToast('Support: support@lidapay.com', 'info', 'bottom', 4000);
   }
 } 

@@ -1,129 +1,329 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
+<ion-header [translucent]="true" class="modern-header">
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-			<ion-back-button defaultHref="/tabs/account"></ion-back-button>
-		</ion-buttons>
-		<div class="header-content">
-			<span class="page_title animate__animated animate__fadeIn">
-				{{ 'My Profile' | translate }}
-			</span>
-			<ion-button fill="clear" (click)="goToUpdateProfile()">
-				<ion-icon name="create-outline"></ion-icon>
-				{{ 'Edit' | translate }}
-			</ion-button>
-		</div>
+      <ion-button 
+        fill="clear" 
+        (click)="goBack()"
+        class="back-button">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <h1 class="main-title">{{ 'My Profile' | translate }}</h1>
+        <p class="subtitle">View and manage your profile information</p>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button 
+        fill="clear" 
+        (click)="toggleEditMode()" 
+        class="edit-button"
+        [class.editing]="isEditing">
+        <ion-icon 
+          [name]="isEditing ? 'remove-outline' : 'create-outline'"
+          slot="icon-only">
+        </ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-
+<ion-content [fullscreen]="true" class="modern-profile-content">
   <!-- Loading Skeleton -->
-	<div class="skeleton-wrapper" *ngIf="isLoading">
-		<div class="profile-skeleton">
-			<ion-skeleton-text animated class="avatar-skeleton"></ion-skeleton-text>
-			<ion-skeleton-text animated class="name-skeleton"></ion-skeleton-text>
-			<ion-skeleton-text animated class="email-skeleton"></ion-skeleton-text>
-		</div>
-		<div class="form-skeleton">
-			<ion-skeleton-text animated class="input-skeleton"></ion-skeleton-text>
-			<ion-skeleton-text animated class="input-skeleton"></ion-skeleton-text>
-			<ion-skeleton-text animated class="input-skeleton"></ion-skeleton-text>
-		</div>
-	</div>
+  <div class="skeleton-wrapper" *ngIf="isLoading">
+    <div class="profile-skeleton">
+      <ion-skeleton-text animated class="avatar-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="name-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="email-skeleton"></ion-skeleton-text>
+    </div>
+    <div class="form-skeleton">
+      <ion-skeleton-text animated class="input-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="input-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="input-skeleton"></ion-skeleton-text>
+    </div>
+  </div>
 
-	<!-- Profile Content -->
-	<div class="content-wrapper" *ngIf="!isLoading">
-		<!-- Profile Image Section -->
-		<div class="profile-image-section animate__animated animate__fadeIn">
-			<div class="avatar-container">
-				<img [src]="profile.gravatar || 'assets/imgs/avatar.png'" 
-					 [alt]="profile.firstName"
-					 [title]="profile.firstName">
-				<div class="edit-overlay">
-					<ion-icon name="camera-outline"></ion-icon>
-				</div>
-			</div>
-			<p class="change-photo-text">{{ 'Change Profile Photo' | translate }}</p>
-		</div>
+  <!-- Profile Content -->
+  <div class="content-wrapper" *ngIf="!isLoading">
+    <!-- Profile Header Section -->
+    <div class="profile-header-section animate__animated animate__fadeIn">
+      <ion-card class="profile-header-card">
+        <ion-card-content>
+          <div class="profile-header-content">
+            <!-- Profile Image Section -->
+            <div class="profile-image-section">
+              <div class="avatar-container">
+                <ion-avatar class="profile-avatar">
+                  <img [src]="profile.gravatar || defaultAvatarUrl" 
+                       [alt]="profile.firstName || 'User'"
+                       [title]="profile.firstName || 'User'">
+                </ion-avatar>
+                <div class="avatar-overlay" (click)="changeProfilePicture()">
+                  <ion-icon name="camera-outline"></ion-icon>
+                </div>
+                <div class="verification-badge" *ngIf="profile?.isVerified">
+                  <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                </div>
+              </div>
+              <div class="profile-name-section">
+                <h2 class="profile-name">{{ profile.firstName || 'User' }} {{ profile.lastName || 'Name' }}</h2>
+                <p class="profile-email">{{ profile.email || 'user@example.com' }}</p>
+                <div class="verification-status">
+                  <ion-chip 
+                    [color]="getVerificationColor(profile.emailVerified)"
+                    class="verification-chip">
+                    <ion-icon name="mail-outline"></ion-icon>
+                    <ion-label>{{ getVerificationStatus(profile.emailVerified) }}</ion-label>
+                  </ion-chip>
+                  <ion-chip 
+                    [color]="getVerificationColor(profile.phoneVerified)"
+                    class="verification-chip">
+                    <ion-icon name="cellular-outline"></ion-icon>
+                    <ion-label>{{ getVerificationStatus(profile.phoneVerified) }}</ion-label>
+                  </ion-chip>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
 
-		<!-- Profile Form -->
-		<div class="profile-form animate__animated animate__fadeInUp">
-			<ion-list lines="none">
-				<!-- Name Row -->
-				<ion-row>
-					<ion-col size="6">
-						<ion-item>
-							<ion-input
-								label="{{ 'First Name' | translate }}"
-								labelPlacement="floating"
-								[value]="profile.firstName"
-								readonly>
-							</ion-input>
-						</ion-item>
-					</ion-col>
-					<ion-col size="6">
-						<ion-item>
-							<ion-input
-								label="{{ 'Last Name' | translate }}"
-								labelPlacement="floating"
-								[value]="profile.lastName"
-								readonly>
-							</ion-input>
-						</ion-item>
-					</ion-col>
-				</ion-row>
+    <!-- Profile Form Section -->
+    <div class="profile-form-section animate__animated animate__fadeInUp">
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <!-- Basic Information -->
+        <ion-card class="form-section-card">
+          <ion-card-content>
+            <h3 class="section-title">
+              <ion-icon name="person-outline"></ion-icon>
+              Basic Information
+            </h3>
+            
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">First Name *</ion-label>
+                <ion-input 
+                  formControlName="firstName"
+                  [readonly]="!isEditing"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
 
-				<!-- Contact Info -->
-				<ion-item class="animate__animated animate__fadeInUp animate__delay-1s">
-					<ion-input
-						label="{{ 'Email' | translate }}"
-						labelPlacement="floating"
-						[value]="profile.email"
-						readonly>
-						<ion-icon name="checkmark-circle" slot="end" 
-								  *ngIf="profile?.emailVerified"
-								  color="success">
-						</ion-icon>
-					</ion-input>
-				</ion-item>
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Last Name *</ion-label>
+                <ion-input 
+                  formControlName="lastName"
+                  [readonly]="!isEditing"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
 
-				<ion-item class="animate__animated animate__fadeInUp animate__delay-2s">
-					<ion-input
-						label="{{ 'Phone' | translate }}"
-						labelPlacement="floating"
-						[value]="profile.phoneNumber"
-						readonly>
-						<ion-icon name="checkmark-circle" slot="end" 
-								  *ngIf="profile?.phoneVerified"
-								  color="success">
-						</ion-icon>
-					</ion-input>
-				</ion-item>
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Email *</ion-label>
+                <ion-input 
+                  formControlName="email"
+                  type="email"
+                  [readonly]="!isEditing"
+                  class="form-input">
+                </ion-input>
+                <ion-icon 
+                  name="checkmark-circle" 
+                  slot="end" 
+                  *ngIf="profile?.emailVerified"
+                  color="success">
+                </ion-icon>
+              </ion-item>
+            </div>
 
-				<!-- Additional Info -->
-				<ion-row class="animate__animated animate__fadeInUp animate__delay-3s">
-					<ion-col size="6">
-						<ion-item>
-							<ion-input
-								label="{{ 'Role' | translate }}"
-								labelPlacement="floating"
-								[value]="profile.roles && profile.roles.length ? (profile.roles[0] | translate) : ''"
-								readonly>
-							</ion-input>
-						</ion-item>
-					</ion-col>
-					<ion-col size="6">
-						<ion-item>
-							<ion-input
-								label="{{ 'Joined' | translate }}"
-								labelPlacement="floating"
-								[value]="profile.createdAt | date"
-								readonly>
-							</ion-input>
-						</ion-item>
-					</ion-col>
-				</ion-row>
-			</ion-list>
-		</div>
-	</div>
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Phone Number *</ion-label>
+                <ion-input 
+                  formControlName="phoneNumber"
+                  type="tel"
+                  [readonly]="!isEditing"
+                  class="form-input">
+                </ion-input>
+                <ion-icon 
+                  name="checkmark-circle" 
+                  slot="end" 
+                  *ngIf="profile?.phoneVerified"
+                  color="success">
+                </ion-icon>
+              </ion-item>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Additional Information -->
+        <ion-card class="form-section-card">
+          <ion-card-content>
+            <h3 class="section-title">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Additional Information
+            </h3>
+            
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Bio</ion-label>
+                <ion-textarea 
+                  formControlName="bio"
+                  [readonly]="!isEditing"
+                  rows="3"
+                  placeholder="Tell us about yourself..."
+                  class="form-textarea">
+                </ion-textarea>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Location</ion-label>
+                <ion-input 
+                  formControlName="location"
+                  [readonly]="!isEditing"
+                  placeholder="Where are you located?"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Website</ion-label>
+                <ion-input 
+                  formControlName="website"
+                  type="url"
+                  [readonly]="!isEditing"
+                  placeholder="https://yourwebsite.com"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Professional Information -->
+        <ion-card class="form-section-card">
+          <ion-card-content>
+            <h3 class="section-title">
+              <ion-icon name="wallet-outline"></ion-icon>
+              Professional Information
+            </h3>
+            
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Company</ion-label>
+                <ion-input 
+                  formControlName="company"
+                  [readonly]="!isEditing"
+                  placeholder="Your company name"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Job Title</ion-label>
+                <ion-input 
+                  formControlName="jobTitle"
+                  [readonly]="!isEditing"
+                  placeholder="Your job title"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Education</ion-label>
+                <ion-input 
+                  formControlName="education"
+                  [readonly]="!isEditing"
+                  placeholder="Your educational background"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
+
+            <div class="form-row">
+              <ion-item class="form-item">
+                <ion-label position="floating">Interests</ion-label>
+                <ion-input 
+                  formControlName="interests"
+                  [readonly]="!isEditing"
+                  placeholder="Your interests and hobbies"
+                  class="form-input">
+                </ion-input>
+              </ion-item>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Save Button -->
+        <div class="save-button-section" *ngIf="isEditing">
+          <ion-button 
+            type="submit"
+            expand="block"
+            [disabled]="isSaving || profileForm.invalid"
+            class="save-button">
+            <ion-spinner name="crescent" *ngIf="isSaving"></ion-spinner>
+            <ion-icon name="checkmark-circle" slot="start" *ngIf="!isSaving"></ion-icon>
+            {{ isSaving ? 'Saving...' : 'Save Changes' }}
+          </ion-button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Profile Stats Section -->
+    <div class="profile-stats-section animate__animated animate__fadeInUp animate__delay-1s">
+      <ion-card class="stats-card">
+        <ion-card-content>
+          <h3 class="section-title">
+            <ion-icon name="trending-up-outline"></ion-icon>
+            Profile Statistics
+          </h3>
+          
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-icon">
+                <ion-icon name="time-outline"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ profile.createdAt ? 'Active' : 'New' }}</span>
+                <span class="stat-label">Member Since</span>
+              </div>
+            </div>
+            
+            <div class="stat-item">
+              <div class="stat-icon">
+                <ion-icon name="gift-outline"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ profile.points || 0 }}</span>
+                <span class="stat-label">Reward Points</span>
+              </div>
+            </div>
+            
+            <div class="stat-item">
+              <div class="stat-icon">
+                <ion-icon name="shield-outline"></ion-icon>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ profile.isVerified ? 'Verified' : 'Pending' }}</span>
+                <span class="stat-label">Account Status</span>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
 </ion-content>

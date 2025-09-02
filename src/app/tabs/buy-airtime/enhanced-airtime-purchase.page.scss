@@ -667,10 +667,91 @@ ion-input {
 
 // Enhanced Loading and Error States with Dark Theme
 .loading-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px 0;
+  text-align: center;
+  padding: 40px 20px;
+  
+  .loading-header {
+    margin-bottom: 32px;
+    
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      --color: var(--brand-accent);
+    }
+    
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dark-text-primary);
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 14px;
+      color: var(--dark-text-secondary);
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+  
+  .skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 100%;
+    
+    .skeleton-card {
+      background: var(--dark-bg-secondary);
+      border-radius: var(--card-border-radius);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid var(--dark-border);
+      
+      .skeleton-flag {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(90deg, var(--dark-bg-tertiary) 25%, var(--dark-border) 50%, var(--dark-bg-tertiary) 75%);
+        background-size: 200% 100%;
+        border-radius: 8px;
+        animation: skeleton-loading 1.5s infinite;
+      }
+      
+      .skeleton-content {
+        flex: 1;
+        
+        .skeleton-title {
+          width: 80%;
+          height: 16px;
+          background: linear-gradient(90deg, var(--dark-bg-tertiary) 25%, var(--dark-border) 50%, var(--dark-bg-tertiary) 75%);
+          background-size: 200% 100%;
+          border-radius: 4px;
+          margin-bottom: 8px;
+          animation: skeleton-loading 1.5s infinite;
+        }
+        
+        .skeleton-subtitle {
+          width: 60%;
+          height: 12px;
+          background: linear-gradient(90deg, var(--dark-bg-tertiary) 25%, var(--dark-border) 50%, var(--dark-bg-tertiary) 75%);
+          background-size: 200% 100%;
+          border-radius: 4px;
+          animation: skeleton-loading 1.5s infinite;
+        }
+      }
+    }
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .error-container {
@@ -846,23 +927,20 @@ body.light {
   }
 } 
 
-.debug-section {
+.clear-phone-section {
   margin-top: 16px;
   text-align: center;
   
-  ion-button {
-    --color: var(--dark-text-muted);
-    --background: transparent;
-    --border-color: var(--dark-border);
-    --border-width: 1px;
-    --border-style: solid;
-    --border-radius: 8px;
+  .clear-phone-button {
+    --color: var(--ion-color-medium);
+    --border-radius: 6px;
+    --padding-start: 12px;
+    --padding-end: 12px;
     font-size: 12px;
     height: 32px;
     
-    &:hover {
-      --background: var(--dark-bg-tertiary);
-      --color: var(--dark-text-secondary);
+    ion-icon {
+      margin-right: 4px;
     }
   }
 } 

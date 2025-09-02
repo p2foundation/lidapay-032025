@@ -1,18 +1,13 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { firstValueFrom, Subject, takeUntil, Subscription } from 'rxjs';
 import {
   IonContent,
   IonHeader,
   IonTitle,
   IonToolbar,
-  ModalController,
   IonInput,
   IonSelect,
   IonSelectOption,
@@ -30,21 +25,21 @@ import {
   IonRow,
   IonCol,
   IonSkeletonText,
-  IonChip,
   IonSpinner,
+  ModalController,
 } from '@ionic/angular/standalone';
-import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 import { WaitingModalComponent } from 'src/app/components/waiting-modal/waiting-modal.component';
 import { Profile } from 'src/app/interfaces';
-import { AccountService } from 'src/app/services/auth/account.service';
-import { NotificationService } from 'src/app/services/notification.service';
-import { OperatorService } from 'src/app/services/operator.service';
 import { AdvansisPayService } from 'src/app/services/payments/advansis-pay.service';
+import { AirtimeService } from 'src/app/services/one4all/airtime.service';
 import { StorageService } from 'src/app/services/storage.service';
-import { UtilsService } from 'src/app/services/utils.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { KeyboardService } from 'src/app/services/keyboard.service';
 import { EnhancedAirtimeService, Country, Operator } from 'src/app/services/enhanced-airtime.service';
+import { EnhancedOperatorService, EnhancedOperator } from 'src/app/services/enhanced-operator.service';
+import { UtilsService } from 'src/app/services/utils.service';
+import { AccountService } from 'src/app/services/auth/account.service';
 
 @Component({
   selector: 'app-buy-airtime',
@@ -86,6 +81,7 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
   // Enhanced data
   countries: Country[] = [];
   operators: Operator[] = [];
+  enhancedOperators: EnhancedOperator[] = [];
   selectedCountry: Country | null = null;
   selectedOperator: Operator | null = null;
   detectedOperator: Operator | null = null;
@@ -117,6 +113,40 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
   
   // Quick amounts
   quickAmounts = [5, 10, 20, 50, 100, 200, 500];
+
+  /**
+   * Get quick amounts for the selected operator
+   */
+  getQuickAmountsForOperator(): number[] {
+    if (this.selectedOperator && this.enhancedOperators.length > 0) {
+      const enhancedOp = this.enhancedOperators.find(op => 
+        op.name.toLowerCase() === this.selectedOperator?.name.toLowerCase()
+      );
+      if (enhancedOp && enhancedOp.fixedAmounts.length > 0) {
+        return enhancedOp.fixedAmounts;
+      }
+    }
+    return this.quickAmounts; // Fallback to default amounts
+  }
+
+  /**
+   * Check if operator supports a specific service
+   */
+  operatorSupportsService(operator: EnhancedOperator, serviceType: 'airtime' | 'data' | 'sms' | 'international'): boolean {
+    return operator.supportedServices.some(service => service.type === serviceType && service.isSupported);
+  }
+
+  /**
+   * Get operator features for display
+   */
+  getOperatorFeatures(operator: EnhancedOperator): string[] {
+    if (operator.dataBundles.length > 0 && operator.dataBundles[0].features) {
+      return operator.dataBundles[0].features.slice(0, 2);
+    }
+    return [];
+  }
+
+
   
   private destroy$ = new Subject<void>();
 
@@ -128,7 +158,10 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
     private accountService: AccountService,
     private modalController: ModalController,
     private advansisPayService: AdvansisPayService,
-    private enhancedAirtimeService: EnhancedAirtimeService
+    private enhancedAirtimeService: EnhancedAirtimeService,
+    private enhancedOperatorService: EnhancedOperatorService,
+    private keyboardService: KeyboardService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -161,16 +194,62 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
     });
   }
 
-  private loadCountries() {
+  private async loadCountries() {
+    try {
+      // First, try to get user's saved country preference
+      const userCountry = await this.storage.getStorage('userCountry');
+      console.log('🌍 User saved country:', userCountry);
+      
+      this.enhancedAirtimeService.getCountries()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (countries) => {
+            this.countries = countries;
+            
+            // Try to set user's preferred country, fallback to Ghana
+            let defaultCountry = countries.find(c => c.isoName === 'GH'); // Ghana as fallback
+            
+            if (userCountry && userCountry.isoName) {
+              const preferredCountry = countries.find(c => c.isoName === userCountry.isoName);
+              if (preferredCountry) {
+                defaultCountry = preferredCountry;
+                console.log('✅ Using user preferred country:', preferredCountry.name);
+              } else {
+                console.log('⚠️ User preferred country not found in available countries, using Ghana');
+              }
+            } else {
+              console.log('ℹ️ No user country preference found, using Ghana as default');
+            }
+            
+            if (defaultCountry) {
+              this.selectedCountry = defaultCountry;
+              this.airtimeForm.patchValue({ countryIso: defaultCountry.isoName });
+              this.loadOperators(defaultCountry.isoName);
+            }
+          },
+          error: (error) => {
+            console.error('Error loading countries:', error);
+            this.notificationService.showError('Failed to load countries');
+          }
+        });
+    } catch (error) {
+      console.error('Error loading user country preference:', error);
+      // Continue with default Ghana selection
+      this.loadCountriesFallback();
+    }
+  }
+
+  private loadCountriesFallback() {
     this.enhancedAirtimeService.getCountries()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (countries) => {
           this.countries = countries;
-          // Set Ghana as default
+          // Set Ghana as default fallback
           const ghana = countries.find(c => c.isoName === 'GH');
           if (ghana) {
             this.selectedCountry = ghana;
+            this.airtimeForm.patchValue({ countryIso: ghana.isoName });
             this.loadOperators(ghana.isoName);
           }
         },
@@ -182,14 +261,28 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
   }
 
   private loadOperators(countryIso: string) {
-    this.enhancedAirtimeService.getOperators(countryIso)
+    // Load enhanced operators for the selected country
+    this.enhancedOperatorService.getOperatorsByCountry(countryIso)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (operators) => {
-          this.operators = operators;
+        next: (enhancedOperators) => {
+          this.enhancedOperators = enhancedOperators;
+          console.log(`📱 Loaded ${enhancedOperators.length} enhanced operators for ${countryIso}:`, enhancedOperators);
+          
+          // Also load legacy operators for backward compatibility
+          this.enhancedAirtimeService.getOperators(countryIso)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (operators) => {
+                this.operators = operators;
+              },
+              error: (error) => {
+                console.error('Error loading legacy operators:', error);
+              }
+            });
         },
         error: (error) => {
-          console.error('Error loading operators:', error);
+          console.error('Error loading enhanced operators:', error);
           this.notificationService.showError('Failed to load operators');
         }
       });
@@ -467,17 +560,101 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
     this.loadOperators(country.isoName);
   }
 
-  selectOperator(operator: Operator) {
-    this.selectedOperator = operator;
-    this.airtimeForm.patchValue({ network: operator.id });
+  selectOperator(operator: Operator | EnhancedOperator) {
+    if ('supportedServices' in operator) {
+      // EnhancedOperator type
+      this.selectedOperator = {
+        id: parseInt(operator.id.split('-')[1]) || 0,
+        name: operator.name,
+        country: operator.countryCode,
+        currency: operator.dataBundles[0]?.currency || 'GHS'
+      } as Operator;
+    } else {
+      // Legacy Operator type
+      this.selectedOperator = operator;
+    }
+    
+    // Update the form
+    this.airtimeForm.patchValue({ network: this.selectedOperator.id });
+    
+    console.log('✅ Selected operator:', this.selectedOperator.name);
   }
 
   onPhoneNumberInput(event: any) {
-    const phoneNumber = event.target.value;
-    if (this.selectedCountry) {
-      const formatted = this.enhancedAirtimeService.formatPhoneNumber(phoneNumber, this.selectedCountry.isoName);
-      this.airtimeForm.patchValue({ recipientNumber: formatted });
+    const phoneNumber = event.detail.value;
+    console.log('Phone number input:', phoneNumber);
+    
+    // Auto-detect operator if phone number is valid
+    if (phoneNumber && phoneNumber.length >= 10) {
+      this.autoDetectOperator(phoneNumber);
+    } else {
+      this.detectedOperator = null;
     }
+  }
+
+  // Enhanced keyboard handling methods
+  onInputFocus(event: any, fieldName: string) {
+    // Scroll to the focused input with keyboard awareness
+    const inputElement = event.target;
+    if (inputElement) {
+      setTimeout(() => {
+        // Get keyboard height for better positioning
+        const keyboardHeight = this.keyboardService.getKeyboardHeight();
+        
+        inputElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add additional offset for keyboard
+        if (keyboardHeight > 0) {
+          const currentScroll = window.pageYOffset;
+          window.scrollTo({
+            top: currentScroll - (keyboardHeight / 2),
+            behavior: 'smooth'
+          });
+        }
+      }, 300);
+    }
+    
+    // Mark field as touched for validation
+    this.airtimeForm.get(fieldName)?.markAsTouched();
+  }
+
+  onInputBlur() {
+    // Handle any blur logic if needed
+    // This method is called when input loses focus
+  }
+
+  // Enhanced keyboard event handling
+  onKeyPress(event: KeyboardEvent, fieldName: string) {
+    // Handle Enter key for form navigation
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      
+      // Find next input field
+      const nextField = this.getNextField(fieldName);
+      
+      if (nextField) {
+        // Focus next field
+        const nextInput = document.querySelector(`[formControlName="${nextField}"]`) as HTMLElement;
+        if (nextInput) {
+          nextInput.focus();
+        }
+      } else {
+        // Last field, submit form
+        this.onSubmit();
+      }
+    }
+  }
+
+  private getNextField(fieldName: string): string | null {
+    const fieldOrder = ['recipientNumber', 'amount'];
+    const currentIndex = fieldOrder.indexOf(fieldName);
+    const nextIndex = currentIndex + 1;
+    
+    return nextIndex < fieldOrder.length ? fieldOrder[nextIndex] : null;
   }
 
   validatePhoneNumber(): boolean {
@@ -487,6 +664,47 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
     if (!phoneNumber || !countryIso) return false;
     
     return this.enhancedAirtimeService.validatePhoneNumber(phoneNumber, countryIso);
+  }
+
+  /**
+   * Handle form submission
+   */
+  onSubmit() {
+    console.log('Form submission triggered');
+    
+    if (!this.airtimeForm.valid) {
+      this.notificationService.showError('Please fill in all required fields');
+      return;
+    }
+
+    const formValue = this.airtimeForm.value;
+    console.log('Form values:', formValue);
+
+    // Validate phone number
+    if (!this.validatePhoneNumber()) {
+      this.notificationService.showError('Please enter a valid phone number');
+      return;
+    }
+
+    // Check if operator is selected
+    if (!this.selectedOperator) {
+      this.notificationService.showError('Please select a network operator');
+      return;
+    }
+
+    // Navigate to checkout with form data
+    this.router.navigate(['/tabs/checkout'], {
+      queryParams: {
+        special: JSON.stringify({
+          transType: 'AIRTIMETOPUP',
+          recipientNumber: formValue.recipientNumber,
+          amount: formValue.amount,
+          network: this.selectedOperator.id,
+          operatorName: this.selectedOperator.name,
+          currency: 'GHS'
+        })
+      }
+    });
   }
 
 }

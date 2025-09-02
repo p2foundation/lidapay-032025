@@ -1,11 +1,13 @@
 <ion-header [translucent]="true" class="modern-header">
   <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button 
-        text="" 
-        icon="arrow-back-outline"
-        class="back-button">
-      </ion-back-button>
+      <ion-button 
+        fill="clear" 
+        (click)="goBack()"
+        class="back-button"
+        color="dark">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title class="header-title">
       <div class="title-content">
@@ -42,8 +44,8 @@
         <div class="avatar-container">
           <ion-avatar class="profile-avatar">
             <img [src]="profile.gravatar || defaultAvatarUrl" 
-                 [alt]="profile.firstName + ' profile picture'"
-                 [title]="profile.firstName + ' profile picture'"
+                 [alt]="(profile.firstName || 'User') + ' profile picture'"
+                 [title]="(profile.firstName || 'User') + ' profile picture'"
                  (error)="profile.gravatar = defaultAvatarUrl">
           </ion-avatar>
           <div class="avatar-badge">
@@ -53,8 +55,8 @@
         </div>
         
         <div class="profile-info">
-          <h2 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h2>
-          <p class="profile-email">{{ profile.email }}</p>
+          <h2 class="profile-name">{{ profile.firstName || 'User' }} {{ profile.lastName || 'Name' }}</h2>
+          <p class="profile-email">{{ profile.email || 'user@example.com' }}</p>
           <div class="profile-status">
             <ion-badge color="success" class="status-badge">
               <ion-icon name="shield-checkmark-outline"></ion-icon>

@@ -16,6 +16,7 @@ export class ReloadlyAirtimeService {
    * Make Reloady Airtime Topup
    */
   makeAirtimeTopup(marData: any): Observable<any> {
+    console.log("Reloadly airtime topup data:", marData);
     return this.httpClient
       .post<any>(
         `${this.awsServer}/api/v1/reload-airtime/recharge`, 
@@ -23,7 +24,7 @@ export class ReloadlyAirtimeService {
         )
       .pipe(
         tap((_res) => this.log(`Reloadly AirtimeService: airtime reload`)),
-        catchError(this.handleError('AsyncAirtimeService', []))
+        catchError(this.handleError('ReloadlyAirtimeService', []))
       );
   }
   /*

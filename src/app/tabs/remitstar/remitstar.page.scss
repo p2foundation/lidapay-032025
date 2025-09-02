@@ -1,27 +1,225 @@
 // Remitstar Page Styles
 .remitstar-content {
   --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+// Enhanced back button styling for better visibility on all themes
+ion-back-button {
+  --color: var(--ion-color-primary) !important;
+  --icon-font-size: 24px !important;
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  transform: none !important;
+  position: relative !important;
+  z-index: 1000 !important;
   
-  .header-toolbar {
-    --background: transparent;
-    --border-style: none;
+  // Ensure the button is visible on light theme
+  &::part(native) {
+    color: var(--ion-color-primary) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  // Hover and focus states
+  &:hover, &:focus {
+    --color: var(--ion-color-primary-shade) !important;
     
-    .header-title {
-      .title-content {
-        h1 {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: var(--ion-color-dark);
-        }
-        
-        p {
-          margin: 4px 0 0 0;
-          font-size: 0.875rem;
-          color: var(--ion-color-medium);
+    &::part(native) {
+      background: rgba(255, 255, 255, 1) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+  }
+}
+
+// Light theme specific styling
+@media (prefers-color-scheme: light) {
+  ion-back-button {
+    --color: var(--ion-color-primary) !important;
+    
+    &::part(native) {
+      color: var(--ion-color-primary) !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+}
+
+// Dark theme specific styling
+@media (prefers-color-scheme: dark) {
+  ion-back-button {
+    --color: var(--ion-color-light) !important;
+    
+    &::part(native) {
+      color: var(--ion-color-light) !important;
+      background: rgba(0, 0, 0, 0.8) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+}
+
+// Force visibility for specific theme classes
+body.light ion-back-button {
+  --color: var(--ion-color-primary) !important;
+  
+  &::part(native) {
+    color: var(--ion-color-primary) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+body.dark ion-back-button {
+  --color: var(--ion-color-light) !important;
+  
+  &::part(native) {
+    color: var(--ion-color-light) !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+// Override global RTL styles for back button
+ion-app[dir="rtl"] .remitstar-content .header-toolbar ion-buttons ion-back-button,
+.remitstar-content .header-toolbar {
+  --background: transparent;
+  --border-style: none;
+  
+  ion-buttons {
+    ion-back-button {
+      --color: var(--ion-color-primary) !important;
+      --color-hover: var(--ion-color-primary-shade) !important;
+      --color-focused: var(--ion-color-primary) !important;
+      --icon-font-size: 24px !important;
+      --icon-margin-start: 0;
+      --icon-margin-end: 0;
+      --icon-padding-start: 0;
+      --icon-padding-end: 0;
+      --min-width: 44px;
+      --min-height: 44px;
+      --opacity: 1 !important;
+      --padding-start: 0;
+      --padding-end: 0;
+      transform: none !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+      
+      &::part(native) {
+        color: var(--ion-color-primary) !important;
+        --color: var(--ion-color-primary) !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      &:hover, &:focus {
+        &::part(native) {
+          color: var(--ion-color-primary-shade) !important;
+          --color: var(--ion-color-primary-shade) !important;
+          background: rgba(255, 255, 255, 1) !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
         }
       }
     }
+  }
+  
+  .header-title {
+    .title-content {
+      h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+      }
+      
+      p {
+        margin: 4px 0 0 0;
+        font-size: 0.875rem;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// Additional specific override for back button visibility
+ion-toolbar .header-toolbar ion-buttons ion-back-button {
+  --color: var(--ion-color-primary) !important;
+  --color-hover: var(--ion-color-primary-shade) !important;
+  --color-focused: var(--ion-color-primary) !important;
+  --icon-font-size: 24px !important;
+  --icon-margin-start: 0;
+  --icon-margin-end: 0;
+  --icon-padding-start: 0;
+  --icon-padding-end: 0;
+  --min-width: 44px;
+  --min-height: 44px;
+  --opacity: 1 !important;
+  --padding-start: 0;
+  --padding-end: 0;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  
+  &::part(native) {
+    color: var(--ion-color-primary) !important;
+    --color: var(--ion-color-primary) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  &:hover, &:focus {
+    &::part(native) {
+      color: var(--ion-color-primary-shade) !important;
+      --color: var(--ion-color-primary-shade) !important;
+      background: rgba(255, 255, 255, 1) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+  }
+}
+
+// Force back button visibility regardless of any global styles
+app-remitstar ion-header ion-toolbar ion-buttons ion-back-button,
+.remitstar-content ion-header ion-toolbar ion-buttons ion-back-button,
+ion-header ion-toolbar ion-buttons ion-back-button {
+  --color: var(--ion-color-primary) !important;
+  --icon-font-size: 24px !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 1000 !important;
+  
+  // Enhanced visibility for light theme
+  &::part(native) {
+    color: var(--ion-color-primary) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 
@@ -637,5 +835,129 @@ ion-modal {
   
   .navigation-buttons {
     background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Enhanced Back Button Visibility for Light Theme
+@media (prefers-color-scheme: light) {
+  ion-back-button {
+    --color: var(--ion-color-primary) !important;
+    
+    &::part(native) {
+      color: var(--ion-color-primary) !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      border: 1px solid rgba(0, 0, 0, 0.15) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    &:hover, &:focus {
+      &::part(native) {
+        background: rgba(255, 255, 255, 1) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+        border-color: rgba(0, 0, 0, 0.2) !important;
+      }
+    }
+  }
+}
+
+// Force Light Theme Back Button Visibility
+body.light ion-back-button {
+  --color: var(--ion-color-primary) !important;
+  
+  &::part(native) {
+    color: var(--ion-color-primary) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  &:hover, &:focus {
+    &::part(native) {
+      background: rgba(255, 255, 255, 1) !important;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+      border-color: rgba(0, 0, 0, 0.2) !important;
+    }
+  }
+}
+
+// Ensure back button is always visible with high contrast
+ion-back-button {
+  filter: contrast(1.2) !important;
+  
+  &::part(native) {
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+}
+
+// Emergency back button visibility override with maximum specificity
+app-remitstar ion-header ion-toolbar ion-buttons ion-back-button,
+.remitstar-content ion-header ion-toolbar ion-buttons ion-back-button,
+ion-header ion-toolbar ion-buttons ion-back-button {
+  --color: #007bff !important;
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  position: relative !important;
+  z-index: 9999 !important;
+  
+  &::part(native) {
+    color: #007bff !important;
+    background: #ffffff !important;
+    border: 2px solid #007bff !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3) !important;
+  }
+  
+  &:hover, &:focus {
+    &::part(native) {
+      background: #f8f9fa !important;
+      border-color: #0056b3 !important;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4) !important;
+    }
+  }
+}
+
+// Additional emergency override for any remaining visibility issues
+ion-back-button {
+  --color: #007bff !important;
+  --opacity: 1 !important;
+  --icon-opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  position: relative !important;
+  z-index: 9999 !important;
+  
+  &::part(native) {
+    color: #007bff !important;
+    background: #ffffff !important;
+    border: 2px solid #007bff !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3) !important;
+  }
+  
+  &:hover, &:focus {
+    &::part(native) {
+      background: #f8f9fa !important;
+      border-color: #0056b3 !important;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4) !important;
+    }
   }
 }

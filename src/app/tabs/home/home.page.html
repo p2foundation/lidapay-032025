@@ -126,6 +126,18 @@
 
     <!-- Transaction Summary Section -->
     <div class="transaction-summary-section">
+      <div class="section-header">
+        <h3 class="section-title">Transaction Summary</h3>
+        <ion-button 
+          fill="clear" 
+          size="small" 
+          class="refresh-btn"
+          (click)="refreshTransactionCounts()"
+          [disabled]="isLoading">
+          <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+      
       <div
         class="transaction-card pending-card"
         (click)="viewPendingTransactions()"

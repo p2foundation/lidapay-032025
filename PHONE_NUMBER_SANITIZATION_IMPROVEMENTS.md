@@ -6,10 +6,13 @@ Your phone number was being appended with an 'o' character, causing validation t
 ## ✅ **What Was Implemented**
 
 ### 1. **Updated Ghana Phone Number Validation**
-- **Valid Prefixes**: Updated to current 2025 Ghana mobile prefixes
-  - **MTN Ghana**: 020, 024, 026, 027
-  - **AirtelTigo Ghana**: 055, 056
-- **Removed**: Outdated prefixes that are no longer active
+- **Comprehensive Support**: Now supports ALL Ghana phone number types (2025)
+  - **Mobile Networks**: 
+    - MTN Ghana: 020, 024, 026, 027, 030
+    - AirtelTigo Ghana: 053, 054, 055, 056, 057
+  - **Landline/Fixed Line**: 021, 022, 023, 025, 028, 029, 031-039, 040-049, 050-052, 058-069
+  - **Special Services**: 080-089, 090-099 (Premium services, customer care, etc.)
+- **Universal Coverage**: Accepts any valid Ghana phone number, not just mobile
 
 ### 2. **Phone Number Sanitization Service**
 - **Automatic Cleaning**: Removes all non-numeric characters (letters, spaces, dashes, etc.)
@@ -71,11 +74,25 @@ User Input → Sanitization → Validation → Payment Processing
 ## 🧪 **Testing Scenarios**
 
 ### **Valid Numbers (Will Work):**
-- `0244588584` → MTN Ghana
-- `244588584` → MTN Ghana (auto-adds 0)
-- `+233244588584` → MTN Ghana (international format)
-- `0551234567` → AirtelTigo Ghana
-- `561234567` → AirtelTigo Ghana (auto-adds 0)
+- **Mobile Numbers:**
+  - `0244588584` → MTN Ghana
+  - `244588584` → MTN Ghana (auto-adds 0)
+  - `+233244588584` → MTN Ghana (international format)
+  - `0301234567` → MTN Ghana
+  - `0531234567` → AirtelTigo Ghana
+  - `0541234567` → AirtelTigo Ghana
+  - `0551234567` → AirtelTigo Ghana
+  - `0561234567` → AirtelTigo Ghana
+  - `0571234567` → AirtelTigo Ghana
+- **Landline Numbers:**
+  - `0211234567` → Accra Landline
+  - `0221234567` → Tema Landline
+  - `0231234567` → Kumasi Landline
+  - `0311234567` → Regional Landline
+  - `0501234567` → Regional Landline
+- **Special Service Numbers:**
+  - `0801234567` → Special Service
+  - `0901234567` → Premium Service
 
 ### **Invalid Numbers (Will Be Rejected):**
 - `123456789` → Invalid prefix
@@ -150,6 +167,7 @@ Your phone number validation is now **bulletproof**! The system will:
 - ✅ **Validate** phone numbers before payment processing
 - ✅ **Prevent** failed transactions due to invalid numbers
 - ✅ **Provide** clear error messages to users
-- ✅ **Support** all current Ghana mobile prefixes (020, 024, 026, 027, 055, 056)
+- ✅ **Support** ALL Ghana phone numbers (Mobile, Landline, Special Services)
+- ✅ **Universal Coverage**: Accepts any valid Ghana phone number format
 
 No more payment failures due to phone number formatting issues! 🚀

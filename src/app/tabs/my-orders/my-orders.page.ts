@@ -14,6 +14,7 @@ import {
   IonLabel,
   PopoverController,
   ModalController,
+  IonRefresher,
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -79,6 +80,8 @@ interface Transaction {
 })
 export class MyOrdersPage implements OnInit {
   isLoading: boolean = true;
+  isRefreshing: boolean = false;
+  lastRefreshTime: Date | null = null;
   transactions: Transaction[] = [];
   currentPage: number = 1;
   totalPages: number = 0;
@@ -114,6 +117,11 @@ export class MyOrdersPage implements OnInit {
       this.transactions = response.transactions || [];
       this.totalPages = response.totalPages; // Set total pages from response
       this.applyFilters(); // Apply filters after loading
+      
+      // Set initial refresh time
+      if (!this.lastRefreshTime) {
+        this.lastRefreshTime = new Date();
+      }
     } catch (error) {
       console.error('Failed to load transactions:', error);
       this.notificationService.showError(
@@ -202,6 +210,94 @@ export class MyOrdersPage implements OnInit {
       this.loadTransactions(this.currentPage);
     }
   }
+
+  /**
+   * Handle pull-to-refresh to reload transactions
+   * This is useful when transactions take longer to appear
+   */
+  async handleRefresh(event: any) {
+    try {
+      console.log('[My Orders] => Refreshing transactions...');
+      
+      // Reset to first page when refreshing
+      this.currentPage = 1;
+      
+      // Reload transactions
+      await this.loadTransactions(this.currentPage);
+      
+      // Update refresh timestamp
+      this.lastRefreshTime = new Date();
+      
+      // Show success message
+      this.notificationService.showSuccess('Transactions refreshed successfully');
+      
+      console.log('[My Orders] => Refresh completed');
+    } catch (error) {
+      console.error('[My Orders] => Refresh failed:', error);
+      this.notificationService.showError('Failed to refresh transactions. Please try again.');
+    } finally {
+      // Complete the refresh animation
+      event.target.complete();
+    }
+  }
+
+  /**
+   * Handle manual refresh button click
+   * This provides an alternative way to refresh transactions
+   */
+  async handleManualRefresh() {
+    try {
+      console.log('[My Orders] => Manual refresh triggered...');
+      
+      // Show refreshing state
+      this.isRefreshing = true;
+      
+      // Reset to first page when refreshing
+      this.currentPage = 1;
+      
+      // Reload transactions
+      await this.loadTransactions(this.currentPage);
+      
+      // Update refresh timestamp
+      this.lastRefreshTime = new Date();
+      
+      // Show success message
+      this.notificationService.showSuccess('Transactions refreshed successfully');
+      
+      console.log('[My Orders] => Manual refresh completed');
+    } catch (error) {
+      console.error('[My Orders] => Manual refresh failed:', error);
+      this.notificationService.showError('Failed to refresh transactions. Please try again.');
+    } finally {
+      // Hide refreshing state
+      this.isRefreshing = false;
+    }
+  }
+  /**
+   * Get a user-friendly string showing how long ago the last refresh happened
+   */
+  getLastRefreshText(): string {
+    if (!this.lastRefreshTime) {
+      return 'Never refreshed';
+    }
+
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - this.lastRefreshTime.getTime()) / 1000);
+
+    if (diffInSeconds < 60) {
+      return 'Just now';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    }
+  }
+
   getStatusColor(status: string): string {
     switch (status) {
       case 'completed':

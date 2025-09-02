@@ -282,6 +282,30 @@
   gap: 12px;
   background: var(--ion-background-color);
   
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+    margin-bottom: 8px;
+    
+    .section-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ion-text-color);
+    }
+    
+    .refresh-btn {
+      --color: var(--ion-color-primary);
+      --color-hover: var(--ion-color-primary-shade);
+      
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+  
   .transaction-card {
     display: flex;
     align-items: center;

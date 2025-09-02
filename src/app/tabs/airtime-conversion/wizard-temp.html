@@ -1,0 +1,204 @@
+      <!-- Step 2: Airtime Details -->
+      <ion-card class="wizard-step" *ngIf="currentStep === 1">
+        <ion-card-header>
+          <ion-card-title class="wizard-card-title">
+            <ion-icon name="call-outline"></ion-icon>
+            Airtime Details
+          </ion-card-title>
+          <p class="wizard-card-subtitle">Enter your phone number and amount</p>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item class="wizard-form-item">
+            <ion-label position="stacked">Phone Number</ion-label>
+            <ion-input 
+              [(ngModel)]="phoneNumber"
+              type="tel"
+              placeholder="Enter phone number"
+              class="wizard-input">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="wizard-form-item">
+            <ion-label position="stacked">Airtime Amount (₵)</ion-label>
+            <ion-input 
+              [(ngModel)]="airtimeAmount"
+              type="number"
+              (ionInput)="onAmountChange()"
+              placeholder="Enter amount"
+              class="wizard-input">
+            </ion-input>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Step 3: Conversion Options (keeping existing structure) -->
+      <ion-card class="wizard-step" *ngIf="currentStep === 2">
+        <ion-card-header>
+          <ion-card-title class="wizard-card-title">
+            <ion-icon name="swap-horizontal-outline"></ion-icon>
+            Choose Conversion Method
+          </ion-card-title>
+          <p class="wizard-card-subtitle">Select how you'd like to receive your converted airtime</p>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="conversion-options-enhanced">
+            <div 
+              *ngFor="let option of conversionOptions" 
+              class="conversion-option-card"
+              [class.selected]="selectedConversionOption === option.id"
+              [class.popular]="option.isPopular"
+              [class.recommended]="option.isRecommended"
+              (click)="selectConversionOption(option.id)">
+              
+              <!-- Top badges -->
+              <div class="option-badges-top" *ngIf="option.isPopular || option.isRecommended">
+                <ion-badge *ngIf="option.isRecommended" color="primary" class="recommended-badge">
+                  <ion-icon name="star-outline"></ion-icon>
+                  Recommended
+                </ion-badge>
+                <ion-badge *ngIf="option.isPopular" color="success" class="popular-badge">
+                  <ion-icon name="trending-up-outline"></ion-icon>
+                  Popular
+                </ion-badge>
+              </div>
+
+              <!-- Main content -->
+              <div class="option-main-content">
+                <div class="option-icon-enhanced">
+                  <ion-icon [name]="option.icon"></ion-icon>
+                </div>
+                <div class="option-header-enhanced">
+                  <h3 class="option-title-enhanced">{{ option.name }}</h3>
+                  <p class="option-description-enhanced">{{ option.description }}</p>
+                </div>
+                <div class="option-rate-highlight">
+                  <span class="rate-percentage">{{ getRatePercentage(option.rate) }}</span>
+                  <span class="rate-label-small">rate</span>
+                </div>
+              </div>
+
+              <!-- Details grid -->
+              <div class="option-details-enhanced">
+                <div class="detail-item">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span class="detail-label">Time:</span>
+                  <span class="detail-value">{{ option.processingTime }}</span>
+                </div>
+                <div class="detail-item">
+                  <ion-icon name="cash-outline"></ion-icon>
+                  <span class="detail-label">Limits:</span>
+                  <span class="detail-value">₵{{ option.minAmount.toLocaleString() }}-₵{{ option.maxAmount.toLocaleString() }}</span>
+                </div>
+                <div class="detail-item" *ngIf="option.fees > 0">
+                  <ion-icon name="card-outline"></ion-icon>
+                  <span class="detail-label">Fee:</span>
+                  <span class="detail-value">₵{{ option.fees.toLocaleString() }}</span>
+                </div>
+                <div class="detail-item" *ngIf="option.fees === 0">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  <span class="detail-label">Fee:</span>
+                  <span class="detail-value free">Free</span>
+                </div>
+              </div>
+
+              <!-- Selection indicator -->
+              <div class="selection-indicator" *ngIf="selectedConversionOption === option.id">
+                <ion-icon name="checkmark-circle"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Step 4: Review & Confirm -->
+      <ion-card class="wizard-step" *ngIf="currentStep === 3">
+        <ion-card-header>
+          <ion-card-title class="wizard-card-title">
+            <ion-icon name="document-text-outline"></ion-icon>
+            Review & Confirm
+          </ion-card-title>
+          <p class="wizard-card-subtitle">Please review your conversion details</p>
+        </ion-card-header>
+        <ion-card-content>
+          <!-- Review Summary -->
+          <div class="review-section">
+            <div class="review-item">
+              <div class="review-label">Network Provider</div>
+              <div class="review-value">{{ getProviderName() }}</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Phone Number</div>
+              <div class="review-value">{{ phoneNumber }}</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Airtime Amount</div>
+              <div class="review-value">{{ formatCurrency(airtimeAmount) }}</div>
+            </div>
+            <div class="review-item">
+              <div class="review-label">Conversion Method</div>
+              <div class="review-value">{{ getSelectedOptionName() }}</div>
+            </div>
+          </div>
+
+          <!-- Conversion Summary -->
+          <div class="summary-section" *ngIf="convertedAmount > 0">
+            <h4 class="summary-title">Conversion Summary</h4>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">Airtime Amount:</span>
+                <span class="summary-value">{{ formatCurrency(airtimeAmount) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Converted Amount:</span>
+                <span class="summary-value converted">{{ formatCurrency(convertedAmount) }}</span>
+              </div>
+              <div class="summary-item" *ngIf="processingFee > 0">
+                <span class="summary-label">Processing Fee:</span>
+                <span class="summary-value fee">-{{ formatCurrency(processingFee) }}</span>
+              </div>
+              <div class="summary-item total">
+                <span class="summary-label">You'll Receive:</span>
+                <span class="summary-value total-amount">{{ formatCurrency(totalAmount) }}</span>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Wizard Navigation Buttons -->
+      <div class="wizard-navigation-buttons">
+        <ion-button 
+          *ngIf="currentStep > 0"
+          fill="outline" 
+          size="large"
+          class="wizard-btn wizard-btn-back"
+          (click)="previousStep()">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          Back
+        </ion-button>
+
+        <ion-button 
+          *ngIf="currentStep < wizardSteps.length - 1"
+          expand="block" 
+          size="large"
+          class="wizard-btn wizard-btn-next"
+          [disabled]="!canProceedToNextStep()"
+          (click)="nextStep()">
+          Continue
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+
+        <ion-button 
+          *ngIf="currentStep === wizardSteps.length - 1"
+          expand="block" 
+          size="large"
+          class="wizard-btn wizard-btn-confirm"
+          [disabled]="!canProceedToNextStep() || isProcessing"
+          (click)="processConversion()">
+          <ion-icon name="repeat-outline" slot="start"></ion-icon>
+          <span *ngIf="!isProcessing">Convert Airtime</span>
+          <span *ngIf="isProcessing">Processing...</span>
+          <ion-spinner *ngIf="isProcessing" name="crescent" slot="end"></ion-spinner>
+        </ion-button>
+      </div>
+    </div>

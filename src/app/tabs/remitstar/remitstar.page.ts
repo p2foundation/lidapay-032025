@@ -33,7 +33,6 @@ import { addIcons } from 'ionicons';
 import {
   arrowBack,
   arrowForward,
-  checkmark,
   close,
   swapHorizontalOutline,
   globeOutline,
@@ -49,7 +48,6 @@ import {
   informationCircleOutline,
   chevronForward,
   chevronBack,
-  checkmarkCircle,
   alertCircleOutline,
   refreshOutline,
   searchOutline,
@@ -61,8 +59,7 @@ import {
   speedometerOutline,
   trendingUpOutline,
   cashOutline,
-  phonePortraitOutline,
-} from 'ionicons/icons';
+  phonePortraitOutline, checkmarkCircleOutline } from 'ionicons/icons';
 
 enum TransferStep {
   TRANSFER_TYPE = 0,
@@ -250,39 +247,7 @@ export class RemitstarPage implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private translate: TranslateService
   ) {
-          addIcons({
-        swapHorizontalOutline,
-        chevronForward,
-        personOutline,
-        calculatorOutline,
-        cardOutline,
-        timeOutline,
-        shieldCheckmarkOutline,
-        chevronBack,
-        checkmark,
-        close,
-        arrowBack,
-        arrowForward,
-        globeOutline,
-        homeOutline,
-        walletOutline,
-        businessOutline,
-        callOutline,
-        mailOutline,
-        locationOutline,
-        informationCircleOutline,
-        checkmarkCircle,
-        alertCircleOutline,
-        refreshOutline,
-        searchOutline,
-        closeCircle,
-        addOutline,
-        removeOutline,
-        speedometerOutline,
-        trendingUpOutline,
-        cashOutline,
-        phonePortraitOutline,
-      });
+          addIcons({swapHorizontalOutline,chevronForward,personOutline,calculatorOutline,cardOutline,timeOutline,checkmarkCircleOutline,shieldCheckmarkOutline,chevronBack,close,arrowBack,arrowForward,globeOutline,homeOutline,walletOutline,businessOutline,callOutline,mailOutline,locationOutline,informationCircleOutline,alertCircleOutline,refreshOutline,searchOutline,closeCircle,addOutline,removeOutline,speedometerOutline,trendingUpOutline,cashOutline,phonePortraitOutline,});
   }
 
   ngOnInit() {

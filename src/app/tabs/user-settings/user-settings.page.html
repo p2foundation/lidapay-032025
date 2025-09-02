@@ -1,246 +1,569 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" class="modern-header">
   <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button default-href="/tabs/account" text=""></ion-back-button>
+      <ion-back-button 
+        default-href="/tabs/account" 
+        text="" 
+        icon="chevron-back-outline"
+        class="back-button">
+      </ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">
       <div class="title-content">
-        <h1>Settings</h1>
-        <p>Customize your experience</p>
+        <h1 class="main-title">{{ 'Settings' | translate }}</h1>
+        <p class="subtitle">Customize your experience</p>
       </div>
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button 
+        fill="clear" 
+        (click)="refreshSettings()" 
+        [disabled]="isLoading"
+        class="refresh-button">
+        <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="settings-content">
-  <!-- Settings Sections -->
-  <div class="settings-sections">
-    <!-- Appearance Section -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="color-palette-outline"></ion-icon>
-        Appearance
-      </h3>
-      <ion-list lines="none" class="settings-list">
-        <ion-item class="setting-item">
-          <ion-icon slot="start" name="moon-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Dark Mode</h4>
-            <p>Switch between light and dark themes</p>
-          </ion-label>
-          <ion-toggle slot="end" [(ngModel)]="isDarkMode" (ionChange)="toggleDarkMode()"></ion-toggle>
-        </ion-item>
-        
-        <ion-item class="setting-item">
-          <ion-icon slot="start" name="text-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Font Size</h4>
-            <p>Adjust text size for better readability</p>
-          </ion-label>
-          <ion-select slot="end" [(ngModel)]="fontSize" (ionChange)="changeFontSize()" interface="popover">
-            <ion-select-option value="small">Small</ion-select-option>
-            <ion-select-option value="medium">Medium</ion-select-option>
-            <ion-select-option value="large">Large</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </ion-list>
-    </div>
-
-    <!-- Notifications Section -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="notifications-outline"></ion-icon>
-        Notifications
-      </h3>
-      <ion-list lines="none" class="settings-list">
-        <ion-item class="setting-item">
-          <ion-icon slot="start" name="notifications-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Push Notifications</h4>
-            <p>Receive updates about your transactions</p>
-          </ion-label>
-          <ion-toggle slot="end" [(ngModel)]="pushNotifications" (ionChange)="togglePushNotifications()"></ion-toggle>
-        </ion-item>
-        
-        <ion-item class="setting-item">
-          <ion-icon slot="start" name="mail-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Email Notifications</h4>
-            <p>Get transaction receipts via email</p>
-          </ion-label>
-          <ion-toggle slot="end" [(ngModel)]="emailNotifications" (ionChange)="toggleEmailNotifications()"></ion-toggle>
-        </ion-item>
-        
-        <ion-item class="setting-item">
-          <ion-icon slot="start" name="gift-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Rewards & Promotions</h4>
-            <p>Stay updated on special offers</p>
-          </ion-label>
-          <ion-toggle slot="end" [(ngModel)]="promotionalNotifications" (ionChange)="togglePromotionalNotifications()"></ion-toggle>
-        </ion-item>
-      </ion-list>
-    </div>
-
-    <!-- Privacy & Security Section -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="shield-checkmark-outline"></ion-icon>
-        Privacy & Security
-      </h3>
-      <ion-list lines="none" class="settings-list">
-        <ion-item button detail="true" (click)="changePassword()" class="setting-item">
-          <ion-icon slot="start" name="key-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Change Password</h4>
-            <p>Update your account password</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-        
-        <ion-item button detail="true" (click)="enableBiometric()" class="setting-item">
-          <ion-icon slot="start" name="finger-print-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Biometric Login</h4>
-            <p>Use fingerprint or face ID</p>
-          </ion-label>
-          <ion-toggle slot="end" [(ngModel)]="biometricEnabled" (ionChange)="toggleBiometric()"></ion-toggle>
-        </ion-item>
-        
-        <ion-item button detail="true" (click)="privacySettings()" class="setting-item">
-          <ion-icon slot="start" name="lock-closed-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Privacy Settings</h4>
-            <p>Manage your data and privacy</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-      </ion-list>
-    </div>
-
-    <!-- Language & Region Section -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="language-outline"></ion-icon>
-        Language & Region
-      </h3>
-      <ion-list lines="none" class="settings-list">
-        <ion-item class="setting-item">
-          <ion-icon slot="start" name="language-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Language</h4>
-            <p>Choose your preferred language</p>
-          </ion-label>
-          <ion-select slot="end" [(ngModel)]="selectedLanguage" (ionChange)="changeLanguage()" interface="popover">
-            <ion-select-option value="en">English</ion-select-option>
-            <ion-select-option value="fr">Français</ion-select-option>
-            <ion-select-option value="es">Español</ion-select-option>
-            <ion-select-option value="pt">Português</ion-select-option>
-          </ion-select>
-        </ion-item>
-        
-        <ion-item class="setting-item">
-          <ion-icon slot="start" name="globe-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Currency</h4>
-            <p>Set your preferred currency</p>
-          </ion-label>
-          <ion-select slot="end" [(ngModel)]="selectedCurrency" (ionChange)="changeCurrency()" interface="popover">
-            <ion-select-option value="GHS">GHS (Ghana Cedi)</ion-select-option>
-            <ion-select-option value="USD">USD (US Dollar)</ion-select-option>
-            <ion-select-option value="EUR">EUR (Euro)</ion-select-option>
-            <ion-select-option value="GBP">GBP (British Pound)</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </ion-list>
-    </div>
-
-    <!-- Data & Storage Section -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="cloud-outline"></ion-icon>
-        Data & Storage
-      </h3>
-      <ion-list lines="none" class="settings-list">
-        <ion-item button detail="true" (click)="clearCache()" class="setting-item">
-          <ion-icon slot="start" name="trash-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Clear Cache</h4>
-            <p>Free up storage space</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-        
-        <ion-item button detail="true" (click)="exportData()" class="setting-item">
-          <ion-icon slot="start" name="download-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Export Data</h4>
-            <p>Download your transaction history</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-        
-        <ion-item button detail="true" (click)="backupSettings()" class="setting-item">
-          <ion-icon slot="start" name="cloud-upload-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Backup Settings</h4>
-            <p>Save your preferences to cloud</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-      </ion-list>
-    </div>
-
-    <!-- About Section -->
-    <div class="settings-section">
-      <h3 class="section-title">
-        <ion-icon name="information-circle-outline"></ion-icon>
-        About
-      </h3>
-      <ion-list lines="none" class="settings-list">
-        <ion-item button detail="true" (click)="viewVersion()" class="setting-item">
-          <ion-icon slot="start" name="information-circle-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>App Version</h4>
-            <p>v{{ appVersion }}</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-        
-        <ion-item button detail="true" (click)="termsOfService()" class="setting-item">
-          <ion-icon slot="start" name="document-text-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Terms of Service</h4>
-            <p>Read our terms and conditions</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-        
-        <ion-item button detail="true" (click)="privacyPolicy()" class="setting-item">
-          <ion-icon slot="start" name="shield-outline" class="setting-icon"></ion-icon>
-          <ion-label>
-            <h4>Privacy Policy</h4>
-            <p>Learn how we protect your data</p>
-          </ion-label>
-          <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
-        </ion-item>
-      </ion-list>
+<ion-content [fullscreen]="true" class="modern-settings-content">
+  <!-- Loading Skeleton -->
+  <div class="skeleton-wrapper" *ngIf="isLoading">
+    <div class="settings-skeleton">
+      <ion-skeleton-text animated class="section-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="item-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="item-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="section-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="item-skeleton"></ion-skeleton-text>
+      <ion-skeleton-text animated class="item-skeleton"></ion-skeleton-text>
     </div>
   </div>
 
-  <!-- Quick Actions -->
-  <div class="quick-actions">
-    <div class="quick-action-card">
-      <div class="quick-action-content">
-        <ion-icon name="help-circle-outline" class="quick-action-icon"></ion-icon>
-        <div class="quick-action-text">
-          <h4>Need Help?</h4>
-          <p>Contact our support team for assistance</p>
-        </div>
-        <ion-button fill="clear" size="small" (click)="contactSupport()">
-          Contact
-        </ion-button>
+  <!-- Settings Content -->
+  <div class="settings-content" *ngIf="!isLoading">
+    <!-- Settings Overview Card -->
+    <div class="overview-card animate__animated animate__fadeIn">
+      <ion-card class="overview-card-inner">
+        <ion-card-content>
+          <div class="overview-header">
+            <div class="overview-icon">
+              <ion-icon name="settings-outline"></ion-icon>
+            </div>
+            <div class="overview-info">
+              <h3>Settings Overview</h3>
+              <p>{{ getSettingsStatus() }} • {{ totalSettings }} total options</p>
+            </div>
+            <ion-badge [color]="getSettingsProgress() > 50 ? 'success' : 'warning'" class="progress-badge">
+              {{ getSettingsProgress() | number:'1.0-0' }}%
+            </ion-badge>
+          </div>
+          <div class="overview-actions">
+            <ion-button 
+              fill="outline" 
+              size="small" 
+              (click)="resetToDefaults()"
+              [disabled]="isSaving"
+              class="reset-button">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              Reset to Defaults
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Settings Sections -->
+    <div class="settings-sections">
+      <!-- Appearance Section -->
+      <div class="settings-section animate__animated animate__fadeInUp">
+        <h3 class="section-title">
+          <ion-icon name="color-palette-outline"></ion-icon>
+          Appearance & Theme
+        </h3>
+        <ion-list lines="none" class="settings-list">
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="moon-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Dark Mode</h4>
+              <p>Switch between light and dark themes</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="isDarkMode" 
+              (ionChange)="toggleDarkMode()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+          
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="text-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Font Size</h4>
+              <p>Adjust text size for better readability</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="fontSize" 
+              (ionChange)="changeFontSize()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="small">Small</ion-select-option>
+              <ion-select-option value="medium">Medium</ion-select-option>
+              <ion-select-option value="large">Large</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="flash-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Accent Color</h4>
+              <p>Choose your preferred accent color</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="accentColor" 
+              (ionChange)="changeAccentColor()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="primary">Primary</ion-select-option>
+              <ion-select-option value="secondary">Secondary</ion-select-option>
+              <ion-select-option value="tertiary">Tertiary</ion-select-option>
+              <ion-select-option value="success">Success</ion-select-option>
+              <ion-select-option value="warning">Warning</ion-select-option>
+              <ion-select-option value="danger">Danger</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="flash-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Animations</h4>
+              <p>Enable smooth transitions and animations</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="animationEnabled" 
+              (ionChange)="toggleAnimation()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+        </ion-list>
       </div>
+
+      <!-- Notifications Section -->
+      <div class="settings-section animate__animated animate__fadeInUp animate__delay-1s">
+        <h3 class="section-title">
+          <ion-icon name="notifications-outline"></ion-icon>
+          Notifications & Alerts
+        </h3>
+        <ion-list lines="none" class="settings-list">
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="notifications-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Push Notifications</h4>
+              <p>Receive updates about your transactions</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="pushNotifications" 
+              (ionChange)="togglePushNotifications()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+          
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="mail-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Email Notifications</h4>
+              <p>Get transaction receipts via email</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="emailNotifications" 
+              (ionChange)="toggleEmailNotifications()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+          
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="gift-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Rewards & Promotions</h4>
+              <p>Stay updated on special offers</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="promotionalNotifications" 
+              (ionChange)="togglePromotionalNotifications()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="receipt-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Transaction Alerts</h4>
+              <p>Get notified about account activity</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="transactionAlerts" 
+              (ionChange)="toggleTransactionAlerts()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="shield-checkmark-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Security Alerts</h4>
+              <p>Important security notifications</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="securityAlerts" 
+              (ionChange)="toggleSecurityAlerts()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="mail-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Marketing Emails</h4>
+              <p>Receive promotional content</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="marketingEmails" 
+              (ionChange)="toggleMarketingEmails()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+        </ion-list>
+      </div>
+
+      <!-- Privacy & Security Section -->
+      <div class="settings-section animate__animated animate__fadeInUp animate__delay-2s">
+        <h3 class="section-title">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          Privacy & Security
+        </h3>
+        <ion-list lines="none" class="settings-list">
+          <ion-item button detail="true" (click)="changePassword()" class="setting-item">
+            <ion-icon slot="start" name="key-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Change Password</h4>
+              <p>Update your account password</p>
+            </ion-label>
+            <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+          </ion-item>
+          
+          <ion-item button detail="true" (click)="enableBiometric()" class="setting-item">
+            <ion-icon slot="start" name="finger-print-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Biometric Login</h4>
+              <p>Use fingerprint or face ID</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="biometricEnabled" 
+              (ionChange)="toggleBiometric()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="shield-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Two-Factor Authentication</h4>
+              <p>Add an extra layer of security</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="twoFactorEnabled" 
+              (ionChange)="toggleTwoFactor()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="time-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Session Timeout</h4>
+              <p>Auto-logout after inactivity</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="sessionTimeout" 
+              (ionChange)="changeSessionTimeout()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="15">15 minutes</ion-select-option>
+              <ion-select-option value="30">30 minutes</ion-select-option>
+              <ion-select-option value="60">1 hour</ion-select-option>
+              <ion-select-option value="120">2 hours</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="lock-closed-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Auto-Lock</h4>
+              <p>Lock app when switching away</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="autoLockEnabled" 
+              (ionChange)="toggleAutoLock()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+          
+          <ion-item button detail="true" (click)="privacySettings()" class="setting-item">
+            <ion-icon slot="start" name="lock-closed-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Privacy Settings</h4>
+              <p>Manage your data and privacy</p>
+            </ion-label>
+            <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+          </ion-item>
+        </ion-list>
+      </div>
+
+      <!-- Language & Region Section -->
+      <div class="settings-section animate__animated animate__fadeInUp animate__delay-3s">
+        <h3 class="section-title">
+          <ion-icon name="language-outline"></ion-icon>
+          Language & Region
+        </h3>
+        <ion-list lines="none" class="settings-list">
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="language-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Language</h4>
+              <p>Choose your preferred language</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="selectedLanguage" 
+              (ionChange)="changeLanguage()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="en">English</ion-select-option>
+              <ion-select-option value="fr">Français</ion-select-option>
+              <ion-select-option value="es">Español</ion-select-option>
+              <ion-select-option value="pt">Português</ion-select-option>
+              <ion-select-option value="ar">العربية</ion-select-option>
+              <ion-select-option value="zh">中文</ion-select-option>
+            </ion-select>
+          </ion-item>
+          
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="globe-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Currency</h4>
+              <p>Set your preferred currency</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="selectedCurrency" 
+              (ionChange)="changeCurrency()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="GHS">GHS (Ghana Cedi)</ion-select-option>
+              <ion-select-option value="USD">USD (US Dollar)</ion-select-option>
+              <ion-select-option value="EUR">EUR (Euro)</ion-select-option>
+              <ion-select-option value="GBP">GBP (British Pound)</ion-select-option>
+              <ion-select-option value="NGN">NGN (Nigerian Naira)</ion-select-option>
+              <ion-select-option value="KES">KES (Kenyan Shilling)</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="time-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Timezone</h4>
+              <p>Set your local timezone</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="selectedTimezone" 
+              (ionChange)="changeTimezone()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="Africa/Accra">Africa/Accra (GMT+0)</ion-select-option>
+              <ion-select-option value="Africa/Lagos">Africa/Lagos (GMT+1)</ion-select-option>
+              <ion-select-option value="Africa/Nairobi">Africa/Nairobi (GMT+3)</ion-select-option>
+              <ion-select-option value="Europe/London">Europe/London (GMT+0/+1)</ion-select-option>
+              <ion-select-option value="America/New_York">America/New_York (GMT-5/-4)</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="calendar-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Date Format</h4>
+              <p>Choose date display format</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="dateFormat" 
+              (ionChange)="changeDateFormat()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="DD/MM/YYYY">DD/MM/YYYY</ion-select-option>
+              <ion-select-option value="MM/DD/YYYY">MM/DD/YYYY</ion-select-option>
+              <ion-select-option value="YYYY-MM-DD">YYYY-MM-DD</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="time-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Time Format</h4>
+              <p>Choose time display format</p>
+            </ion-label>
+            <ion-select 
+              slot="end" 
+              [(ngModel)]="timeFormat" 
+              (ionChange)="changeTimeFormat()" 
+              interface="popover"
+              class="modern-select">
+              <ion-select-option value="12h">12-hour (AM/PM)</ion-select-option>
+              <ion-select-option value="24h">24-hour</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-list>
+      </div>
+
+      <!-- Data & Storage Section -->
+      <div class="settings-section animate__animated animate__fadeInUp animate__delay-4s">
+        <h3 class="section-title">
+          <ion-icon name="cloud-outline"></ion-icon>
+          Data & Storage
+        </h3>
+        <ion-list lines="none" class="settings-list">
+          <ion-item class="setting-item">
+            <ion-icon slot="start" name="cloud-upload-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Auto-Backup</h4>
+              <p>Automatically backup your settings</p>
+            </ion-label>
+            <ion-toggle 
+              slot="end" 
+              [(ngModel)]="autoBackupEnabled" 
+              (ionChange)="toggleAutoBackup()"
+              class="modern-toggle">
+            </ion-toggle>
+          </ion-item>
+
+          <ion-item button detail="true" (click)="clearCache()" class="setting-item">
+            <ion-icon slot="start" name="trash-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Clear Cache</h4>
+              <p>Free up storage space ({{ cacheSize }})</p>
+            </ion-label>
+            <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+          </ion-item>
+          
+          <ion-item button detail="true" (click)="exportData()" class="setting-item">
+            <ion-icon slot="start" name="download-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Export Data</h4>
+              <p>Download your transaction history</p>
+            </ion-label>
+            <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+          </ion-item>
+          
+          <ion-item button detail="true" (click)="backupSettings()" class="setting-item">
+            <ion-icon slot="start" name="cloud-upload-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Backup Settings</h4>
+              <p>Save your preferences to cloud</p>
+            </ion-label>
+            <ion-badge slot="end" color="medium" class="last-backup-badge">
+              {{ lastBackup }}
+            </ion-badge>
+          </ion-item>
+
+          <ion-item class="setting-item info-item">
+            <ion-icon slot="start" name="information-circle-outline" class="setting-icon info-icon"></ion-icon>
+            <ion-label>
+              <h4>Storage Usage</h4>
+              <p>{{ storageUsed }} used • Last backup: {{ lastBackup }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+
+      <!-- About Section -->
+      <div class="settings-section animate__animated animate__fadeInUp animate__delay-5s">
+        <h3 class="section-title">
+          <ion-icon name="information-circle-outline"></ion-icon>
+          About & Support
+        </h3>
+        <ion-list lines="none" class="settings-list">
+          <ion-item button detail="true" (click)="viewVersion()" class="setting-item">
+            <ion-icon slot="start" name="information-circle-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>App Version</h4>
+              <p>v{{ appVersion }} (Build {{ buildNumber }})</p>
+            </ion-label>
+            <ion-badge slot="end" color="success" class="version-badge">
+              Latest
+            </ion-badge>
+          </ion-item>
+          
+          <ion-item button detail="true" (click)="termsOfService()" class="setting-item">
+            <ion-icon slot="start" name="document-text-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Terms of Service</h4>
+              <p>Read our terms and conditions</p>
+            </ion-label>
+            <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+          </ion-item>
+          
+          <ion-item button detail="true" (click)="privacyPolicy()" class="setting-item">
+            <ion-icon slot="start" name="shield-outline" class="setting-icon"></ion-icon>
+            <ion-label>
+              <h4>Privacy Policy</h4>
+              <p>Learn how we protect your data</p>
+            </ion-label>
+            <ion-icon name="chevron-forward" slot="end" class="arrow-icon"></ion-icon>
+          </ion-item>
+
+          <ion-item class="setting-item info-item">
+            <ion-icon slot="start" name="time-outline" class="setting-icon info-icon"></ion-icon>
+            <ion-label>
+              <h4>Last Updated</h4>
+              <p>{{ lastUpdated }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions animate__animated animate__fadeInUp animate__delay-6s">
+      <ion-card class="quick-action-card">
+        <ion-card-content>
+          <div class="quick-action-content">
+            <ion-icon name="help-circle-outline" class="quick-action-icon"></ion-icon>
+            <div class="quick-action-text">
+              <h4>Need Help?</h4>
+              <p>Contact our support team for assistance</p>
+            </div>
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              (click)="contactSupport()"
+              class="contact-button">
+              Contact
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
     </div>
   </div>
 </ion-content>

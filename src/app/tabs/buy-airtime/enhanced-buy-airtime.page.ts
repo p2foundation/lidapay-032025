@@ -26,6 +26,7 @@ import {
   IonCol,
   IonChip,
   IonSpinner,
+  IonNote,
   ModalController,
 } from '@ionic/angular/standalone';
 
@@ -78,6 +79,7 @@ enum WizardStep {
     IonCol,
     IonChip,
     IonSpinner,
+    IonNote,
   ],
 })
 export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
@@ -154,15 +156,62 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Populate the recipient phone number field with the user's own phone number
+   * This provides a convenient default that users can choose to accept or change
+   */
+  private populateUserPhoneNumber() {
+    if (!this.userProfile?.phoneNumber) return;
+    
+    console.log('Populating recipient phone number with user phone:', this.userProfile.phoneNumber);
+    
+    // Format the user's phone number based on the selected country
+    let formattedNumber = this.userProfile.phoneNumber;
+    
+    if (this.selectedCountry?.isoName === this.GHANA_ISO) {
+      // For Ghana, ensure local format (0240000000)
+      formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+        this.userProfile.phoneNumber,
+        this.GHANA_ISO
+      );
+    } else {
+      // For other countries, use the enhanced airtime service
+      formattedNumber = this.enhancedAirtimeService.formatPhoneNumberForAPI(
+        this.userProfile.phoneNumber,
+        this.selectedCountry?.isoName || ''
+      );
+    }
+    
+    // Update the form with the user's phone number
+    this.airtimeForm.patchValue({ recipientNumber: formattedNumber });
+    console.log('Recipient phone number populated with:', formattedNumber);
+    
+    // Show a notification to inform the user
+    this.notificationService.showToast(
+      `Your phone number (${formattedNumber}) has been pre-filled. You can change it if needed.`,
+      'primary',
+      4000
+    );
+  }
+
   private loadCountries() {
     this.isLoading = true;
+    
+    // Add a minimum loading time to show the loading state properly
+    const loadingPromise = new Promise(resolve => setTimeout(resolve, 800));
+    
     this.enhancedAirtimeService
       .getCountries()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (countries) => {
+        next: async (countries) => {
+          // Wait for minimum loading time
+          await loadingPromise;
+          
           this.countries = countries;
-          // Don't auto-select Ghana, let user choose
+          
+          // Try to detect user's home country intelligently
+          await this.detectUserHomeCountry(countries);
         },
         error: (error) => {
           console.error('Error loading countries:', error);
@@ -172,6 +221,120 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
           this.isLoading = false;
         },
       });
+  }
+
+  /**
+   * Intelligently detect user's home country based on multiple factors
+   */
+  private async detectUserHomeCountry(countries: Country[]) {
+    try {
+      // 1. First priority: Check if user has a saved country preference
+      const userCountry = await this.storage.getStorage('userCountry');
+      if (userCountry && userCountry.isoName) {
+        const preferredCountry = countries.find(c => c.isoName === userCountry.isoName);
+        if (preferredCountry) {
+          console.log('✅ Using user saved country preference:', preferredCountry.name);
+          this.selectCountry(preferredCountry);
+          return;
+        }
+      }
+
+      // 2. Second priority: Check user's profile for phone number country code
+      if (this.userProfile?.phoneNumber) {
+        const phoneCountryCode = this.extractCountryCodeFromPhone(this.userProfile.phoneNumber);
+        if (phoneCountryCode) {
+          const phoneCountry = countries.find(c => c.isoName === phoneCountryCode);
+          if (phoneCountry) {
+            console.log('✅ Using country from user phone number:', phoneCountry.name);
+            this.selectCountry(phoneCountry);
+            return;
+          }
+        }
+      }
+
+      // 3. Third priority: Check device locale/timezone for location hints
+      const deviceCountry = this.detectDeviceCountry();
+      if (deviceCountry) {
+        const detectedCountry = countries.find(c => c.isoName === deviceCountry);
+        if (detectedCountry) {
+          console.log('✅ Using device-detected country:', detectedCountry.name);
+          this.selectCountry(detectedCountry);
+          return;
+        }
+      }
+
+      // 4. Fallback: Use Ghana as default for African context
+      const ghanaCountry = countries.find(c => c.isoName === this.GHANA_ISO);
+      if (ghanaCountry) {
+        console.log('ℹ️ Using Ghana as default country (African context)');
+        this.selectCountry(ghanaCountry);
+        return;
+      }
+
+      // 5. Last resort: Don't auto-select, let user choose
+      console.log('ℹ️ No country auto-detected, user must select manually');
+      
+    } catch (error) {
+      console.error('Error detecting user home country:', error);
+      // Continue without auto-selection
+    }
+  }
+
+  /**
+   * Extract country code from phone number
+   */
+  private extractCountryCodeFromPhone(phoneNumber: string): string | null {
+    if (!phoneNumber) return null;
+    
+    // Remove all non-digit characters
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    
+    // Check for common country codes
+    if (cleanNumber.startsWith('233') && cleanNumber.length >= 12) {
+      return 'GH'; // Ghana
+    } else if (cleanNumber.startsWith('234') && cleanNumber.length >= 12) {
+      return 'NG'; // Nigeria
+    } else if (cleanNumber.startsWith('254') && cleanNumber.length >= 12) {
+      return 'KE'; // Kenya
+    } else if (cleanNumber.startsWith('256') && cleanNumber.length >= 12) {
+      return 'UG'; // Uganda
+    } else if (cleanNumber.startsWith('255') && cleanNumber.length >= 12) {
+      return 'TZ'; // Tanzania
+    }
+    
+    return null;
+  }
+
+  /**
+   * Detect country from device locale and timezone
+   */
+  private detectDeviceCountry(): string | null {
+    try {
+      // Try to get from navigator.language
+      if (navigator.language) {
+        const lang = navigator.language.toLowerCase();
+        if (lang.includes('gh') || lang.includes('en-gh')) return 'GH';
+        if (lang.includes('ng') || lang.includes('en-ng')) return 'NG';
+        if (lang.includes('ke') || lang.includes('en-ke')) return 'KE';
+        if (lang.includes('ug') || lang.includes('en-ug')) return 'UG';
+        if (lang.includes('tz') || lang.includes('en-tz')) return 'TZ';
+      }
+
+      // Try to get from timezone
+      if (Intl && Intl.DateTimeFormat) {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (timezone.includes('Accra')) return 'GH';
+        if (timezone.includes('Lagos')) return 'NG';
+        if (timezone.includes('Nairobi')) return 'KE';
+        if (timezone.includes('Kampala')) return 'UG';
+        if (timezone.includes('Dar_es_Salaam')) return 'TZ';
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error detecting device country:', error);
+      return null;
+    }
   }
 
   private setupFormListeners() {
@@ -305,6 +468,9 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     this.selectedCountry = country;
     this.airtimeForm.patchValue({ countryIso: country.isoName });
 
+    // Save user's country preference for future use
+    this.saveUserCountryPreference(country);
+
     // Clear any previous operator selection
     this.selectedOperator = null;
     this.detectedOperator = null;
@@ -324,6 +490,24 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     }
 
     this.nextStep();
+  }
+
+  /**
+   * Save user's country preference to storage
+   */
+  private async saveUserCountryPreference(country: Country) {
+    try {
+      await this.storage.setStorage('userCountry', {
+        isoName: country.isoName,
+        name: country.name,
+        currencyCode: country.currencyCode,
+        currencyName: country.currencyName,
+        flag: country.flag
+      });
+      console.log('✅ User country preference saved:', country.name);
+    } catch (error) {
+      console.error('Error saving user country preference:', error);
+    }
   }
 
   private updateFormValidation(countryIso: string) {
@@ -450,12 +634,25 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     
     const prefix = nineDigitNumber.substring(0, 2);
     
-    // Ghana mobile prefixes (2025)
-    if (['20', '24', '26', '27'].includes(prefix)) {
+    // Ghana mobile prefixes (2025) - CORRECTED based on official provider breakdown
+    // MTN Ghana: 024, 025, 053, 054, 055, 059 (using 2-digit prefixes: 24, 25, 53, 54, 55, 59)
+    if (['24', '25', '53', '54', '55', '59'].includes(prefix)) {
       return 'MTN Ghana';
-    } else if (['54', '55', '56', '57'].includes(prefix)) {
+    } 
+    // Telecel Ghana: 020, 050 (using 2-digit prefixes: 20, 50)
+    else if (['20', '50'].includes(prefix)) {
+      return 'Telecel Ghana';
+    } 
+    // AirtelTigo Ghana: 026, 027, 056, 057 (using 2-digit prefixes: 26, 27, 56, 57)
+    else if (['26', '27', '56', '57'].includes(prefix)) {
       return 'AirtelTigo Ghana';
-    } else {
+    } 
+    // Glo Ghana: 021, 022, 023 (using 2-digit prefixes: 21, 22, 23)
+    // Note: 055 conflict resolved in favor of MTN
+    else if (['21', '22', '23'].includes(prefix)) {
+      return 'Glo Ghana';
+    } 
+    else {
       return 'Unknown';
     }
   }
@@ -466,7 +663,7 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
     const cleanNumber = phoneNumber.replace(/\D/g, '');
     
     // Valid Ghana mobile prefixes (2025) - STRICTLY ENFORCED
-    const validPrefixes = ['20', '24', '26', '27', '54', '55', '56', '57'];
+    const validPrefixes = ['020', '024', '025', '026', '027', '050', '053', '054', '055', '056', '057', '059'];
     
     let nineDigitNumber = '';
     
@@ -521,6 +718,11 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         this.selectedCountry?.isoName !== this.GHANA_ISO
       ) {
         this.currentStep = WizardStep.PHONE_NUMBER;
+      }
+      
+      // When reaching phone number step, populate with user's phone number if available
+      if (this.currentStep === WizardStep.PHONE_NUMBER && this.userProfile?.phoneNumber) {
+        this.populateUserPhoneNumber();
       }
       
       // When reaching confirmation step, ensure phone number is formatted for Ghana
@@ -853,10 +1055,10 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
 
       console.log('[autoDetectOperator] => response:', response);
 
-      if (response && response.operatorId) {
+      if (response && (response.operatorId || response.id)) {
         return {
-          operatorId: response.operatorId,
-          operatorName: response.operatorName,
+          operatorId: response.operatorId || response.id,
+          operatorName: response.operatorName || response.name,
         };
       } else {
         throw new Error('Failed to detect operator');
@@ -1021,9 +1223,9 @@ export class EnhancedBuyAirtimePage implements OnInit, OnDestroy {
         return 'Select your mobile network provider';
       case WizardStep.PHONE_NUMBER:
         if (this.selectedCountry?.isoName !== this.GHANA_ISO) {
-          return 'Enter the phone number to recharge (network will be auto-detected)';
+          return 'Enter the phone number to recharge (network will be auto-detected). Your phone number is pre-filled for convenience.';
         }
-        return 'Enter the phone number to recharge';
+        return 'Enter the phone number to recharge. Your phone number is pre-filled for convenience.';
       case WizardStep.AMOUNT_SELECTION:
         return 'Choose the amount to recharge';
       case WizardStep.CONFIRMATION:
