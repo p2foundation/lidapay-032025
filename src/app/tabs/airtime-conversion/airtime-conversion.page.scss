@@ -6,6 +6,11 @@
   overflow-x: hidden;
   min-height: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  
+  // Ensure text color is set for light theme
+  color: var(--ion-text-color);
+  
+  // Dark theme overrides will be handled in the media query below
 }
 
 // Header Styles
@@ -13,6 +18,7 @@
   --background: #ffffff;
   --border-color: transparent;
   --box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  --color: var(--ion-text-color);
   
   .header-title {
     .title-content {
@@ -35,7 +41,7 @@
       .title-text {
         font-weight: 700;
         font-size: 20px;
-        color: #2d3436;
+        color: var(--ion-text-color);
       }
     }
   }
@@ -48,6 +54,14 @@
       opacity: 1 !important;
       visibility: visible !important;
       display: block !important;
+      
+      &::part(native) {
+        color: var(--ion-color-primary) !important;
+      }
+      
+      ion-icon {
+        color: var(--ion-color-primary) !important;
+      }
     }
     
     ion-button {
@@ -56,7 +70,7 @@
       
       ion-icon {
         font-size: 24px;
-        color: #636e72;
+        color: var(--ion-color-medium);
       }
     }
   }
@@ -735,6 +749,127 @@
   .airtime-conversion-content {
     --background: #121212;
     --color: #ffffff;
+    background: #121212;
+    
+    // Ensure text is visible in dark mode
+    color: #ffffff;
+    
+    // Update header styles for dark mode
+    .header-toolbar {
+      --background: #1e1e1e;
+      --color: #ffffff;
+      --border-color: rgba(255, 255, 255, 0.1);
+      
+      .header-title {
+        .title-content {
+          .title-text {
+            color: #000000; // Black text in dark mode as requested
+            font-weight: 600;
+          }
+          
+          .title-icon {
+            color: var(--ion-color-primary);
+            background: rgba(var(--ion-color-primary-rgb), 0.2);
+          }
+        }
+      }
+      
+      ion-buttons {
+        ion-back-button {
+          --color: #000000 !important; // Black back button in dark mode
+          
+          &::part(native) {
+            color: #000000 !important;
+          }
+          
+          ion-icon {
+            color: #000000 !important;
+          }
+        }
+        
+        ion-button {
+          ion-icon {
+            color: var(--ion-color-medium);
+          }
+        }
+      }
+    }
+    
+    // Update form inputs for dark mode
+    ion-item {
+      --background: #2d2d2d;
+      --color: #ffffff;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --highlight-color-focused: var(--ion-color-primary);
+      --highlight-color-valid: var(--ion-color-success);
+      --highlight-color-invalid: var(--ion-color-danger);
+      
+      ion-label {
+        color: #e0e0e0;
+        font-weight: 500;
+      }
+      
+      ion-input, ion-select, ion-textarea {
+        --color: #ffffff;
+        --placeholder-color: #a0a0a0;
+        --placeholder-opacity: 0.8;
+      }
+      
+      &.item-has-focus {
+        --border-color: var(--ion-color-primary);
+      }
+    }
+    
+    // Update cards and containers
+    .step-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      
+      &.active {
+        border-color: var(--ion-color-primary);
+      }
+      
+      .step-header {
+        background: #252525;
+      }
+    }
+    
+    // Update buttons
+    ion-button {
+      --background: var(--ion-color-primary);
+      --color: #ffffff;
+      --background-hover: var(--ion-color-primary-shade);
+      --background-activated: var(--ion-color-primary-tint);
+      
+      &.button-outline {
+        --border-color: var(--ion-color-primary);
+        --color: var(--ion-color-primary);
+      }
+    }
+    
+    // Update hero section
+    .hero-section {
+      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+      
+      .hero-title {
+        color: #ffffff;
+      }
+      
+      .hero-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+    
+    // Update loading spinner
+    .loading-container {
+      ion-spinner {
+        --color: var(--ion-color-primary);
+      }
+      
+      .loading-text, .loading-subtext {
+        color: #e0e0e0;
+      }
+    }
   }
   
   .header-toolbar {
@@ -767,6 +902,9 @@
       
       .step-info h3 {
         color: #ffffff;
+      }
+      .step-info p {
+        color: #cfcfcf;
       }
     }
   }
@@ -812,6 +950,15 @@
     --color: #ffffff;
     --border-color: #333333;
   }
+  // Ensure native input text is white in dark theme
+  .form-section .form-group .form-input input {
+    color: #ffffff !important;
+    background: transparent !important;
+  }
+  .form-section .form-group .form-input input::placeholder {
+    color: #b2bec3 !important;
+    opacity: 1 !important;
+  }
   
   .review-section {
     background: #1e1e1e;
@@ -819,6 +966,15 @@
     .review-label {
       color: #ffffff;
     }
+  }
+  /* Generic dark theme text refinements */
+  .step-card p,
+  .features-section p,
+  .summary-section .summary-grid .summary-item .summary-label {
+    color: #d1d5db;
+  }
+  .form-section .form-group ion-label {
+    color: #e5e7eb;
   }
 } 
 

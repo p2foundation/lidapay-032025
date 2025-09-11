@@ -352,6 +352,8 @@ export class LoginPage implements OnInit, OnDestroy {
     const rememberMe = this.loginForm.get('rememberMe')?.value;
     if (rememberMe) {
       await this.saveCredentials(formData);
+    } else {
+      await this.clearSavedCredentials();
     }
 
     // Navigate to main app
@@ -389,6 +391,16 @@ export class LoginPage implements OnInit, OnDestroy {
       await this.storage.setStorage('rememberMe', true);
     } catch (error) {
       console.error('Error saving credentials:', error);
+    }
+  }
+
+  private async clearSavedCredentials() {
+    try {
+      await this.storage.setStorage('savedCredentials', null);
+      await this.storage.setStorage('savedMobile', null);
+      await this.storage.setStorage('rememberMe', false);
+    } catch (error) {
+      console.error('Error clearing saved credentials:', error);
     }
   }
 
@@ -572,6 +584,18 @@ export class LoginPage implements OnInit, OnDestroy {
 
   toggleAdvancedOptions() {
     this.showAdvancedOptions = !this.showAdvancedOptions;
+  }
+
+  async onRememberMeChange(event: CustomEvent) {
+    const enabled = !!(event as any).detail?.checked;
+    if (!enabled) {
+      await this.clearSavedCredentials();
+    } else {
+      const formData = this.loginForm.value;
+      if (formData?.mobile && formData?.password) {
+        await this.saveCredentials(formData);
+      }
+    }
   }
 
   forgotPassword() {

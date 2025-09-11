@@ -45,7 +45,7 @@
         <div class="transaction-status">
           <ion-badge [color]="getStatusColor(transaction.status)" class="status-badge">
             <ion-icon [name]="getStatusIcon(transaction.status)" class="status-icon"></ion-icon>
-            {{ (transaction.status?.transaction | titlecase) || 'Pending' }}
+            {{ (transaction.status.transaction | titlecase) || 'Pending' }}
           </ion-badge>
         </div>
       </div>
@@ -223,7 +223,7 @@
             </div>
           </div>
 
-          <div class="timeline-item completed" *ngIf="transaction.status?.transaction === 'completed'">
+          <div class="timeline-item completed" *ngIf="transaction.status.transaction === 'completed'">
             <div class="timeline-icon">
               <ion-icon name="checkmark-circle-outline"></ion-icon>
             </div>
@@ -233,7 +233,7 @@
             </div>
           </div>
 
-          <div class="timeline-item pending" *ngIf="transaction.status?.transaction === 'pending'">
+          <div class="timeline-item pending" *ngIf="transaction.status.transaction === 'pending'">
             <div class="timeline-icon">
               <ion-icon name="time-outline"></ion-icon>
             </div>
@@ -243,7 +243,7 @@
             </div>
           </div>
 
-          <div class="timeline-item failed" *ngIf="transaction.status?.transaction === 'failed'">
+          <div class="timeline-item failed" *ngIf="transaction.status.transaction === 'failed'">
             <div class="timeline-icon">
               <ion-icon name="close-circle-outline"></ion-icon>
             </div>

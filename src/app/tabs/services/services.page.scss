@@ -1,57 +1,118 @@
 // Services Page Styles
-.services-content {
-  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  
-  .header-toolbar {
-    --background: transparent;
-    --border-style: none;
+:host {
+  ion-header {
+    --background: transparent !important;
     
-    // Ensure back button is visible with proper contrast
-    ion-back-button {
+    ion-toolbar {
+      --background: transparent !important;
+      --border-color: transparent !important;
       --color: var(--ion-color-dark) !important;
-      --icon-color: var(--ion-color-dark) !important;
-      --opacity: 1 !important;
-      --icon-opacity: 1 !important;
-      display: block !important;
-      visibility: visible !important;
-      z-index: 1000 !important;
-      position: relative !important;
-      font-size: 24px !important;
-    }
-    
-    .header-title {
-      .title-content {
-        h1 {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: 700;
-          color: var(--ion-color-dark);
-        }
+      color: var(--ion-color-dark) !important;
+      
+      ion-title {
+        --color: var(--ion-color-dark);
+        padding: 0 16px;
         
-        p {
-          margin: 4px 0 0 0;
-          font-size: 0.875rem;
-          color: var(--ion-color-medium);
+        .header-title {
+          .title-content {
+            h1 {
+              color: #000000 !important; // Force black text in dark theme
+              margin: 0;
+              font-size: 1.5rem;
+              font-weight: 600;
+              @media (prefers-color-scheme: dark) {
+                color: #000000 !important; // Keep black in dark theme
+              }
+            }
+            
+            p {
+              color: #333333 !important; // Darker gray for better contrast
+              margin: 4px 0 0 0;
+              font-size: 0.875rem;
+              @media (prefers-color-scheme: dark) {
+                color: #333333 !important; // Keep dark gray in dark theme
+              }
+            }
+          }
+        }
+      }
+      
+      ion-buttons {
+        ion-back-button {
+          --color: var(--ion-color-dark) !important;
+          --icon-color: var(--ion-color-dark) !important;
+          --opacity: 1 !important;
+          --icon-opacity: 1 !important;
+          display: block !important;
+          visibility: visible !important;
+          z-index: 1000 !important;
+          position: relative !important;
+          font-size: 24px !important;
+          
+          &::part(native) {
+            background: transparent !important;
+            color: var(--ion-color-dark) !important;
+            opacity: 1 !important;
+          }
         }
       }
     }
   }
 }
 
-// Additional back button visibility fixes for the Services page
-ion-header ion-toolbar ion-buttons ion-back-button {
-  --color: var(--ion-color-dark) !important;
-  --icon-color: var(--ion-color-dark) !important;
-  --opacity: 1 !important;
-  --icon-opacity: 1 !important;
-  display: block !important;
-  visibility: visible !important;
-  z-index: 1000 !important;
-  position: relative !important;
+// Dark mode overrides
+@media (prefers-color-scheme: dark) {
+  :host {
+    ion-header {
+      ion-toolbar {
+        --color: #ffffff !important;
+        color: #ffffff !important;
+        
+        ion-title {
+          --color: #ffffff !important;
+          
+          .header-title {
+            .title-content {
+              h1 {
+                color: #ffffff !important;
+              }
+              
+              p {
+                color: rgba(255, 255, 255, 0.8) !important;
+              }
+            }
+          }
+        }
+        
+        ion-buttons {
+          ion-back-button {
+            --color: var(--ion-color-light) !important;
+            --icon-color: var(--ion-color-light) !important;
+            
+            &::part(native) {
+              color: #ffffff !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.services-content {
+  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   
-  &::part(native) {
-    color: var(--ion-color-dark) !important;
-    opacity: 1 !important;
+  // Dark mode styles
+  @media (prefers-color-scheme: dark) {
+    --background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --ion-text-color: #ffffff;
+    --ion-background-color: #1a1a2e;
+    color: #ffffff;
+  }
+  
+  .header-toolbar {
+    --background: transparent !important;
+    --border-style: none !important;
   }
 }
 
@@ -102,16 +163,49 @@ ion-header ion-toolbar ion-buttons ion-back-button {
     --padding-start: 16px;
     --padding-end: 16px;
     --min-height: 48px;
+    --color: var(--ion-text-color);
+    
+    @media (prefers-color-scheme: dark) {
+      --background: rgba(30, 41, 59, 0.8);
+      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --color: #ffffff;
+    }
     
     ion-icon {
       color: var(--ion-color-medium);
       font-size: 1.2rem;
+      
+      @media (prefers-color-scheme: dark) {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      
+      &[name="close-circle"] {
+        @media (prefers-color-scheme: dark) {
+          color: rgba(255, 255, 255, 0.7);
+          &:hover {
+            color: var(--ion-color-light);
+          }
+        }
+      }
     }
     
     .search-input {
       --placeholder-color: var(--ion-color-medium);
-      --color: var(--ion-color-dark);
+      --color: var(--ion-text-color);
       font-size: 0.9rem;
+      
+      @media (prefers-color-scheme: dark) {
+        --placeholder-color: rgba(255, 255, 255, 0.6);
+        --color: #ffffff;
+      }
+      
+      &::part(placeholder) {
+        opacity: 0.8;
+      }
+      
+      &::part(native) {
+        color: var(--ion-text-color);
+      }
     }
   }
 }

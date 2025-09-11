@@ -118,7 +118,8 @@
               <ion-label>Remember me</ion-label>
               <ion-toggle 
                 [formControlName]="'rememberMe'"
-                slot="end">
+                slot="end"
+                (ionChange)="onRememberMeChange($event)">
               </ion-toggle>
             </ion-item>
             

@@ -223,7 +223,7 @@ ion-input {
     .search-input {
       font-size: 16px;
       font-weight: 500;
-      color: #000000 !important;
+      color: #ffffff !important;
       
       &::placeholder {
         color: var(--dark-text-muted);
@@ -231,7 +231,7 @@ ion-input {
       
       // Ensure the native input element has proper styling
       input {
-        color: #000000 !important;
+        color: #ffffff !important;
         background: transparent !important;
         font-weight: 500 !important;
         
@@ -241,6 +241,14 @@ ion-input {
         }
       }
     }
+  }
+}
+
+// Explicit dark mode reinforcement for search input text color
+body.dark {
+  .search-container .search-item .search-input,
+  .search-container .search-item .search-input input {
+    color: #ffffff !important;
   }
 }
 

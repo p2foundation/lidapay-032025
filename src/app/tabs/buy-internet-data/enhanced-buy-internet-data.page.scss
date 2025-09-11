@@ -289,7 +289,16 @@ ion-input {
       --padding-end: var(--space-3);
       --padding-top: var(--space-4);
       --padding-bottom: var(--space-4);
+      color: var(--ion-text-color);
     }
+  }
+}
+
+// Ensure search input text is white in dark mode
+@media (prefers-color-scheme: dark) {
+  .search-container .search-item .search-input,
+  .search-container .search-item .search-input input {
+    color: #ffffff !important;
   }
 }
 

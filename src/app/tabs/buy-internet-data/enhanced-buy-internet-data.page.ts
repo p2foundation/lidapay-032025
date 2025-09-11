@@ -1450,7 +1450,8 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
 
   // Search functionality
   filterCountries(event: any) {
-    const query = event.target.value.toLowerCase();
+    const raw = (event?.target?.value ?? '').toString();
+    const query = raw.trim().replace(/\s+/g, ' ').toLowerCase();
     if (query) {
       this.filteredCountries = this.countries.filter(country => 
         country.name.toLowerCase().includes(query) || 

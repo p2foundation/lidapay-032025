@@ -313,10 +313,24 @@
   .remember-me-item {
     --background: transparent;
     --border-radius: 8px;
+    width: 100%;
+    max-width: 320px;
+    padding-inline: 0;
+    --inner-padding-end: 0;
+    --padding-start: 0;
+    --padding-end: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     
     ion-label {
       font-size: 14px;
       font-weight: 500;
+      white-space: nowrap;
+    }
+    ion-toggle {
+      margin-left: auto;
+      transform: scale(0.9);
     }
   }
   

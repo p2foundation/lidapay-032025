@@ -543,10 +543,11 @@ export class EnhancedAirtimePurchasePage implements OnInit, OnDestroy {
   }
 
   filterCountries() {
-    if (!this.searchTerm.trim()) {
+    const normalized = (this.searchTerm || '').trim().replace(/\s+/g, ' ');
+    if (!normalized) {
       this.filteredCountries = [...this.countries];
     } else {
-      const searchLower = this.searchTerm.toLowerCase();
+      const searchLower = normalized.toLowerCase();
       this.filteredCountries = this.countries.filter(country =>
         country.name.toLowerCase().includes(searchLower) ||
         country.currencyCode.toLowerCase().includes(searchLower) ||
