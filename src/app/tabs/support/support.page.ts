@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BrowserService } from '../../services/browser.service';
 import { 
   IonContent, 
   IonHeader, 
@@ -151,7 +152,10 @@ export class SupportPage implements OnInit {
     }
   ];
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private browserService: BrowserService
+  ) {
     // Register all icons used in this component
     addIcons({
       helpCircleOutline,
@@ -228,12 +232,12 @@ export class SupportPage implements OnInit {
     }
   }
 
-  openEmailSupport() {
+  async openEmailSupport() {
     // Open default email client with support email
     const subject = 'Support Request - LidaPay';
     const body = 'Hello,\n\nI need help with the following issue:\n\n[Please describe your issue here]\n\nThank you.';
     const mailtoLink = `mailto:support@lidapay.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(mailtoLink, '_blank');
+    await this.browserService.openInAppBrowser(mailtoLink);
   }
 
   openLiveChat() {

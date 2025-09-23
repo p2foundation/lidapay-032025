@@ -319,9 +319,15 @@
     --inner-padding-end: 0;
     --padding-start: 0;
     --padding-end: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    --min-height: auto;
+    --inner-padding-start: 0;
+    --inner-padding-end: 0;
+    --padding-start: 0;
+    --padding-end: 0;
+    padding: 0;
     
     ion-label {
       font-size: 14px;
@@ -329,8 +335,8 @@
       white-space: nowrap;
     }
     ion-toggle {
-      margin-left: auto;
       transform: scale(0.9);
+      margin: 0;
     }
   }
   

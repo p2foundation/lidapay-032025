@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { CountrySearchModalComponent } from './country-search-modal/country-search-modal.component';
 import { CommonModule } from '@angular/common';
+import { BrowserService } from '../../services/browser.service';
 import {
   FormBuilder,
   FormGroup,
@@ -123,7 +124,8 @@ export class BuyReloadlyPage implements OnInit {
     private advansisPayService: AdvansisPayService,
     private modalService: ModalService,
     private translate: TranslateService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private browserService: BrowserService
   ) {
     addIcons({
       globeOutline,
@@ -320,7 +322,7 @@ export class BuyReloadlyPage implements OnInit {
         updateStatus('Redirecting to payment gateway...');
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Brief pause
         await modal.dismiss();
-        window.open(response.data.checkoutUrl, '_system');
+        await this.browserService.openInAppBrowser(response.data.checkoutUrl);
       } else {
         throw new Error('Failed to initiate payment');
       }

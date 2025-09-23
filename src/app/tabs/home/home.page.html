@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="false">
   <ion-toolbar class="header-toolbar">
     <div class="header-content">
       <div class="brand-section">
@@ -27,7 +27,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="home-content">
+<ion-content [fullscreen]="false" class="home-content" [scrollY]="true" [scrollEvents]="true">
   <!-- Pull to refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content
@@ -75,7 +75,7 @@
   </div>
 
   <!-- Actual Content -->
-  <div class="content-wrapper" [class.animate-in]="!isLoading">
+  <div class="content-wrapper ion-padding" [class.animate-in]="!isLoading">
     <!-- Hero Section -->
     <div class="hero-section">
       <div class="hero-content">

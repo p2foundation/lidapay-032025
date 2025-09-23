@@ -572,36 +572,7 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  /**
-   * Test method to check if modal component can be created
-   */
-  async testModalCreation(): Promise<void> {
-    console.log('Testing modal creation...');
-    
-    try {
-      // Test with a simple modal first
-      const testModal = await this.modalController.create({
-        component: 'ion-alert',
-        componentProps: {
-          header: 'Test Modal',
-          message: 'This is a test modal to check if modal creation works.',
-          buttons: ['OK']
-        }
-      });
-      
-      console.log('Test modal created successfully');
-      await testModal.present();
-      console.log('Test modal presented successfully');
-      
-      // Dismiss after 2 seconds
-      setTimeout(() => {
-        testModal.dismiss();
-      }, 2000);
-      
-    } catch (error) {
-      console.error('Error creating test modal:', error);
-    }
-  }
+  // Removed testing-only modal helper
 
   /**
    * View transaction details in a modal
@@ -644,14 +615,11 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
       console.log('Modal presented successfully');
     } catch (error) {
       console.error('Error opening transaction details modal:', error);
-      
-      // Provide more specific error messages
-      if (error instanceof Error) {
-        this.notificationService.showError(`Failed to open transaction details: ${error.message}`);
-      } else {
-        this.notificationService.showError('Failed to open transaction details. Please try again.');
-      }
-      
+
+      // Provide a user-friendly, seasoned message instead of raw DI/internal errors
+      const friendlyMessage = this.getFriendlyModalErrorMessage(error);
+      this.notificationService.showError(friendlyMessage);
+
       // Try to create a simple alert instead as fallback
       try {
         const alert = await this.alertController.create({
@@ -664,6 +632,21 @@ export class PendingTransactionsPage implements OnInit, OnDestroy {
         console.error('Error creating fallback alert:', alertError);
       }
     }
+  }
+
+  /**
+   * Map technical modal errors to user-friendly messages
+   */
+  private getFriendlyModalErrorMessage(error: unknown): string {
+    const rawMessage = (error as any)?.message || '';
+
+    // Common Angular/Ionic DI error when provider is missing
+    if (rawMessage.includes('NullInjectorError') || rawMessage.includes('No provider for')) {
+      return 'We could not open the details right now. Please update the app and try again.';
+    }
+
+    // Generic fallback
+    return 'Unable to open transaction details at the moment. Please try again.';
   }
 
   get filteredTransactions(): Transaction[] {

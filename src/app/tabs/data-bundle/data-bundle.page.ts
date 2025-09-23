@@ -1,5 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BrowserService } from '../../services/browser.service';
 import {
   FormBuilder,
   FormGroup,
@@ -123,7 +124,8 @@ export class DataBundlePage implements OnInit {
     private modalController: ModalController,
     private advansisPayService: AdvansisPayService,
     private utilService: UtilsService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private browserService: BrowserService
   ) {
     addIcons({warningOutline,arrowBack,checkmarkCircle,card,wifi:wifiOutline,call:callOutline});
     this.dataBundleForm = this.formBuilder.group({
@@ -294,7 +296,7 @@ export class DataBundlePage implements OnInit {
         );
 
         if (response && response.status === 201 && response.data) {
-          window.open(response.data.checkoutUrl, '_system');
+          await this.browserService.openInAppBrowser(response.data.checkoutUrl);
         } else {
           throw new Error('Failed to initiate payment');
         }

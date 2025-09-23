@@ -104,10 +104,10 @@ ion-header:not(.header_bg) ion-toolbar ion-buttons ion-button {
   }
 }
 
-// CRITICAL FIX: Input text visibility
-ion-input {
-  --color: #000000 !important;
-  --placeholder-color: #666666 !important;
+// Light theme default input visibility
+body.light ion-input {
+  --color: #000000;
+  --placeholder-color: #666666;
   
   input {
     color: #000000 !important;
@@ -117,6 +117,23 @@ ion-input {
     &::placeholder {
       color: #666666 !important;
       opacity: 1 !important;
+    }
+  }
+}
+
+// System light theme (when no body.light class is present)
+@media (prefers-color-scheme: light) {
+  ion-input {
+    --color: #000000;
+    --placeholder-color: #666666;
+    
+    input {
+      color: #000000 !important;
+      
+      &::placeholder {
+        color: #666666 !important;
+        opacity: 1 !important;
+      }
     }
   }
 }
@@ -800,6 +817,15 @@ ion-input {
   }
 }
 
+// Light theme-only: ensure phone number text is solid black on this page
+:host-context(body.light) ion-input.modern-input {
+  --color: #000000 !important;
+}
+
+:host-context(body.light) ion-input.modern-input input {
+  color: #000000 !important;
+}
+
 // Modern Button Styles
 .modern-button {
   --background: var(--ion-color-primary);
@@ -825,16 +851,31 @@ ion-input {
   .modern-input {
     --background: var(--ion-item-background);
     --border-color: var(--ion-border-color);
-    --color: var(--ion-text-color);
-    --placeholder-color: var(--ion-color-step-500);
+    --color: #ffffff;
+    --placeholder-color: #cbd5e1;
     --placeholder-opacity: 1;
     
     input {
-      color: var(--ion-text-color) !important;
+      color: #ffffff !important;
       background: transparent !important;
       
       &::placeholder {
-        color: var(--ion-color-step-500) !important;
+        color: #cbd5e1 !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+  // Ensure all ion-inputs (including search) are readable in dark mode
+  ion-input {
+    --color: #ffffff;
+    --placeholder-color: #cbd5e1;
+    --placeholder-opacity: 1;
+    
+    input {
+      color: #ffffff !important;
+      
+      &::placeholder {
+        color: #cbd5e1 !important;
         opacity: 1 !important;
       }
     }
@@ -858,16 +899,31 @@ body.dark {
   .modern-input {
     --background: var(--ion-item-background);
     --border-color: var(--ion-border-color);
-    --color: var(--ion-text-color);
-    --placeholder-color: var(--ion-color-step-500);
+    --color: #ffffff;
+    --placeholder-color: #cbd5e1;
     --placeholder-opacity: 1;
     
     input {
-      color: var(--ion-text-color) !important;
+      color: #ffffff !important;
       background: transparent !important;
       
       &::placeholder {
-        color: var(--ion-color-step-500) !important;
+        color: #cbd5e1 !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+  // Ensure all ion-inputs (including search) are readable in manual dark mode
+  ion-input {
+    --color: #ffffff;
+    --placeholder-color: #cbd5e1;
+    --placeholder-opacity: 1;
+    
+    input {
+      color: #ffffff !important;
+      
+      &::placeholder {
+        color: #cbd5e1 !important;
         opacity: 1 !important;
       }
     }

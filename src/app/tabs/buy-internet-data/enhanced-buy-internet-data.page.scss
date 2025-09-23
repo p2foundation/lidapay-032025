@@ -79,6 +79,35 @@ ion-input {
   }
 }
 
+// Ensure dark theme uses white input text
+@media (prefers-color-scheme: dark) {
+  ion-input,
+  .modern-input ion-input,
+  .search-input,
+  .phone-input {
+    --color: #ffffff !important;
+    --placeholder-color: #cbd5e1 !important;
+  }
+  ion-input input,
+  .modern-input ion-input input {
+    color: #ffffff !important;
+  }
+}
+
+body.dark {
+  ion-input,
+  .modern-input ion-input,
+  .search-input,
+  .phone-input {
+    --color: #ffffff !important;
+    --placeholder-color: #cbd5e1 !important;
+  }
+  ion-input input,
+  .modern-input ion-input input {
+    color: #ffffff !important;
+  }
+}
+
 // Text utility classes
 .text-heading-3 {
   font-size: 1.25rem;

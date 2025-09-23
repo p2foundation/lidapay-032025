@@ -1,5 +1,5 @@
 :host {
-  --page-padding: 20px;
+  --page-padding: 16px;
   --card-border-radius: 16px;
   --primary-purple: #4c1d95; /* Dark purple/indigo brand color */
   --primary-pink: #ec4899; /* Vibrant pink/magenta accent */
@@ -10,13 +10,198 @@
   --bg-light: #f8fafc;
   --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  // Safe area padding for notched devices
+  --safe-area-inset-top: env(safe-area-inset-top, 0);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+  --tab-bar-height: 72px;
+  --content-padding-bottom: calc(var(--tab-bar-height) + var(--safe-area-inset-bottom) + 16px);
+  
+  // Set default background color that will work with both themes
+  background: var(--ion-background-color);
+  
+  ion-content {
+    --background: var(--ion-background-color);
+    --padding-top: 0;
+    --padding-bottom: var(--content-padding-bottom);
+    --padding-start: 0;
+    --padding-end: 0;
+    
+    // Ensure content takes full height
+    --ion-background-color: var(--ion-background-color);
+    
+    // Force dark theme colors
+    @media (prefers-color-scheme: dark) {
+      --background: var(--ion-background-color);
+      --ion-text-color: var(--ion-text-color, #ffffff);
+      --ion-item-background: var(--ion-background-color);
+      --ion-card-background: #1e293b;
+      color: var(--ion-text-color);
+    }
+  }
+  
+  // Reset any conflicting styles from other components
+  .ios ion-header {
+    --background: transparent;
+    background: transparent;
+  }
+  
+  // Ensure content is properly positioned below the header (let Ionic manage offsets)
+}
+
+// Home content styles
+.home-content {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+  margin: 0;
+  padding: 0;
+  
+  // Ensure content takes full height
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 var(--page-padding) 16px;
+    background: var(--ion-background-color);
+    color: var(--ion-text-color);
+    margin: 0;
+    
+    // Hero section adjustments
+    .hero-section {
+      padding-top: 16px;
+      
+      .hero-content {
+        .welcome-message {
+          margin: 16px 0 24px;
+          
+          .welcome-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            color: var(--ion-text-color);
+            line-height: 1.2;
+          }
+          
+          .welcome-subtitle {
+            font-size: 16px;
+            color: var(--ion-color-medium);
+            margin: 0;
+          }
+        }
+      }
+    }
+    
+    // Force dark theme for all child elements
+    * {
+      color: var(--ion-text-color);
+    }
+  }
+  
+  // Ensure all text is visible in dark mode
+  h1, h2, h3, h4, h5, h6, p, span, div, ion-label, ion-note {
+    color: var(--ion-text-color);
+  }
+  
+  // Style cards for dark mode
+  ion-card {
+    background: var(--ion-card-background, #1e293b);
+    color: var(--ion-text-color);
+    margin: 0 0 16px;
+    box-shadow: var(--shadow-light);
+    border-radius: var(--card-border-radius);
+    overflow: hidden;
+    
+    ion-card-header, ion-card-title, ion-card-subtitle, ion-card-content {
+      background: transparent;
+      color: var(--ion-text-color);
+    }
+    
+    ion-card-header {
+      padding: 16px;
+      
+      ion-card-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      
+      ion-card-subtitle {
+        font-size: 14px;
+        color: var(--ion-color-medium);
+      }
+    }
+    
+    ion-card-content {
+      padding: 16px;
+    }
+  }
 }
 
 // Header Styles
-.header-toolbar {
-  --background: var(--primary-purple);
-  --color: var(--text-white);
-  padding: 0;
+ion-header {
+  ion-toolbar {
+    --background: var(--primary-purple);
+    --color: var(--text-white);
+    --min-height: 80px;
+    --padding-top: var(--safe-area-inset-top);
+    --padding-bottom: 0;
+    --border-width: 0 !important;
+    padding-top: var(--safe-area-inset-top);
+    margin: 0;
+    position: relative;
+    z-index: 10;
+    
+    // Ensure the toolbar takes full width
+    &::after {
+      display: none;
+    }
+  }
+  
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px var(--page-padding) 12px;
+    min-height: 60px;
+    
+    .brand-section {
+      .brand-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-white);
+        line-height: 1.2;
+      }
+      
+      .brand-subtitle {
+        margin: 4px 0 0;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+        display: block;
+      }
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      
+      ion-button {
+        --padding-start: 8px;
+        --padding-end: 8px;
+        --padding-top: 8px;
+        --padding-bottom: 8px;
+        margin: 0;
+        --ripple-color: rgba(255, 255, 255, 0.1);
+        
+        ion-icon {
+          font-size: 24px;
+        }
+      }
+    }
+  }
   
   ion-back-button {
     --color: var(--text-white);
@@ -26,8 +211,9 @@
   .header-content {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 16px var(--page-padding);
+    align-items: flex-start;
+    padding: 16px var(--page-padding) 12px;
+    min-height: 60px;
     
     .brand-section {
       .brand-title {
@@ -35,6 +221,7 @@
         font-size: 24px;
         font-weight: 700;
         color: var(--text-white);
+        line-height: 1.2;
         
         .text-primary {
           color: var(--primary-pink);
@@ -43,39 +230,42 @@
       
       .brand-subtitle {
         margin: 4px 0 0;
-        font-size: 12px;
+        font-size: 14px;
         color: rgba(255, 255, 255, 0.8);
-        font-weight: 400;
+        display: block;
       }
     }
     
     .header-actions {
       display: flex;
       gap: 8px;
+      margin-top: 4px; // Slight adjustment for better alignment
       
       ion-button {
-        --color: var(--text-white);
         --padding-start: 8px;
         --padding-end: 8px;
+        --padding-top: 8px;
+        --padding-bottom: 8px;
         margin: 0;
+        --ripple-color: rgba(255, 255, 255, 0.1);
         
         ion-icon {
-          font-size: 20px;
+          font-size: 24px;
         }
-      }
-      
-      .notification-btn {
-        position: relative;
         
         .notification-badge {
           position: absolute;
           top: 4px;
           right: 4px;
           font-size: 10px;
+          font-weight: 600;
           min-width: 16px;
-          height: 16px;
+          min-height: 16px;
           border-radius: 8px;
-          background: var(--primary-pink);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px 4px;
         }
       }
     }
@@ -84,7 +274,12 @@
 
 // Content Styles
 .home-content {
-  --background: var(--ion-background-color);
+  --background: var(--bg-light);
+  --padding-start: var(--page-padding);
+  --padding-end: var(--page-padding);
+  --padding-top: 0;
+  --padding-bottom: var(--content-padding-bottom);
+  padding-bottom: var(--content-padding-bottom);
   
   .content-wrapper {
     padding: 0;
@@ -97,25 +292,41 @@
 
 // Hero Section
 .hero-section {
-  padding: 32px var(--page-padding) 24px;
-  text-align: center;
+  padding: calc(48px + var(--safe-area-inset-top)) var(--page-padding) 24px;
+  text-align: left;
   background: linear-gradient(135deg, var(--primary-purple) 0%, #7c3aed 50%, var(--primary-pink) 100%);
+  border-bottom-left-radius: var(--card-border-radius);
+  border-bottom-right-radius: var(--card-border-radius);
+  box-shadow: var(--shadow-medium);
+  margin: 0 0 16px 0;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
   
   .hero-content {
+    width: 100%;
+    max-width: 1024px;
+    margin: 0 auto;
+    
     .welcome-message {
+      text-align: left;
       .welcome-title {
         margin: 0 0 8px 0;
         font-size: 28px;
         font-weight: 700;
         color: var(--text-white);
+        line-height: 1.2;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        word-break: break-word;
       }
       
       .welcome-subtitle {
         margin: 0;
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.9);
-        font-weight: 400;
+        color: #ffffff !important;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+        opacity: 1;
       }
     }
   }
@@ -655,6 +866,15 @@
   .transaction-summary-section {
     background: var(--ion-background-color);
   }
+
+  // Hero subtitle color in dark theme
+  .hero-section {
+    .welcome-message {
+      .welcome-subtitle {
+        color: #e5e7f0 !important;
+      }
+    }
+  }
 }
 
 // Manual dark mode override
@@ -705,6 +925,15 @@ body.dark {
   
   .transaction-summary-section {
     background: var(--ion-background-color);
+  }
+
+  // Manual dark-mode override for hero subtitle color
+  .hero-section {
+    .welcome-message {
+      .welcome-subtitle {
+        color: #e5e7f0 !important;
+      }
+    }
   }
 }
   

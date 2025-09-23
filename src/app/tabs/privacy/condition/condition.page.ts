@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { BrowserService } from '../../../services/browser.service';
 import { 
   IonContent, 
   IonHeader, 
@@ -49,7 +50,8 @@ export class ConditionPage implements OnInit {
 
   constructor(
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private browserService: BrowserService
   ) {
     addIcons({
       arrowBackOutline,
@@ -118,9 +120,8 @@ export class ConditionPage implements OnInit {
    */
   async printTerms() {
     try {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
+      // Create a new window with the print content
+      const printContent = `
           <html>
             <head>
               <title>LidaPay Terms & Conditions</title>
@@ -271,10 +272,21 @@ export class ConditionPage implements OnInit {
               </div>
             </body>
           </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-      }
+        `;
+        
+        // Create a data URL with the content
+        const blob = new Blob([printContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        
+        // Open in browser with print dialog
+        await this.browserService.openInAppBrowser(url, {
+          presentationStyle: 'fullscreen',
+          toolbarColor: '#3880ff',
+          windowName: '_system'
+        });
+        
+        // Note: The print dialog will need to be triggered by the user
+        // as the browser's security model doesn't allow automatic printing
       this.showToast('Print dialog opened!', 'success');
     } catch (error) {
       console.error('Error printing terms:', error);

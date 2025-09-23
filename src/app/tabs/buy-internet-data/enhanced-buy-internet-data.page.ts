@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, firstValueFrom, debounceTime, distinctUntilChanged } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { BrowserService } from '../../services/browser.service';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -172,7 +173,8 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
     private storage: StorageService,
     private utilService: UtilsService,
     private reloadlyService: ReloadlyService,
-    private internetDataService: InternetDataService
+    private internetDataService: InternetDataService,
+    private browserService: BrowserService
   ) {
     this.internetDataForm = this.formBuilder.group({
       countryIso: ['', Validators.required],
@@ -1371,7 +1373,7 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
         }));
 
         // Open payment gateway
-        window.open(paymentResult.data.checkoutUrl, '_system');
+        await this.browserService.openInAppBrowser(paymentResult.data.checkoutUrl);
         this.notificationService.showSuccess('Payment initiated successfully!');
         this.resetForm();
         this.currentStep = WizardStep.COUNTRY_SELECTION;
@@ -1424,7 +1426,7 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
         }));
 
         // Open payment gateway
-        window.open(paymentResult.data.checkoutUrl, '_system');
+        await this.browserService.openInAppBrowser(paymentResult.data.checkoutUrl);
         this.notificationService.showSuccess('Payment initiated successfully!');
         this.resetForm();
         this.currentStep = WizardStep.COUNTRY_SELECTION;

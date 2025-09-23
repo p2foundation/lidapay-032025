@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BrowserService } from '../../services/browser.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, Subject, takeUntil, Subscription } from 'rxjs';
 import {
@@ -161,7 +162,8 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
     private enhancedAirtimeService: EnhancedAirtimeService,
     private enhancedOperatorService: EnhancedOperatorService,
     private keyboardService: KeyboardService,
-    private router: Router
+    private router: Router,
+    private browserService: BrowserService
   ) {}
 
   async ngOnInit() {
@@ -492,8 +494,8 @@ export class BuyAirtimePage implements OnInit, OnDestroy {
           // Log final validation result
           console.log('[URL Validation] ✅ Valid checkout URL:', url);
           
-          // Open URL in new window
-          window.open(url, '_system');
+          // Open URL in In-App Browser
+          await this.browserService.openInAppBrowser(url);
           
         } catch (error: unknown) {
           
