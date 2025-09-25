@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment.prod';
   providedIn: 'root',
 })
 export class ReloadlyService {
-  private apiUrl = environment.vercelURL;
+  private apiUrl = environment.baseURL;
   // private apiUrl = environment.localURL;
 
   constructor(private http: HttpClient) {}

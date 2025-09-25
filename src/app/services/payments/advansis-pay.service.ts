@@ -9,11 +9,9 @@ import { StateService } from '../state.service';
   providedIn: 'root',
 })
 export class AdvansisPayService {
-  // private awServer: string = environment.baseURL;
+  private awServer: string = environment.baseURL;
   // private awServer: string = environment.localURL;
-  private awServer: string = environment.vercelURL;
-
-
+  // private awServer: string = environment.vercelURL;
 
   constructor(
     private readonly http: HttpClient,

@@ -25,7 +25,7 @@ export interface EmailResponse {
   providedIn: 'root'
 })
 export class EmailService {
-  private apiUrl = environment.apiUrl || 'https://api.lidapay.com';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
