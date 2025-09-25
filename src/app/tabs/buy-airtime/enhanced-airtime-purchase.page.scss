@@ -933,6 +933,32 @@ body.light {
       }
     }
   }
+
+  // Light theme phone input colors (override dark defaults and shadow parts)
+  .form-container {
+    .phone-input-item {
+      // Label color for light mode
+      ion-label {
+        color: #0f172a;
+      }
+
+      // Ensure visible input text in light mode
+      ion-input,
+      ion-input::part(native),
+      .phone-input,
+      .phone-input::part(native) {
+        color: #000000 !important;
+        background: transparent !important;
+      }
+
+      // Placeholder color in light mode
+      ion-input::placeholder,
+      .phone-input::placeholder {
+        color: #64748b !important;
+        opacity: 1 !important;
+      }
+    }
+  }
 } 
 
 // System light theme without body class
@@ -945,6 +971,25 @@ body.light {
       }
       .search-input::placeholder,
       .search-input input::placeholder {
+        color: #64748b !important;
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  // System light theme phone input colors (when no body class is applied)
+  .form-container {
+    .phone-input-item {
+      ion-input,
+      ion-input::part(native),
+      .phone-input,
+      .phone-input::part(native) {
+        color: #000000 !important;
+        background: transparent !important;
+      }
+
+      ion-input::placeholder,
+      .phone-input::placeholder {
         color: #64748b !important;
         opacity: 1 !important;
       }

@@ -804,16 +804,31 @@ body.light ion-input {
     --border-color: var(--ion-color-primary);
     --box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
   }
-  
-  // Ensure the actual input element has proper styling
-  input {
+
+  // Directly target the ion-input host and its native part (matches search behavior)
+  &::part(native) {
     color: var(--ion-text-color) !important;
     background: transparent !important;
-    
-    &::placeholder {
-      color: var(--ion-color-step-500) !important;
-      opacity: 1 !important;
-    }
+  }
+}
+
+// Ensure the phone input text is clearly visible in LIGHT theme only
+::host-context(body.light) ion-input[formControlName="recipientNumber"] {
+  --color: #000000 !important;
+  --placeholder-color: #666666 !important;
+}
+
+::host-context(body.light) ion-input[formControlName="recipientNumber"]::part(native) {
+  color: #000000 !important;
+}
+
+@media (prefers-color-scheme: light) {
+  ion-input[formControlName="recipientNumber"] {
+    --color: #000000 !important;
+    --placeholder-color: #666666 !important;
+  }
+  ion-input[formControlName="recipientNumber"]::part(native) {
+    color: #000000 !important;
   }
 }
 

@@ -49,6 +49,7 @@ import { AdvansisPayService } from '../../services/payments/advansis-pay.service
 import { StorageService } from '../../services/storage.service';
 import { UtilsService } from '../../services/utils.service';
 import { ReloadlyService } from '../../services/reloadly.service';
+import { ReloadlyDataService } from '../../services/reloadly/reloadly-data.service';
 import { InternetDataService } from '../../services/one4all/internet.data.service';
 import { Profile } from '../../interfaces/profile.interface';
 
@@ -147,6 +148,25 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
   userProfile: Profile = {} as Profile;
   dataBundles: DataBundle[] = [];
   selectedBundle: DataBundle | null = null;
+  // Reloadly bundles (flattened from list-operators)
+  reloadlyBundles: Array<{
+    operatorId: number;
+    operatorName: string;
+    amount: number;
+    localAmount: number | null;
+    description: string;
+    currency: string;
+    localCurrency: string;
+  }> = [];
+  selectedReloadlyBundle: {
+    operatorId: number;
+    operatorName: string;
+    amount: number;
+    localAmount: number | null;
+    description: string;
+    currency: string;
+    localCurrency: string;
+  } | null = null;
 
   // UI States
   isLoading = false;
@@ -174,6 +194,7 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
     private utilService: UtilsService,
     private reloadlyService: ReloadlyService,
     private internetDataService: InternetDataService,
+    private reloadlyDataService: ReloadlyDataService,
     private browserService: BrowserService
   ) {
     this.internetDataForm = this.formBuilder.group({
@@ -366,7 +387,6 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
         }
       });
   }
-
   // Data loading methods
   private async loadUserProfile() {
     console.log('=== LOADING USER PROFILE ===');
@@ -613,7 +633,6 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
       }
     });
   }
-
   /**
    * Intelligently detect user's home country based on multiple factors
    */
@@ -762,16 +781,22 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
    */
   private updateFormValidation(countryIso: string) {
     const operatorIdControl = this.internetDataForm.get('operatorId');
+    const dataBundleIdControl = this.internetDataForm.get('dataBundleId');
     
     if (countryIso === this.GHANA_ISO) {
       // For Ghana, operator selection is required
       operatorIdControl?.setValidators([Validators.required]);
+      // For Ghana, a specific One4All data bundle is required
+      dataBundleIdControl?.setValidators([Validators.required]);
     } else {
       // For international countries, operator selection is not required (auto-detection will be used)
       operatorIdControl?.clearValidators();
+      // For international countries using Reloadly, a One4All dataBundleId is not applicable
+      dataBundleIdControl?.clearValidators();
     }
     
     operatorIdControl?.updateValueAndValidity();
+    dataBundleIdControl?.updateValueAndValidity();
   }
 
   // Load data bundles from the actual API
@@ -800,6 +825,95 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
       this.dataBundles = [];
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  // Fetch Reloadly data bundles for country and flatten both USD and local descriptions
+  private async loadReloadlyBundlesForCountry(countryIso: string) {
+    if (!countryIso) return;
+    try {
+      console.log('[Enhanced Internet Data] Loading Reloadly list-operators for', countryIso);
+      const res = await firstValueFrom(
+        this.reloadlyDataService.listCountryOperators({ countryCode: countryIso })
+      );
+      console.log('[Enhanced Internet Data] Raw Reloadly response:', res);
+      console.log('[Enhanced Internet Data] Response type:', typeof res);
+      console.log('[Enhanced Internet Data] Is array?', Array.isArray(res));
+      
+      const flattened: typeof this.reloadlyBundles = [];
+      
+      // Handle both array and single object responses
+      let operators;
+      if (Array.isArray(res)) {
+        operators = res;
+      } else if (res && typeof res === 'object') {
+        // If it's a single object, wrap it in an array
+        operators = [res];
+      } else {
+        console.error('[Enhanced Internet Data] Invalid response format:', res);
+        operators = [];
+      }
+      console.log('[Enhanced Internet Data] Processing', operators.length, 'operators');
+      
+      for (const op of operators) {
+        console.log('[Enhanced Internet Data] Processing operator:', op);
+        const operatorId = op?.operatorId ?? op?.id;
+        const operatorName = op?.name ?? '';
+        const currency = op?.senderCurrencyCode ?? 'USD';
+        const localCurrency = op?.destinationCurrencyCode ?? countryIso;
+        
+        console.log('[Enhanced Internet Data] Operator details:', {
+          operatorId,
+          operatorName,
+          currency,
+          localCurrency,
+          hasFixedAmounts: !!op?.fixedAmountsDescriptions,
+          hasLocalFixedAmounts: !!op?.localFixedAmountsDescriptions
+        });
+
+        const fad = op?.fixedAmountsDescriptions || {};
+        Object.keys(fad).forEach((key) => {
+          const amount = parseFloat(key);
+          if (!Number.isFinite(amount)) return;
+          flattened.push({
+            operatorId,
+            operatorName,
+            amount,
+            localAmount: null,
+            description: fad[key],
+            currency,
+            localCurrency,
+          });
+        });
+
+        const lfd = op?.localFixedAmountsDescriptions || {};
+        Object.keys(lfd).forEach((key) => {
+          const localAmount = parseFloat(key);
+          if (!Number.isFinite(localAmount)) return;
+          const fxRate = op?.fx?.rate || 0;
+          flattened.push({
+            operatorId,
+            operatorName,
+            amount: fxRate ? localAmount / fxRate : 0,
+            localAmount,
+            description: lfd[key],
+            currency,
+            localCurrency,
+          });
+        });
+      }
+      this.reloadlyBundles = flattened.sort((a, b) => (a.localAmount ?? a.amount) - (b.localAmount ?? b.amount));
+      console.log('[Enhanced Internet Data] Reloadly bundles flattened count:', this.reloadlyBundles.length);
+      console.log('[Enhanced Internet Data] First few bundles:', this.reloadlyBundles.slice(0, 3));
+      console.log('[Enhanced Internet Data] Unique operator IDs in bundles:', [...new Set(this.reloadlyBundles.map(b => b.operatorId))]);
+      
+      // If we're currently on PHONE_NUMBER step and bundles exist, automatically move to bundle selection
+      if (this.reloadlyBundles.length && this.currentStep === WizardStep.PHONE_NUMBER) {
+        this.currentStep = WizardStep.DATA_BUNDLE_SELECTION;
+      }
+    } catch (err) {
+      console.error('Failed to load Reloadly bundles for country', countryIso, err);
+      this.reloadlyBundles = [];
     }
   }
 
@@ -854,7 +968,6 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
       console.error('Error saving user country preference:', error);
     }
   }
-
   selectOperator(operator: Operator) {
     this.selectedOperator = operator;
     this.internetDataForm.patchValue({
@@ -869,10 +982,63 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
 
   selectDataBundle(bundle: DataBundle) {
     this.selectedBundle = bundle;
+    this.selectedReloadlyBundle = null;
     this.internetDataForm.patchValue({
       dataBundleId: bundle.plan_id
     });
     this.nextStep();
+  }
+
+  // Reloadly bundle selection (from list-operators)
+  selectReloadlyBundle(bundle: {
+    operatorId: number;
+    operatorName: string;
+    amount: number;
+    localAmount: number | null;
+    description: string;
+    currency: string;
+    localCurrency: string;
+  }) {
+    this.selectedReloadlyBundle = bundle;
+    this.selectedBundle = null;
+    // Patch a synthetic dataBundleId to satisfy forms that might still check validity
+    // even when validators are cleared for international flows.
+    this.internetDataForm.patchValue({
+      dataBundleId: `reloadly:${bundle.operatorId}:${bundle.description}`
+    });
+    this.nextStep();
+  }
+
+  // Filter flattened bundles for the detected/selected operator
+  getReloadlyBundlesForSelected(): typeof this.reloadlyBundles {
+    const opId = this.selectedOperator?.id || this.detectedOperator?.id || 0;
+    console.log('[Enhanced Internet Data] getReloadlyBundlesForSelected - Debug Info:');
+    console.log('  selectedOperator:', this.selectedOperator);
+    console.log('  detectedOperator:', this.detectedOperator);
+    console.log('  opId:', opId);
+    console.log('  total reloadlyBundles:', this.reloadlyBundles.length);
+    console.log('  first few bundle operatorIds:', this.reloadlyBundles.slice(0, 5).map(b => b.operatorId));
+    console.log('  unique operatorIds in bundles:', [...new Set(this.reloadlyBundles.map(b => b.operatorId))]);
+    
+    // If no operator is selected/detected, return all bundles
+    if (!opId) {
+      console.log('  No operator selected/detected, returning all bundles');
+      return this.reloadlyBundles;
+    }
+    
+    // Filter by operator ID
+    const filtered = this.reloadlyBundles.filter(b => b.operatorId === opId);
+    console.log('  filtered bundles count:', filtered.length);
+    console.log('  filtered bundles:', filtered.slice(0, 3));
+    
+    // If no bundles match the operator ID, but we have bundles, return all bundles
+    // This handles the case where the operator ID from auto-detection doesn't match the bundle operator ID
+    if (filtered.length === 0 && this.reloadlyBundles.length > 0) {
+      console.log('  No bundles match operator ID, returning all bundles');
+      return this.reloadlyBundles;
+    }
+    
+    return filtered;
   }
 
   // Phone number handling
@@ -1012,6 +1178,9 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
             `Network detected: ${this.detectedOperator.name}`
           );
           
+          // Load Reloadly bundles for selected country
+          await this.loadReloadlyBundlesForCountry(this.selectedCountry.isoName);
+
           // Update status
           this.showAutoDetectionStatus(`Network detected: ${this.detectedOperator.name}`, 'success');
         }
@@ -1210,7 +1379,6 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
     console.log('International phone validation passed:', phoneNumber);
     return true;
   }
-
   /**
    * Check if phone number matches the selected network
    */
@@ -1226,7 +1394,6 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
     // Check if the phone number starts with any of the supported prefixes
     return supportedPrefixes.some(supportedPrefix => phoneNumber.startsWith(supportedPrefix));
   }
-
   /**
    * Get supported prefixes for an operator
    */
@@ -1258,7 +1425,6 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
         return [];
     }
   }
-
   /**
    * Validate international phone number format
    */
@@ -1267,14 +1433,12 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
     if (!phoneNumber.startsWith('+')) {
       return false;
     }
-    
     // Remove + and check if remaining is numeric and reasonable length
     const numberPart = phoneNumber.substring(1);
     const cleanNumber = numberPart.replace(/\D/g, '');
     
     return cleanNumber.length >= 7 && cleanNumber.length <= 15;
   }
-
   // Validation
   canProceed(): boolean {
     switch (this.currentStep) {
@@ -1292,14 +1456,13 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
         const isPhoneValid = this.internetDataForm.get('recipientNumber')?.valid || false;
         return this.isPhoneNumberComplete(phoneNumber) && isPhoneValid;
       case WizardStep.DATA_BUNDLE_SELECTION:
-        return !!this.selectedBundle;
+        return !!this.selectedBundle || !!this.selectedReloadlyBundle || this.getReloadlyBundlesForSelected().length === 0;
       case WizardStep.CONFIRMATION:
         return this.internetDataForm.valid;
       default:
         return false;
     }
   }
-
   // Form submission
   async onSubmit() {
     if (!this.internetDataForm.valid) {
@@ -1388,18 +1551,26 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
 
   private async processInternationalInternetData(formData: any) {
     try {
-      // For international data, we'll use a similar flow but with different parameters
-      const bundlePrice = parseFloat(this.selectedBundle?.price || '0');
-      
+      // Prefer flattened Reloadly bundle selection
+      const selected = this.selectedReloadlyBundle || this.reloadlyBundles.find(b => b.operatorId === (this.selectedOperator?.id || formData.operatorId));
+      const amount = selected ? (selected.amount || (selected.localAmount ?? 0)) : 0;
+      const description = selected ? `${selected.operatorName} - ${selected.description}` : 'International Data Bundle';
+
       const params = {
-        recipientNumber: formData.recipientNumber,
-        dataCode: this.selectedBundle?.plan_id || '',
-        operatorId: formData.operatorId,
-        amount: bundlePrice,
-        description: `International Data Bundle: ${this.selectedBundle?.volume} - ${this.selectedBundle?.validity}`,
+        recipientNumber: this.enhancedAirtimeService.formatPhoneNumberForAPI(
+          formData.recipientNumber,
+          formData.countryIso
+        ),
+        operatorId: this.selectedOperator?.id || formData.operatorId,
+        amount,
+        description,
+        recipientEmail: this.userProfile.email || '',
+        recipientCountryCode: formData.countryIso,
+        senderNumber: this.userProfile.phoneNumber || '',
+        payTransRef: await this.utilService.generateReference(),
         transType: 'INTERNATIONALDATA',
-        payTransRef: await this.utilService.generateReference()
-      };
+        customerEmail: this.userProfile.email || '',
+      } as any;
 
       this.internetDataParams = params;
 
@@ -1438,7 +1609,6 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
       throw error;
     }
   }
-
   // Utility methods
   private resetForm() {
     this.internetDataForm.reset();
@@ -1555,5 +1725,51 @@ export class EnhancedBuyInternetDataPage implements OnInit, OnDestroy {
       currency: 'GHS',
       minimumFractionDigits: 2
     }).format(numPrice);
+  }
+
+  // Summary stage helper methods
+  getSelectedBundleDescription(): string {
+    if (this.selectedBundle) {
+      // Ghana One4All bundle
+      return `${this.selectedBundle.plan_name || this.selectedBundle.volume} (${this.selectedBundle.volume})`;
+    } else if (this.selectedReloadlyBundle) {
+      // International Reloadly bundle
+      return this.selectedReloadlyBundle.description;
+    }
+    return 'No bundle selected';
+  }
+
+  getSelectedBundleValidity(): string {
+    if (this.selectedBundle) {
+      // Ghana One4All bundle
+      return this.selectedBundle.validity || 'N/A';
+    } else if (this.selectedReloadlyBundle) {
+      // International Reloadly bundle - extract validity from description
+      const description = this.selectedReloadlyBundle.description;
+      const validityMatch = description.match(/validity\s+(\d+\s*(?:hours?|days?|weeks?|months?))/i);
+      return validityMatch ? validityMatch[1] : 'N/A';
+    }
+    return 'N/A';
+  }
+
+  getSelectedBundlePrice(): string {
+    if (this.selectedBundle) {
+      // Ghana One4All bundle
+      return `GH₵${this.selectedBundle.price}`;
+    } else if (this.selectedReloadlyBundle) {
+      // International Reloadly bundle
+      const amount = this.selectedReloadlyBundle.localAmount ?? this.selectedReloadlyBundle.amount;
+      const currency = this.selectedReloadlyBundle.localCurrency ?? this.selectedReloadlyBundle.currency;
+      
+      // Format the amount based on currency
+      if (currency === 'NGN') {
+        return `₦${amount.toFixed(2)}`;
+      } else if (currency === 'USD') {
+        return `$${amount.toFixed(2)}`;
+      } else {
+        return `${currency} ${amount.toFixed(2)}`;
+      }
+    }
+    return 'N/A';
   }
 }

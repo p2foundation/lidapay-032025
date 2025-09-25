@@ -100,26 +100,35 @@
         </ion-button>
       </div>
 
-      <div class="quick-services-grid">
-        <div class="quick-service-card" (click)="gotoAirtimePage()">
-          <div class="service-icon">
-            <ion-icon name="cellular-outline"></ion-icon>
+      <div class="quick-services-scroll">
+        <div class="quick-services-grid">
+          <div class="quick-service-card" (click)="gotoAirtimePage()">
+            <div class="service-icon">
+              <ion-icon name="cellular-outline"></ion-icon>
+            </div>
+            <span class="service-label">Airtime</span>
           </div>
-          <span class="service-label">Airtime Purchase</span>
-        </div>
 
-        <div class="quick-service-card" (click)="gotoRemitstarPage()">
-          <div class="service-icon">
-            <ion-icon name="swap-horizontal-outline"></ion-icon>
+          <div class="quick-service-card" (click)="gotoInternetPage()">
+            <div class="service-icon">
+              <ion-icon name="wifi-outline"></ion-icon>
+            </div>
+            <span class="service-label">Internet Data</span>
           </div>
-          <span class="service-label">Funds Transfer</span>
-        </div>
 
-        <div class="quick-service-card" (click)="airtimeConversion()">
-          <div class="service-icon">
-            <ion-icon name="repeat-outline"></ion-icon>
+          <div class="quick-service-card" (click)="gotoRemitstarPage()">
+            <div class="service-icon">
+              <ion-icon name="swap-horizontal-outline"></ion-icon>
+            </div>
+            <span class="service-label">Funds Transfer</span>
           </div>
-          <span class="service-label">Airtime Conversion</span>
+
+          <div class="quick-service-card" (click)="airtimeConversion()">
+            <div class="service-icon">
+              <ion-icon name="repeat-outline"></ion-icon>
+            </div>
+            <span class="service-label">Airtime to Cash</span>
+          </div>
         </div>
       </div>
     </div>

@@ -300,7 +300,7 @@
         <p>Loading data bundles...</p>
       </div>
 
-      <!-- Bundles Grid -->
+      <!-- One4All Bundles Grid (legacy source) -->
       <div class="bundles-grid" *ngIf="!isLoading && dataBundles.length > 0">
         <ion-card 
           *ngFor="let bundle of dataBundles" 
@@ -332,8 +332,36 @@
         </ion-card>
       </div>
 
+      <!-- Reloadly Bundles Grid (from list-operators, filtered to selected/detected operator) -->
+      <div class="bundles-grid" *ngIf="!isLoading && dataBundles.length === 0 && getReloadlyBundlesForSelected().length > 0">
+        <ion-card 
+          *ngFor="let rb of getReloadlyBundlesForSelected()" 
+          class="bundle-card modern-card"
+          [class.selected]="selectedReloadlyBundle?.description === rb.description && selectedReloadlyBundle?.operatorId === rb.operatorId"
+          (click)="selectReloadlyBundle(rb)"
+        >
+          <ion-card-content>
+            <div class="bundle-header">
+              <h3 class="bundle-name">{{ rb.operatorName }}</h3>
+            </div>
+            <div class="bundle-details">
+              <div class="bundle-data">
+                <ion-icon name="wifi-outline"></ion-icon>
+                <span>{{ rb.description }}</span>
+              </div>
+            </div>
+            <div class="bundle-price">
+              <span class="currency" *ngIf="rb.localAmount">{{ rb.localCurrency }}</span>
+              <span class="amount" *ngIf="rb.localAmount">{{ rb.localAmount }}</span>
+              <span class="currency" *ngIf="!rb.localAmount">{{ rb.currency }}</span>
+              <span class="amount" *ngIf="!rb.localAmount">{{ rb.amount }}</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
       <!-- No Bundles State -->
-      <div class="no-bundles" *ngIf="!isLoading && dataBundles.length === 0">
+      <div class="no-bundles" *ngIf="!isLoading && dataBundles.length === 0 && getReloadlyBundlesForSelected().length === 0">
         <ion-icon name="wifi-outline" class="no-bundles-icon"></ion-icon>
         <h3>No Data Bundles Available</h3>
         <p>No data bundles found for the selected network.</p>
@@ -365,15 +393,15 @@
             </div>
             <div class="summary-item">
               <span class="label">Data Bundle:</span>
-              <span class="value">{{ selectedBundle?.plan_name || selectedBundle?.volume }} ({{ selectedBundle?.volume }})</span>
+              <span class="value">{{ getSelectedBundleDescription() }}</span>
             </div>
             <div class="summary-item">
               <span class="label">Validity:</span>
-              <span class="value">{{ selectedBundle?.validity }}</span>
+              <span class="value">{{ getSelectedBundleValidity() }}</span>
             </div>
             <div class="summary-item total">
               <span class="label">Total Amount:</span>
-              <span class="value">GH₵{{ selectedBundle?.price }}</span>
+              <span class="value">{{ getSelectedBundlePrice() }}</span>
             </div>
           </ion-card-content>
         </ion-card>
